@@ -1,0 +1,20 @@
+{
+	"name": "Schwardschild",
+	"version": "1.0.0",
+	"description": "Schwardschild 静态网站构建器，可用于 GitHub Pages。",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "LostAbaddon",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:LostAbaddon/Schwardschild.git"
+	},
+	"dependencies": {
+		"nes.css": "^2.3.0",
+		"vue": "^2.6.12",
+		"vue-cli": "^2.9.6"
+	}
+}
