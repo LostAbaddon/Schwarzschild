@@ -33,6 +33,7 @@ const getTimeString = _('Utils').getTimeString;
 
 const vueServer = new VueService(OutPutPath);
 const runVUE = async cmd => {
+	// 将模组内容替换为项目内容
 	var cfgFile = Path.join(OutPutPath, "vue.config.js");
 	var cfg;
 	try {
@@ -190,8 +191,18 @@ Schwarzschild.prepare = async (force=false, clear=false) => {
 
 	await Promise.all(map.files.map(async file => {
 		var target = file.replace(SitePath, OutPutPath);
-		await FS.copyFile(file, target);
-		console.log('复制客制文件: ' + file);
+		var need_copy = true;
+		if (!force) {
+			let info1 = await FS.stat(file);
+			let info2 = await FS.stat(target);
+			let time1 = Math.max(info1.mtimeMs, info1.ctimeMs);
+			let time2 = Math.max(info2.mtimeMs, info2.ctimeMs);
+			if (time1 === time2) need_copy = false;
+		}
+		if (need_copy) {
+			await FS.copyFile(file, target);
+			console.log('复制客制文件: ' + file);
+		}
 	}));
 };
 Schwarzschild.demo = async (force=false, clear=false) => {
