@@ -1,24 +1,8 @@
-# Schwardschild
-
-静态网站构建器，可用于 GitHub Pages 等处。
+# Schwarzschild
 
 -	Version: 0.1.0
 -	Author: [LostAbaddon](lostabaddon@gmail.com)
 
-## Project setup
-```
-npm install
-```
+静态网站构建器，可用于 GitHub Pages 等处。
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+基于自建 JS 库（[jLAss](https://github.com/LostAbaddon/jLAss)）和 VUE，可将 VUE 构建的页面发布到指定本地目录，或直接推送到相关 REPO。

@@ -1,13 +1,21 @@
 {
-	"name": "Schwardschild",
+	"name": "Schwarzschild",
 	"version": "0.1.0",
-	"private": true,
 	"scripts": {
 		"serve": "vue-cli-service serve",
 		"build": "vue-cli-service build"
 	},
+	"main": "index.js",
+	"license": "MIT",
+	"homepage": "https://github.com/LostAbaddon/Schwarzschild",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/LostAbaddon/Schwarzschild"
+	},
 	"dependencies": {
+		"jlass": "git://github.com/LostAbaddon/jLAss.git",
 		"vue": "^2.6.11",
+		"vue-cli": "^2.9.6",
 		"vue-router": "^3.2.0"
 	},
 	"devDependencies": {
