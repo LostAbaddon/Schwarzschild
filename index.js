@@ -38,21 +38,19 @@ const runVUE = async cmd => {
 	try {
 		cfg = await FS.readFile(cfgFile);
 		cfg = cfg.toString();
-		cfg = cfg.replace(/module\.exports *= */, '').replace(/;+$/, '');
-		cfg = JSON.parse(cfg);
+		cfg = cfg.replace(/\[:Title:\]/gi, Schwarzschild.config.title + (cmd === 'serve' ? ' (demo)' : ''));
 	} catch {
 		cfg = {
 			pages: {
 				index: {
 					entry: "src/main.js",
-					title: "Schwarzschild"
+					title: Schwarzschild.config.title + (cmd === 'serve' ? ' (demo)' : '')
 				}
 			}
 		};
+		cfg = 'module.exports = ' + JSON.stringify(cfg, '\t', '\t') + ';';
+
 	}
-	if (cmd === 'serve') cfg.pages.index.title = Schwarzschild.config.title + ' (demo)';
-	else cfg.pages.index.title = Schwarzschild.config.title;
-	cfg = 'module.exports = ' + JSON.stringify(cfg, '\t', '\t') + ';';
 	await FS.writeFile(cfgFile, cfg, 'utf-8');
 
 	cmd = [cmd];
@@ -112,9 +110,13 @@ Schwarzschild.launch = config => {
 		title: Schwarzschild.pkg.name + " v" + Schwarzschild.pkg.version,
 	}).describe(Schwarzschild.pkg.name + " v" + Schwarzschild.pkg.version)
 	.addOption('--config <config> >> 指定配置文件')
+	.add('build >> 生成文件')
+	.addOption('--force -f >> 强制更新所有文件')
+	.addOption('--clear -r >> 强制清除所有文件')
 	.add('demo >> 启动网站测试服务')
 	.addOption('--force -f >> 强制更新所有文件')
-	.add('build >> 打包网站')
+	.addOption('--clear -r >> 强制清除所有文件')
+	.add('publish >> 打包网站')
 	.setParam('[path] >> 指定发布路径')
 	.addOption('--msg -m [msg] >> Git Commit 信息')
 	.on('command', (param, command) => {
@@ -140,17 +142,16 @@ Schwarzschild.launch = config => {
 		if (cmd.length > 0) cmd = cmd[0];
 		else return;
 
-		if (cmd.name === 'demo') Schwarzschild.demo(cmd.value.force);
-		if (cmd.name === 'build') Schwarzschild.build(cmd.value.path, cmd.value.msg);
+		if (cmd.name === 'build') Schwarzschild.prepare(cmd.value.force, cmd.value.clear);
+		else if (cmd.name === 'demo') Schwarzschild.demo(cmd.value.force, cmd.value.clear);
+		else if (cmd.name === 'publish') Schwarzschild.publish(cmd.value.path, cmd.value.msg);
 	}).launch();
 };
-Schwarzschild.prepare = async (force=false) => {
+Schwarzschild.prepare = async (force=false, clear=false) => {
+	if (clear) await FS.deleteFolders(OutPutPath, true);
+
 	var has = await FS.hasFile(OutPutPath), map, folders;
 	if (!!force || !has) {
-		if (has) {
-			await FS.deleteFolders(OutPutPath, true);
-		}
-
 		map = await FS.getFolderMap(__dirname, FolderForbiddens);
 		map = convertFileMap(map);
 		map.folders = map.folders.map(f => f.replace(__dirname, OutPutPath));
@@ -169,6 +170,7 @@ Schwarzschild.prepare = async (force=false) => {
 		await Promise.all(map.files.map(async file => {
 			var target = file.replace(__dirname, OutPutPath);
 			await FS.copyFile(file, target);
+			console.log('复制模组文件: ' + file);
 		}));
 	}
 
@@ -189,17 +191,18 @@ Schwarzschild.prepare = async (force=false) => {
 	await Promise.all(map.files.map(async file => {
 		var target = file.replace(SitePath, OutPutPath);
 		await FS.copyFile(file, target);
+		console.log('复制客制文件: ' + file);
 	}));
 };
-Schwarzschild.demo = async (force=false) => {
+Schwarzschild.demo = async (force=false, clear=false) => {
 	await Schwarzschild.prepare(force);
 	await runVUE('serve');
 };
-Schwarzschild.build = async (publishPath, commitMsg) => {
+Schwarzschild.publish = async (publishPath, commitMsg) => {
 	publishPath = publishPath || Schwarzschild.config.publish;
 	if (commitMsg === true) commitMsg = 'Update: ' + getTimeString(new Date());
 
-	await Schwarzschild.prepare(true);
+	await Schwarzschild.prepare(true, true);
 	await runVUE('build');
 
 	var map = await FS.getFolderMap(BuildPath, FolderForbiddens);

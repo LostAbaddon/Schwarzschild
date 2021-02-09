@@ -16,8 +16,10 @@ Schwarzschild.launch(require('./config.json'));
 
 ### 命令行用法
 
+-	build<br>
+	生成文件但不启动 demo 模式
 -	demo<br>
 	vue-cli 的 Serve 模式
--	build<br>
+-	publish<br>
 	使用 vue-cli 来生成页面，并导出到指定目录<br>
 	可设置 commit message 信息来自动 commit 更改信息
