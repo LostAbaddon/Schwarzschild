@@ -170,8 +170,25 @@ Schwarzschild.prepare = async (force=false, clear=false) => {
 
 		await Promise.all(map.files.map(async file => {
 			var target = file.replace(__dirname, OutPutPath);
-			await FS.copyFile(file, target);
-			console.log('复制模组文件: ' + file);
+			var need_copy = true;
+			var info1, info2, time1 = 0, time2 = 0;
+			try	{
+				info1 = await FS.stat(file);
+				time1 = Math.max(info1.mtimeMs, info1.ctimeMs);
+			} catch {
+				time1 = 0;
+			}
+			try {
+				info2 = await FS.stat(target);
+				time2 = Math.max(info2.mtimeMs, info2.ctimeMs);
+			} catch {
+				time2 = 0;
+			}
+			if (time1 === time2) need_copy = false;
+			if (need_copy) {
+				await FS.copyFile(file, target);
+				console.log('复制模组文件: ' + file);
+			}
 		}));
 	}
 
@@ -192,13 +209,11 @@ Schwarzschild.prepare = async (force=false, clear=false) => {
 	await Promise.all(map.files.map(async file => {
 		var target = file.replace(SitePath, OutPutPath);
 		var need_copy = true;
-		if (!force) {
-			let info1 = await FS.stat(file);
-			let info2 = await FS.stat(target);
-			let time1 = Math.max(info1.mtimeMs, info1.ctimeMs);
-			let time2 = Math.max(info2.mtimeMs, info2.ctimeMs);
-			if (time1 === time2) need_copy = false;
-		}
+		var info1 = await FS.stat(file);
+		var info2 = await FS.stat(target);
+		var time1 = Math.max(info1.mtimeMs, info1.ctimeMs);
+		var time2 = Math.max(info2.mtimeMs, info2.ctimeMs);
+		if (time1 === time2) need_copy = false;
 		if (need_copy) {
 			await FS.copyFile(file, target);
 			console.log('复制客制文件: ' + file);
