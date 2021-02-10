@@ -12,6 +12,7 @@ import NavMenuBar from '@/components/navmenubar.vue'
 import NavMenuItem from '@/components/navmenuitem.vue'
 
 require('./assets/css/navbar.css');
+require('./assets/css/main.css');
 
 library.add(fas);
 library.add(fab);

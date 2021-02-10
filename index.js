@@ -33,27 +33,6 @@ const getTimeString = _('Utils').getTimeString;
 
 const vueServer = new VueService(OutPutPath);
 const runVUE = async cmd => {
-	// 将模组内容替换为项目内容
-	var cfgFile = Path.join(OutPutPath, "vue.config.js");
-	var cfg;
-	try {
-		cfg = await FS.readFile(cfgFile);
-		cfg = cfg.toString();
-		cfg = cfg.replace(/\[:Title:\]/gi, Schwarzschild.config.title + (cmd === 'serve' ? ' (demo)' : ''));
-	} catch {
-		cfg = {
-			pages: {
-				index: {
-					entry: "src/main.js",
-					title: Schwarzschild.config.title + (cmd === 'serve' ? ' (demo)' : '')
-				}
-			}
-		};
-		cfg = 'module.exports = ' + JSON.stringify(cfg, '\t', '\t') + ';';
-
-	}
-	await FS.writeFile(cfgFile, cfg, 'utf-8');
-
 	cmd = [cmd];
 	await vueServer.run(cmd[0], {
 		_: cmd,
@@ -84,6 +63,39 @@ const gitAddAndCommit = (path, msg) => {
 	catch (err) {
 		console.error(`Git Commit failed: ${err}`);
 		return;
+	}
+};
+const realizeSiteTitle = async (isDemo=false) => {
+	var cfgFile = Path.join(OutPutPath, "vue.config.js");
+	var cfg;
+	try {
+		cfg = await FS.readFile(cfgFile);
+		cfg = cfg.toString();
+		cfg = cfg.replace(/\[:Title:\]/gi, Schwarzschild.config.title + (isDemo ? ' (demo)' : ''));
+	} catch {
+		cfg = {
+			pages: {
+				index: {
+					entry: "src/main.js",
+					title: Schwarzschild.config.title + (isDemo ? ' (demo)' : '')
+				}
+			}
+		};
+		cfg = 'module.exports = ' + JSON.stringify(cfg, '\t', '\t') + ';';
+	}
+	await FS.writeFile(cfgFile, cfg, 'utf-8');
+};
+const realizeSiteMenu = async (isDemo) => {
+	var navMenuFile = Path.join(OutPutPath, "src/components/navbar.vue");
+	var navMenu;
+	try {
+		navMenu = await FS.readFile(navMenuFile);
+		navMenu = navMenu.toString();
+		navMenu = navMenu.replace(/\["site-menu"\]/gi, JSON.stringify(Schwarzschild.config.siteMap, "\t", "\t"));
+		await FS.writeFile(navMenuFile, navMenu, 'utf-8');
+	}
+	catch (err) {
+		console.error(err);
 	}
 };
 
@@ -148,7 +160,7 @@ Schwarzschild.launch = config => {
 		else if (cmd.name === 'publish') Schwarzschild.publish(cmd.value.path, cmd.value.msg);
 	}).launch();
 };
-Schwarzschild.prepare = async (force=false, clear=false) => {
+Schwarzschild.prepare = async (force=false, clear=false, isDemo=true) => {
 	if (clear) await FS.deleteFolders(OutPutPath, true);
 
 	var has = await FS.hasFile(OutPutPath), map, folders;
@@ -228,16 +240,22 @@ Schwarzschild.prepare = async (force=false, clear=false) => {
 			console.log('复制客制文件: ' + file);
 		}
 	}));
+
+	// 将模组内容替换为项目内容
+	await Promise.all([
+		realizeSiteTitle(isDemo),
+		realizeSiteMenu(isDemo)
+	]);
 };
 Schwarzschild.demo = async (force=false, clear=false) => {
-	await Schwarzschild.prepare(force);
+	await Schwarzschild.prepare(force, clear, true);
 	await runVUE('serve');
 };
 Schwarzschild.publish = async (publishPath, commitMsg) => {
 	publishPath = publishPath || Schwarzschild.config.publish;
 	if (commitMsg === true) commitMsg = 'Update: ' + getTimeString(new Date());
 
-	await Schwarzschild.prepare(true, true);
+	await Schwarzschild.prepare(true, true, false);
 	await runVUE('build');
 
 	var map = await FS.getFolderMap(BuildPath, FolderForbiddens);

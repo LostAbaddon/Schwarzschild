@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="home">
 		<strong>Welcome to LostAbaddon's Death Foreseer Society!</strong><br>The world is waiting for its light, please WAIT for a while...
 	</div>
 </template>
@@ -10,3 +10,9 @@ export default {
 	name: 'Home',
 }
 </script>
+
+<style scoped>
+.home {
+	text-align: center;
+}
+</style>

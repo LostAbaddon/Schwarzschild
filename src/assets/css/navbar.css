@@ -31,7 +31,7 @@
 	padding: 3px;
 	cursor: pointer;
 	pointer-events: none;
-	transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;
+	transition: opacity 300ms ease-in-out, transform 300ms ease-in;
 }
 .nav-bar > .nav-menu-bar > .nav-menu-item:hover .nav-menu-bar {
 	pointer-events: all;
@@ -39,7 +39,7 @@
 .nav-bar > .nav-menu-bar > .nav-menu-item > .nav-menu-bar {
 	border-radius: 0px 0px 5px 5px;
 	top: 100%;
-	left: 0px;
+	left: 5px;
 	opacity: 0;
 	transform: translateY(-100%);
 }

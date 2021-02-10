@@ -8,27 +8,4 @@
 </template>
 
 <script>
-export default {
-}
 </script>
-
-<style>
-html, body {
-	width: 100%;
-	height: 100%;
-	margin: 0px;
-	padding: 0px;
-}
-body {
-	background-color: rgb(228, 223, 215);
-	font-family: '宋体', Avenir, Helvetica, Arial, sans-serif;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	font-size: 16px;
-	color: rgb(55, 60, 56);
-}
-#container {
-	width: 100%;
-	margin-top: 50px;
-}
-</style>

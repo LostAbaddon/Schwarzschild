@@ -1,6 +1,6 @@
 <template>
 	<nav class="nav-menu-bar">
-		<NavMenuItem v-for="item in menu" :title="item[0]" :action="item[1]" :subs="item[2]" />
+		<NavMenuItem v-for="item in menu" :title="item.name" :action="!!supers?(supers+','+item.category):item.category" :type="item.type" :subs="item.subs" />
 	</nav>
 </template>
 
@@ -8,6 +8,7 @@
 export default {
 	name: 'NavMenuBar',
 	props: {
+		supers: "",
 		menu: Array
 	}
 }
