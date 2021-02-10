@@ -3,10 +3,10 @@ const FS = require('fs/promises');
 const VueService = require('@vue/cli-service');
 
 require("jLAss");
-// require("../jLAss");
 loadjLAssModule('fs');
 loadjLAssModule('commandline');
 
+const jLAssPath = "node_modules/jLAss";
 const execSync = require('child_process').execSync;
 const CLP = _('CL.CLP');
 const setStyle = _('CL.SetStyle');
@@ -65,6 +65,32 @@ const gitAddAndCommit = (path, msg) => {
 		return;
 	}
 };
+const needCopyFile = async (source, target) => {
+	var info1, info2, time1 = 0, time2 = 0, empty = false;
+	try	{
+		info1 = await FS.stat(source);
+		time1 = Math.max(info1.mtimeMs, info1.ctimeMs);
+	} catch {
+		time1 = 0;
+		empty = true;
+	}
+	try {
+		info2 = await FS.stat(target);
+		time2 = Math.max(info2.mtimeMs, info2.ctimeMs);
+	} catch {
+		time2 = 0;
+	}
+	if (empty) return false;
+	if (time1 === time2) return false;
+	return true;
+};
+const copyFile = async (source, target) => {
+	if (await needCopyFile(source, target)) {
+		await FS.copyFile(source, target);
+		return true;
+	}
+	return false;
+};
 const realizeSiteTitle = async (isDemo=false) => {
 	var cfgFile = Path.join(OutPutPath, "vue.config.js");
 	var cfg;
@@ -97,6 +123,60 @@ const realizeSiteMenu = async (isDemo) => {
 	catch (err) {
 		console.error(err);
 	}
+};
+const assemblejLAss = async () => {
+	if (!Schwarzschild.config.jLAss) return;
+	Schwarzschild.config.jLAss = ['extends'];
+	var jpath = Path.join(__dirname, jLAssPath, 'src');
+
+	// 准备目录
+	var outputPath = Path.join(OutPutPath, 'src/assets/jLAss');
+	var sourcePath = Path.join(OutPutPath, 'src');
+	if (!(await FS.hasFile(outputPath))) await FS.createFolders([outputPath]);
+	var files = [
+		[Path.join(jpath, 'index.js'), Path.join(outputPath, 'index.js')],
+		[Path.join(jpath, 'namespace.js'), Path.join(outputPath, 'namespace.js')],
+		[Path.join(jpath, 'utils/datetime.js'), Path.join(outputPath, 'utils/datetime.js')],
+	];
+	var folders = [ [Path.join(outputPath, 'utils')] ];
+	if (Array.is(Schwarzschild.config.jLAss)) {
+		Schwarzschild.config.jLAss.forEach(f => {
+			folders.push([Path.join(outputPath, f), Path.join(jpath, f)]);
+		});
+	}
+	await Promise.all(folders.map(async f => {
+		if (!(await FS.hasFile(f[0]))) await FS.createFolders([f[0]]);
+		if (!f[1]) return;
+		var map = await FS.getFolderMap(f[1]);
+		map.files.forEach(path => {
+			files.push([path, path.replace(f[1], f[0])]);
+		});
+	}));
+
+	// 复制文件
+	var imports = [];
+	await Promise.all(files.map(async f => {
+		var index = imports.length;
+		imports[index] = '';
+		if (!(await needCopyFile(f[0], f[1]))) return;
+		var content = await FS.readFile(f[0]);
+		content = content.toString();
+		content = content.replace(/require\(.+\)/g, '{};');
+		try {
+			await FS.writeFile(f[1], content, 'utf-8');
+			imports[index] = 'import jlass' + (index + 1) + ' from "' + f[1].replace(sourcePath, '.').replace(/\\/g, '/') + '"';
+			console.log('复制jLAss文件: ' + f[0]);
+		}
+		catch (err) {
+			console.error('写入jLAss文件(' + f[1] + ')失败: ', err.toString());
+		}
+	}));
+
+	// 添加引用
+	var mainPath = Path.join(OutPutPath, 'src/main.js');
+	var content = await FS.readFile(mainPath);
+	content = imports.join('\n') + '\n' + content.toString();
+	await FS.writeFile(mainPath, content, 'utf-8');
 };
 
 global.Schwarzschild = {};
@@ -182,25 +262,7 @@ Schwarzschild.prepare = async (force=false, clear=false, isDemo=true) => {
 
 		await Promise.all(map.files.map(async file => {
 			var target = file.replace(__dirname, OutPutPath);
-			var need_copy = true;
-			var info1, info2, time1 = 0, time2 = 0;
-			try	{
-				info1 = await FS.stat(file);
-				time1 = Math.max(info1.mtimeMs, info1.ctimeMs);
-			} catch {
-				time1 = 0;
-			}
-			try {
-				info2 = await FS.stat(target);
-				time2 = Math.max(info2.mtimeMs, info2.ctimeMs);
-			} catch {
-				time2 = 0;
-			}
-			if (time1 === time2) need_copy = false;
-			if (need_copy) {
-				await FS.copyFile(file, target);
-				console.log('复制模组文件: ' + file);
-			}
+			if (await copyFile(file, target)) console.log('复制模组文件: ' + file);
 		}));
 	}
 
@@ -220,29 +282,12 @@ Schwarzschild.prepare = async (force=false, clear=false, isDemo=true) => {
 
 	await Promise.all(map.files.map(async file => {
 		var target = file.replace(SitePath, OutPutPath);
-		var need_copy = true;
-		var info1, info2, time1 = 0, time2 = 0;
-		try	{
-			info1 = await FS.stat(file);
-			time1 = Math.max(info1.mtimeMs, info1.ctimeMs);
-		} catch {
-			time1 = 0;
-		}
-		try {
-			info2 = await FS.stat(target);
-			time2 = Math.max(info2.mtimeMs, info2.ctimeMs);
-		} catch {
-			time2 = 0;
-		}
-		if (time1 === time2) need_copy = false;
-		if (need_copy) {
-			await FS.copyFile(file, target);
-			console.log('复制客制文件: ' + file);
-		}
+		if (await copyFile(file, target)) console.log('复制客制文件: ' + file);
 	}));
 
 	// 将模组内容替换为项目内容
 	await Promise.all([
+		assemblejLAss(),
 		realizeSiteTitle(isDemo),
 		realizeSiteMenu(isDemo)
 	]);
