@@ -5,7 +5,15 @@
 
 静态网站构建器，可用于 GitHub Pages 等处。
 
-基于自建 JS 库（[jLAss](https://github.com/LostAbaddon/jLAss)）和 VUE，可将 VUE 构建的页面发布到指定本地目录，或直接推送到相关 REPO。
+依赖库：
+
+-	vue v2.6.12
+	+	vue-cli v2.9.6
+-	fontawesome v5.15.2
+	+	free-solid
+	+	free-regular
+	+	free-brands
+-	[jLAss v1.0.2](https://github.com/LostAbaddon/jLAss): 自建 JS 库
 
 ## 用法
 
@@ -62,6 +70,7 @@ Schwarzschild.launch(require('./config.json'));
 				}
 			]
 		}
-	]
+	],
+	"aboutMe": "项目目录中AboutMe的vue文件相对site/src的路径"
 }
 ```

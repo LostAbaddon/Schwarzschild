@@ -16,11 +16,13 @@ export default {
 	},
 	methods: {
 		click (type, action) {
-			action = action.split(',');
+			action = action.split(',').filter(f => f.length > 0);
 			if (type === 'page') {
-				console.log(action.last);
+				if (action.length > 0) this.$router.push({path: '/' + action.last});
 			}
-			console.log(type, action);
+			else if (type === 'viewer') {
+				this.$router.push({path: "/category", query: { q: action.join(',') }});
+			}
 		}
 	}
 }

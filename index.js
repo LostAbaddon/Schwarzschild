@@ -118,7 +118,28 @@ const realizeSiteMenu = async (isDemo) => {
 		navMenu = await FS.readFile(navMenuFile);
 		navMenu = navMenu.toString();
 		navMenu = navMenu.replace(/\["site-menu"\]/gi, JSON.stringify(Schwarzschild.config.siteMap, "\t", "\t"));
+		navMenu = navMenu.replace(/\[:site-about-me:\]/gi, !!Schwarzschild.config.aboutMe ? 'aboutMe' : '');
 		await FS.writeFile(navMenuFile, navMenu, 'utf-8');
+	}
+	catch (err) {
+		console.error(err);
+	}
+};
+const realizeRouter = async (isDemo) => {
+	var routerFile = Path.join(OutPutPath, "src/router/index.js");
+	var router;
+	try {
+		router = await FS.readFile(routerFile);
+		router = router.toString();
+		let vueFile = '../' + Schwarzschild.config.aboutMe;
+		if (!vueFile.match(/\.vue$/i)) vueFile = vueFile + '.vue';
+		if (!!Schwarzschild.config.aboutMe) {
+			router = router.replace(/{ aboutMe: 'aboutMe' },/gi, "{path:'/aboutMe',name:'AboutMe',component:function(){return import('" + vueFile + "')}},");
+		}
+		else {
+			router = router.replace(/{ aboutMe: 'aboutMe' },/gi, "");
+		}
+		await FS.writeFile(routerFile, router, 'utf-8');
 	}
 	catch (err) {
 		console.error(err);
@@ -136,7 +157,6 @@ const assemblejLAss = async () => {
 	var files = [
 		[Path.join(jpath, 'index.js'), Path.join(outputPath, 'index.js')],
 		[Path.join(jpath, 'namespace.js'), Path.join(outputPath, 'namespace.js')],
-		[Path.join(jpath, 'utils/datetime.js'), Path.join(outputPath, 'utils/datetime.js')],
 	];
 	var folders = [ [Path.join(outputPath, 'utils')] ];
 	if (Array.is(Schwarzschild.config.jLAss)) {
@@ -154,6 +174,7 @@ const assemblejLAss = async () => {
 	}));
 
 	// 复制文件
+	files.push([Path.join(jpath, 'utils/datetime.js'), Path.join(outputPath, 'utils/datetime.js')]);
 	var imports = [];
 	await Promise.all(files.map(async f => {
 		var index = imports.length;
@@ -289,7 +310,8 @@ Schwarzschild.prepare = async (force=false, clear=false, isDemo=true) => {
 	await Promise.all([
 		assemblejLAss(),
 		realizeSiteTitle(isDemo),
-		realizeSiteMenu(isDemo)
+		realizeSiteMenu(isDemo),
+		realizeRouter(isDemo)
 	]);
 };
 Schwarzschild.demo = async (force=false, clear=false) => {
