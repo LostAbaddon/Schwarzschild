@@ -145,6 +145,40 @@ const realizeRouter = async (isDemo) => {
 		console.error(err);
 	}
 };
+const realizeAboutSite = async (isDemo) => {
+	var aboutSiteFile = Path.join(OutPutPath, "src/views/about/site.vue");
+	var aboutSite;
+	try {
+		aboutSite = await FS.readFile(aboutSiteFile);
+		aboutSite = aboutSite.toString();
+		aboutSite = aboutSite.replace(/\[:libary:\]/gi, Schwarzschild.pkg.name);
+		aboutSite = aboutSite.replace(/\[:libaryPage:\]/gi, Schwarzschild.pkg.homepage);
+		aboutSite = aboutSite.replace(/\[:version:\]/gi, "v" + Schwarzschild.pkg.version);
+		aboutSite = aboutSite.replace(/\[:author:\]/gi, Schwarzschild.pkg.author.name);
+		aboutSite = aboutSite.replace(/\[:mail:\]/gi, Schwarzschild.pkg.author.mail);
+		await FS.writeFile(aboutSiteFile, aboutSite, 'utf-8');
+	}
+	catch (err) {
+		console.error(err);
+	}
+};
+const realizeTailBar = async (isDemo) => {
+	var tailBarFile = Path.join(OutPutPath, "src/components/tail.vue");
+	var tailBar;
+	try {
+		tailBar = await FS.readFile(tailBarFile);
+		tailBar = tailBar.toString();
+		tailBar = tailBar.replace(/\[:libary:\]/gi, Schwarzschild.pkg.name);
+		tailBar = tailBar.replace(/\[:libaryPage:\]/gi, Schwarzschild.pkg.homepage);
+		tailBar = tailBar.replace(/\[:version:\]/gi, Schwarzschild.pkg.version);
+		tailBar = tailBar.replace(/\[:owner:\]/gi, Schwarzschild.config.owner || Schwarzschild.pkg.author.name);
+		tailBar = tailBar.replace(/\[:now-year:\]/gi, (new Date()).getYear() + 1900);
+		await FS.writeFile(tailBarFile, tailBar, 'utf-8');
+	}
+	catch (err) {
+		console.error(err);
+	}
+};
 const assemblejLAss = async () => {
 	if (!Schwarzschild.config.jLAss) return;
 	Schwarzschild.config.jLAss = ['extends'];
@@ -311,7 +345,9 @@ Schwarzschild.prepare = async (force=false, clear=false, isDemo=true) => {
 		assemblejLAss(),
 		realizeSiteTitle(isDemo),
 		realizeSiteMenu(isDemo),
-		realizeRouter(isDemo)
+		realizeRouter(isDemo),
+		realizeAboutSite(isDemo),
+		realizeTailBar(isDemo)
 	]);
 };
 Schwarzschild.demo = async (force=false, clear=false) => {

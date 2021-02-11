@@ -1,6 +1,10 @@
 {
 	"name": "Schwarzschild",
 	"version": "0.1.0",
+	"author": {
+		"name": "LostAbaddon",
+		"email": "LostAbaddon@gmail.com"
+	},
 	"scripts": {
 		"serve": "vue-cli-service serve",
 		"build": "vue-cli-service build"

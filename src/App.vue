@@ -4,6 +4,7 @@
 		<div id="container">
 			<router-view/>
 		</div>
+		<TailBar />
 	</div>
 </template>
 

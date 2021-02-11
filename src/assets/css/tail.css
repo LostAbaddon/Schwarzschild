@@ -1,0 +1,35 @@
+.tail-bar {
+	margin-left: 30px;
+	margin-right: 30px;
+	margin-top: 30px;
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-top: 10px;
+	border-top: 1px solid rgb(19, 72, 87);
+	font-size: 12px;
+	cursor: default;
+}
+.tail-bar a,
+.tail-bar a:hover,
+.tail-bar a:visited {
+	text-decoration: none;
+}
+.tail-bar .left,
+.tail-bar .left a,
+.tail-bar .left a:hover,
+.tail-bar .left a:visited {
+	color: rgb(175, 175, 175);
+}
+.tail-bar .right,
+.tail-bar .right a,
+.tail-bar .right a:hover,
+.tail-bar .right a:visited {
+	color: rgb(67, 178, 68);
+}
+.tail-bar .left {
+	display: inline-block;
+}
+.tail-bar .right {
+	float: right;
+	display: inline-block;
+}

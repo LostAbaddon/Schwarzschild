@@ -12,7 +12,12 @@ body {
 	font-size: 16px;
 	color: rgb(55, 60, 56);
 }
+a, a:hover, a:visited {
+	text-decoration: none;
+	color: rgb(36, 134, 185);
+}
 #container {
-	width: 100%;
-	margin-top: 50px;
+	margin-left: 50px;
+	margin-right: 50px;
+	padding-top: 50px;
 }

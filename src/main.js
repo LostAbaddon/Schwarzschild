@@ -10,9 +10,11 @@ import { far } from '@fortawesome/free-regular-svg-icons'
 import NavBar from '@/components/navbar.vue'
 import NavMenuBar from '@/components/navmenubar.vue'
 import NavMenuItem from '@/components/navmenuitem.vue'
+import TailBar from '@/components/tail.vue'
 
-require('./assets/css/navbar.css');
 require('./assets/css/main.css');
+require('./assets/css/navbar.css');
+require('./assets/css/tail.css');
 
 library.add(fas);
 library.add(fab);
@@ -21,6 +23,7 @@ Vue.component('font-awesome-icon', FontAwesomeIcon);
 Vue.component('NavBar', NavBar);
 Vue.component('NavMenuBar', NavMenuBar);
 Vue.component('NavMenuItem', NavMenuItem);
+Vue.component('TailBar', TailBar);
 
 Vue.config.productionTip = false
 
