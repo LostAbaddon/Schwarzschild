@@ -5,10 +5,6 @@
 		"name": "LostAbaddon",
 		"email": "LostAbaddon@gmail.com"
 	},
-	"scripts": {
-		"serve": "vue-cli-service serve",
-		"build": "vue-cli-service build"
-	},
 	"main": "index.js",
 	"license": "MIT",
 	"homepage": "https://github.com/LostAbaddon/Schwarzschild",
@@ -22,8 +18,8 @@
 		"@fortawesome/free-regular-svg-icons": "^5.15.2",
 		"@fortawesome/free-solid-svg-icons": "^5.15.2",
 		"@fortawesome/vue-fontawesome": "^2.0.2",
-		"Asimov": "git+https://github.com/LostAbaddon/Asimov.git",
-		"jLAss": "git://github.com/LostAbaddon/jLAss.git",
+		"Asimov": "github:LostAbaddon/Asimov",
+		"jlass": "github:LostAbaddon/jLAss",
 		"vue": "^2.6.11",
 		"vue-cli": "^2.9.6",
 		"vue-router": "^3.2.0"

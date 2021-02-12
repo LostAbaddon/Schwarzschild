@@ -1,4 +1,5 @@
 article.markup-content {
+	font-size: 16px;
 	cursor: default;
 }
 article.markup-content strong {
@@ -401,8 +402,8 @@ article.markup-content hr.star {
 }
 
 article.markup-content h1 {
-	margin-bottom: 50px;
-	font-size: 36px;
+	margin-bottom: 30px;
+	font-size: 28px;
 	font-weight: bolder;
 	line-height: 40px;
 }
@@ -410,83 +411,83 @@ article.markup-content h1[name="ContentTable"] {
 	margin-bottom: 20px;
 }
 article.markup-content h2 {
-	margin-top: 50px;
-	margin-bottom: 42px;
-	font-size: 32px;
+	margin-top: 30px;
+	margin-bottom: 25px;
+	font-size: 24px;
 	font-weight: bolder;
 	line-height: 38px;
 }
 article.markup-content h3 {
-	margin-top: 45px;
-	margin-bottom: 36px;
-	font-size: 28px;
+	margin-top: 25px;
+	margin-bottom: 20px;
+	font-size: 20px;
 	font-weight: bolder;
 	line-height: 36px;
 }
 article.markup-content h4 {
-	margin-top: 40px;
-	margin-bottom: 32px;
-	font-size: 24px;
+	margin-top: 20px;
+	margin-bottom: 28px;
+	font-size: 18px;
 	font-weight: bolder;
 	line-height: 34px;
 }
 article.markup-content h5 {
-	margin-top: 35px;
-	margin-bottom: 28px;
-	font-size: 21px;
+	margin-top: 18px;
+	margin-bottom: 17px;
+	font-size: 17px;
 	font-weight: bolder;
 	line-height: 32px;
 }
 article.markup-content h6 {
-	margin-top: 30px;
-	margin-bottom: 26px;
-	font-size: 18px;
+	margin-top: 17px;
+	margin-bottom: 16px;
+	font-size: 17px;
 	font-weight: bolder;
 	line-height: 30px;
 }
 article.markup-content h7 {
 	display: block;
-	margin-top: 25px;
-	margin-bottom: 24px;
+	margin-top: 16px;
+	margin-bottom: 16px;
 	font-size: 17px;
 	font-weight: bolder;
 	line-height: 28px;
 }
 article.markup-content h8 {
 	display: block;
-	margin-top: 22px;
-	margin-bottom: 22px;
+	margin-top: 15px;
+	margin-bottom: 15px;
 	font-size: 17px;
 	font-weight: bolder;
 	line-height: 26px;
 }
 article.markup-content h9 {
 	display: block;
-	margin-top: 20px;
-	margin-bottom: 20px;
+	margin-top: 14px;
+	margin-bottom: 14px;
 	font-size: 16px;
 	font-weight: bolder;
 	line-height: 24px;
 }
 article.markup-content h10 {
 	display: block;
-	margin-top: 18px;
-	margin-bottom: 18px;
+	margin-top: 13px;
+	margin-bottom: 13px;
 	font-size: 16px;
 	font-weight: bolder;
 	line-height: 24px;
 }
 article.markup-content h11 {
 	display: block;
-	margin-top: 15px;
-	margin-bottom: 15px;
+	margin-top: 12px;
+	margin-bottom: 12px;
 	font-size: 16px;
 	line-height: 24px;
 }
 article.markup-content h12 {
 	display: block;
-	margin-top: 12px;
-	margin-bottom: 12px;
+	margin-top: 11px;
+	margin-bottom: 11px;
 	font-size: 16px;
 	line-height: 24px;
 }
@@ -504,7 +505,7 @@ article.markup-content a.notemark, article.markup-content a.terminology {
 	transition: color 200ms ease-in-out;
 }
 article.markup-content a.notemark:visited, article.markup-content a.terminology:visited {
-	color: rgb(227, 227, 227);
+	color: rgb(106, 76, 156);
 }
 article.markup-content a.notemark:hover, article.markup-content a.terminology:hover {
 	color: rgb(21, 85, 154);
@@ -546,7 +547,7 @@ article.markup-content > header.article-title p.author a {
 	color: rgb(200, 200, 200);
 }
 article.markup-content > section {
-	margin-bottom: 75px;
+	margin-bottom: 36px;
 }
 article.markup-content > section:last-child {
 	margin-bottom: 0px;
@@ -575,16 +576,16 @@ article.markup-content > section > footer > p.footnote-content > a.index {
 	text-align: right;
 }
 article.markup-content > section.endnote-chapter > h1 {
-	margin-top: 50px;
-	margin-bottom: 42px;
-	font-size: 32px;
+	margin-top: 36px;
+	margin-bottom: 20px;
+	font-size: 28px;
 	font-weight: bolder;
 	line-height: 38px;
 }
 article.markup-content > section.endnote-chapter > h2 {
 	margin-top: 20px;
 	margin-bottom: 10px;
-	font-size: 26px;
+	font-size: 24px;
 	font-weight: bolder;
 	line-height: 30px;
 }

@@ -154,7 +154,7 @@ const realizeAboutSite = async (isDemo) => {
 		aboutSite = aboutSite.replace(/\[:libraryPage:\]/gi, Schwarzschild.pkg.homepage);
 		aboutSite = aboutSite.replace(/\[:version:\]/gi, "v" + Schwarzschild.pkg.version);
 		aboutSite = aboutSite.replace(/\[:author:\]/gi, Schwarzschild.pkg.author.name);
-		aboutSite = aboutSite.replace(/\[:mail:\]/gi, Schwarzschild.pkg.author.mail);
+		aboutSite = aboutSite.replace(/\[:mail:\]/gi, Schwarzschild.pkg.author.email);
 		await FS.writeFile(aboutSiteFile, aboutSite, 'utf-8');
 	}
 	catch (err) {
