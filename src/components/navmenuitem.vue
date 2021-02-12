@@ -18,10 +18,17 @@ export default {
 		click (type, action) {
 			action = action.split(',').filter(f => f.length > 0);
 			if (type === 'page') {
-				if (action.length > 0) this.$router.push({path: '/' + action.last});
+				if (action.length > 0) {
+					let target = '/' + action.last;
+					let currentPath = location.pathname, currentSearch = location.search;
+					if (target !== currentPath || !!currentSearch) this.$router.push({path: target});
+				}
 			}
 			else if (type === 'viewer') {
-				this.$router.push({path: "/category", query: { q: action.join(',') }});
+				let currentPath = location.pathname, currentSearch = location.search;
+				let query = action.join(',');
+				let target = '?q=' + query;
+				if (currentPath !== '/category' || currentSearch !== target) this.$router.push({path: "/category", query: { q: query }});
 			}
 		}
 	}

@@ -8,10 +8,16 @@
 	<meta name="viewport" content="width=device-width,initial-scale=1.0">
 	<link rel="icon" href="<%= BASE_URL %>favicon.ico">
 	<title><%= htmlWebpackPlugin.options.title %></title>
+	<link type="text/css" rel="stylesheet" href="<%= BASE_URL %>fa/css/all.min.css">
+	<script type="text/javascript" src="<%= BASE_URL %>MathJax2.5/MathJax.js?config=TeX-AMS_HTML"></script>
 </head>
 <body>
 	<noscript>
-	<strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+		<div style="text-align: center;">
+			<strong>抱歉！<%= htmlWebpackPlugin.options.title %>无法在不支持 JavaScript 的浏览器或者浏览器模式上运行。</strong>
+			<br>
+			<strong>请安装现代浏览器！</strong>
+		</div>
 	</noscript>
 	<div id="app"></div>
 	<!-- built files will be auto injected -->

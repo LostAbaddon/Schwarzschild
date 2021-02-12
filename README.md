@@ -14,6 +14,7 @@
 	+	free-regular
 	+	free-brands
 -	[jLAss v1.0.2](https://github.com/LostAbaddon/jLAss): 自建 JS 库
+-	[Asimov v1.0.0](https://github.com/LostAbaddon/Asimov): 自建的 MarkDown 解析器，支持更多语法（MarkUp）
 
 ## 用法
 
@@ -33,6 +34,18 @@ Schwarzschild.launch(require('./config.json'));
 -	publish<br>
 	使用 vue-cli 来生成页面，并导出到指定目录<br>
 	可设置 commit message 信息来自动 commit 更改信息
+
+### MarkUp 用法
+
+详细语法可以点[这里](https://github.com/LostAbaddon/Asimov/blob/main/demo.mu)查看。
+
+Schwarzschild 会自动将页面中带有 markup 类名的容器中的内容解析出来。需注意的是，容器内是HTML内容，代码中的换行不是实际的换行，所以可以用 br 标签来换行，或将代码套在 pre 块中。
+
+可在 class 中增加以下类名来启用 MarkUp 的宏功能：
+
+-	toc: 自动生成文首目录
+-	glossary: 自动生成文尾引用列表
+-	resources: 	自动生成文尾资源列表
 
 ## 项目目录
 

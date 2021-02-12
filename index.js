@@ -6,7 +6,6 @@ require("jLAss");
 loadjLAssModule('fs');
 loadjLAssModule('commandline');
 
-const jLAssPath = "node_modules/jLAss";
 const execSync = require('child_process').execSync;
 const CLP = _('CL.CLP');
 const setStyle = _('CL.SetStyle');
@@ -151,8 +150,8 @@ const realizeAboutSite = async (isDemo) => {
 	try {
 		aboutSite = await FS.readFile(aboutSiteFile);
 		aboutSite = aboutSite.toString();
-		aboutSite = aboutSite.replace(/\[:libary:\]/gi, Schwarzschild.pkg.name);
-		aboutSite = aboutSite.replace(/\[:libaryPage:\]/gi, Schwarzschild.pkg.homepage);
+		aboutSite = aboutSite.replace(/\[:library:\]/gi, Schwarzschild.pkg.name);
+		aboutSite = aboutSite.replace(/\[:libraryPage:\]/gi, Schwarzschild.pkg.homepage);
 		aboutSite = aboutSite.replace(/\[:version:\]/gi, "v" + Schwarzschild.pkg.version);
 		aboutSite = aboutSite.replace(/\[:author:\]/gi, Schwarzschild.pkg.author.name);
 		aboutSite = aboutSite.replace(/\[:mail:\]/gi, Schwarzschild.pkg.author.mail);
@@ -168,8 +167,8 @@ const realizeTailBar = async (isDemo) => {
 	try {
 		tailBar = await FS.readFile(tailBarFile);
 		tailBar = tailBar.toString();
-		tailBar = tailBar.replace(/\[:libary:\]/gi, Schwarzschild.pkg.name);
-		tailBar = tailBar.replace(/\[:libaryPage:\]/gi, Schwarzschild.pkg.homepage);
+		tailBar = tailBar.replace(/\[:library:\]/gi, Schwarzschild.pkg.name);
+		tailBar = tailBar.replace(/\[:libraryPage:\]/gi, Schwarzschild.pkg.homepage);
 		tailBar = tailBar.replace(/\[:version:\]/gi, Schwarzschild.pkg.version);
 		tailBar = tailBar.replace(/\[:owner:\]/gi, Schwarzschild.config.owner || Schwarzschild.pkg.author.name);
 		tailBar = tailBar.replace(/\[:now-year:\]/gi, (new Date()).getYear() + 1900);
@@ -182,7 +181,7 @@ const realizeTailBar = async (isDemo) => {
 const assemblejLAss = async () => {
 	if (!Schwarzschild.config.jLAss) return;
 	Schwarzschild.config.jLAss = ['extends'];
-	var jpath = Path.join(__dirname, jLAssPath, 'src');
+	var jpath = Path.join(__dirname, 'node_modules/jLAss/src');
 
 	// 准备目录
 	var outputPath = Path.join(OutPutPath, 'src/assets/jLAss');
@@ -219,13 +218,44 @@ const assemblejLAss = async () => {
 		content = content.replace(/require\(.+\)/g, '{};');
 		try {
 			await FS.writeFile(f[1], content, 'utf-8');
-			imports[index] = 'import jlass' + (index + 1) + ' from "' + f[1].replace(sourcePath, '.').replace(/\\/g, '/') + '"';
+			imports[index] = 'import "' + f[1].replace(sourcePath, '.').replace(/\\/g, '/') + '"';
 			console.log('复制jLAss文件: ' + f[0]);
 		}
 		catch (err) {
 			console.error('写入jLAss文件(' + f[1] + ')失败: ', err.toString());
 		}
 	}));
+
+	// 复制 MarkUp 文件
+	var muPath = Path.join(__dirname, 'node_modules/Asimov');
+	var outputPathP = Path.join(OutPutPath, 'public/Asimov');
+	var outputPathA = Path.join(OutPutPath, 'src/assets/Asimov');
+	var map;
+	[map] = await Promise.all([
+		FS.getFolderMap(muPath),
+		FS.createFolders([outputPathP]),
+		FS.createFolders([outputPathA]),
+	]);
+	var markups = [];
+	await Promise.all(map.files.map(async (f, i) => {
+		var o;
+		if (f.match(/\.js$/i)) {
+			o = f.replace(muPath, outputPathA);
+			if (await copyFile(f, o)) console.log('复制Asimov文件: ' + f);
+			o = o.replace(outputPathA, '.\\assets\\Asimov');
+			if (o.match(/markup\.js/i)) {
+				imports.push('import "' + o.replace(/\\/g, '/') + '"');
+			}
+			else if (!o.match(/index\.js/i)) {
+				markups.push('import "' + o.replace(/\\/g, '/') + '"');
+			}
+		}
+		else {
+			o = f.replace(muPath, outputPathP);
+			if (await copyFile(f, o)) console.log('复制Asimov文件: ' + f);
+		}
+	}));
+	markups.forEach(f => imports.push(f));
 
 	// 添加引用
 	var mainPath = Path.join(OutPutPath, 'src/main.js');
@@ -347,7 +377,7 @@ Schwarzschild.prepare = async (force=false, clear=false, isDemo=true) => {
 		realizeSiteMenu(isDemo),
 		realizeRouter(isDemo),
 		realizeAboutSite(isDemo),
-		realizeTailBar(isDemo)
+		realizeTailBar(isDemo),
 	]);
 };
 Schwarzschild.demo = async (force=false, clear=false) => {
