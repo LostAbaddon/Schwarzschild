@@ -1,6 +1,6 @@
 <template>
 	<div class="nav-menu-item">
-		<a @click="click(type, action)">{{title}}<font-awesome-icon icon="caret-down" class="nav-fa" v-if="!!subs" /></a>
+		<a @click="click(type, action)">{{title}}<i class="fas fa-caret-down" v-if="!!subs" /></a>
 		<NavMenuBar v-if="!!subs" :menu="subs" :supers="action" />
 	</div>
 </template>
@@ -26,6 +26,9 @@ export default {
 			else if (type === 'viewer') {
 				target.path = '/category';
 				target.query = {c: action.join(',')};
+			}
+			else {
+				return;
 			}
 			var can_go = true;
 			if (this.$route.path === target.path) {

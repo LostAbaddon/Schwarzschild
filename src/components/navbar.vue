@@ -1,7 +1,7 @@
 <template>
 	<div class="nav-bar">
 		<router-link to="/">首页</router-link>
-		<font-awesome-icon icon="caret-right" />
+		<i class="fas fa-caret-right" />
 		<div class="nav-container">
 			<NavMenuBar :menu="menu" />
 		</div>
