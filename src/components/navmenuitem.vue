@@ -30,13 +30,17 @@ export default {
 			else {
 				return;
 			}
-			var can_go = true;
+			var can_go = true, same_page = false;
 			if (this.$route.path === target.path) {
+				same_page = true;
 				let c1 = !!this.$route.query ? (this.$route.query.c || '') : '';
 				let c2 = !!target.query ? (target.query.c || '') : '';
 				if (c1 === c2) can_go = false;
 			}
-			if (can_go) this.$router.push(target);
+			if (can_go) {
+				this.$router.push(target);
+				if (same_page) EventBus.pub('ChangePage');
+			}
 		}
 	}
 }

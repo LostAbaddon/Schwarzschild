@@ -1,0 +1,28 @@
+.crumb {
+	position: absolute;
+	top: 30px;
+	font-size: 14px;
+	font-weight: bold;
+}
+.crumb div {
+	display: inline-block;
+}
+.crumb div span {
+	cursor: pointer;
+	color: rgb(55, 60, 56);
+	transition: color 300ms ease-in-out;
+}
+.crumb div span:hover {
+	color: rgb(0, 92, 175);
+}
+.crumb div span:after {
+	content: '/';
+	display: inline-block;
+	margin-left: 5px;
+	margin-right: 5px;
+	cursor: default;
+	pointer-events: none;
+}
+.crumb div:last-child span:after {
+	display: none;
+}

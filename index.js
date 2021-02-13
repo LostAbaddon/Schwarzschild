@@ -260,7 +260,7 @@ const assemblejLAss = async () => {
 	// 添加引用
 	var mainPath = Path.join(OutPutPath, 'src/main.js');
 	var content = await FS.readFile(mainPath);
-	content = imports.join('\n') + '\n' + content.toString();
+	content = imports.join('\n') + '\n\n' + content.toString();
 	await FS.writeFile(mainPath, content, 'utf-8');
 };
 

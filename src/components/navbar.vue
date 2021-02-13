@@ -12,6 +12,16 @@
 </template>
 
 <script>
+const generateSiteMap = menu => {
+	var map = {};
+	menu.forEach(m => {
+		var item = { "name": m.name };
+		if (!!m.subs) item.subs = generateSiteMap(m.subs);
+		map[m.category] = item;
+	});
+	return map;
+};
+
 export default {
 	name: 'NavBar',
 	data () {
@@ -47,6 +57,9 @@ export default {
 			}
 			return menu;
 		}
+	},
+	mounted () {
+		global.SiteMap = generateSiteMap(this.menu);
 	}
 }
 </script>

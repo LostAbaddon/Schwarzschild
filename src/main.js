@@ -1,22 +1,26 @@
+import './assets/js/eventbus.js'
+import './assets/js/markup-footnote.js'
+
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
-
 import NavBar from '@/components/navbar.vue'
 import NavMenuBar from '@/components/navmenubar.vue'
 import NavMenuItem from '@/components/navmenuitem.vue'
 import TailBar from '@/components/tail.vue'
-import './assets/js/markup-footnote.js'
+import Crumb from '@/components/crumb.vue'
 
 require('./assets/css/main.css');
 require('./assets/css/navbar.css');
 require('./assets/css/tail.css');
+require('./assets/css/crumb.css');
 require('./assets/css/markup.css');
 
 Vue.component('NavBar', NavBar);
 Vue.component('NavMenuBar', NavMenuBar);
 Vue.component('NavMenuItem', NavMenuItem);
 Vue.component('TailBar', TailBar);
+Vue.component('Crumb', Crumb);
 
 Vue.config.productionTip = false;
 
@@ -59,6 +63,9 @@ const mutationObserver = new MutationObserver(mutations => {
 				inlineMath: [["$","$"]]}
 			}
 		);
+	}
+	else {
+		MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 	}
 });
 mutationObserver.observe(document.body, {
