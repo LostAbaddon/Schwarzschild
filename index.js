@@ -11,20 +11,6 @@ const CLP = _('CL.CLP');
 const setStyle = _('CL.SetStyle');
 const FolderForbiddens = ['node_modules', 'dist', 'server', '.git', '.gitignore', '.browserslistrc'];
 
-const convertFileMap = map => {
-	var result = { files: [], folders: [] };
-	result.files.push(...map.files);
-	var folders = Object.keys(map.subs);
-	result.folders.push(...folders);
-	folders.forEach(sub => {
-		var subs = map.subs[sub];
-		subs = convertFileMap(subs);
-		result.files.push(...subs.files);
-		result.folders.push(...subs.folders);
-	});
-	return result;
-};
-
 const SitePath = Path.join(process.cwd(), 'site');
 const OutPutPath = Path.join(process.cwd(), 'output');
 const BuildPath = Path.join(OutPutPath, 'dist');
@@ -64,31 +50,26 @@ const gitAddAndCommit = (path, msg) => {
 		return;
 	}
 };
-const needCopyFile = async (source, target) => {
-	var info1, info2, time1 = 0, time2 = 0, empty = false;
-	try	{
-		info1 = await FS.stat(source);
-		time1 = Math.max(info1.mtimeMs, info1.ctimeMs);
-	} catch {
-		time1 = 0;
-		empty = true;
-	}
-	try {
-		info2 = await FS.stat(target);
-		time2 = Math.max(info2.mtimeMs, info2.ctimeMs);
-	} catch {
-		time2 = 0;
-	}
-	if (empty) return false;
-	if (time1 === time2) return false;
-	return true;
-};
 const copyFile = async (source, target) => {
-	if (await needCopyFile(source, target)) {
+	if (await FS.doesSourceFileNewerThanTargetFile(source, target)) {
 		await FS.copyFile(source, target);
 		return true;
 	}
 	return false;
+};
+const realizeManifest = async (isDemo=false) => {
+	var webAppFile = Path.join(OutPutPath, "/public/webapp.json");
+	var webApp;
+	try {
+		webApp = await FS.readFile(webAppFile);
+		webApp = webApp.toString();
+		webApp = webApp.replace(/\[:title:\]/gi, Schwarzschild.config.title);
+		webApp = webApp.replace(/\[:shortname:\]/gi, Schwarzschild.config.shortname);
+		webApp = webApp.replace(/\[:description:\]/gi, Schwarzschild.config.description);
+	} catch {
+		return;
+	}
+	await FS.writeFile(webAppFile, webApp, 'utf-8');
 };
 const realizeSiteTitle = async (isDemo=false) => {
 	var cfgFile = Path.join(OutPutPath, "vue.config.js");
@@ -212,7 +193,10 @@ const assemblejLAss = async () => {
 	await Promise.all(files.map(async f => {
 		var index = imports.length;
 		imports[index] = '';
-		if (!(await needCopyFile(f[0], f[1]))) return;
+		if (!(await FS.doesSourceFileNewerThanTargetFile(f[0], f[1]))) {
+			imports[index] = 'import "' + f[1].replace(sourcePath, '.').replace(/\\/g, '/') + '"';
+			return;
+		}
 		var content = await FS.readFile(f[0]);
 		content = content.toString();
 		content = content.replace(/require\(.+\)/g, '{};');
@@ -258,10 +242,16 @@ const assemblejLAss = async () => {
 	markups.forEach(f => imports.push(f));
 
 	// 添加引用
-	var mainPath = Path.join(OutPutPath, 'src/main.js');
-	var content = await FS.readFile(mainPath);
+	var content = await FS.readFile(Path.join(__dirname, 'src/main.js'));
 	content = imports.join('\n') + '\n\n' + content.toString();
-	await FS.writeFile(mainPath, content, 'utf-8');
+	await FS.writeFile(Path.join(OutPutPath, 'src/main.js'), content, 'utf-8');
+};
+const assembleAPI = async (publishPath) => {
+	var source = Path.join(process.cwd(), 'api');
+	var target;
+	if (!!publishPath) target = Path.join(publishPath, 'api');
+	else target = Path.join(OutPutPath, 'public/api');
+	await FS.copyFolder(source, target);
 };
 
 global.Schwarzschild = {};
@@ -291,11 +281,14 @@ Schwarzschild.launch = config => {
 	.add('build >> 生成文件')
 	.addOption('--force -f >> 强制更新所有文件')
 	.addOption('--clear -r >> 强制清除所有文件')
+	.addOption('--onlyapi -o >> 只复制API文件')
 	.add('demo >> 启动网站测试服务')
 	.addOption('--force -f >> 强制更新所有文件')
 	.addOption('--clear -r >> 强制清除所有文件')
+	.addOption('--onlyapi -o >> 只复制API文件')
 	.add('publish >> 打包网站')
 	.setParam('[path] >> 指定发布路径')
+	.addOption('--onlyapi -o >> 只复制API文件')
 	.addOption('--msg -m [msg] >> Git Commit 信息')
 	.on('command', (param, command) => {
 		var cfg = param.config;
@@ -320,18 +313,18 @@ Schwarzschild.launch = config => {
 		if (cmd.length > 0) cmd = cmd[0];
 		else return;
 
-		if (cmd.name === 'build') Schwarzschild.prepare(cmd.value.force, cmd.value.clear);
-		else if (cmd.name === 'demo') Schwarzschild.demo(cmd.value.force, cmd.value.clear);
-		else if (cmd.name === 'publish') Schwarzschild.publish(cmd.value.path, cmd.value.msg);
+		if (cmd.name === 'build') Schwarzschild.prepare(cmd.value.force, cmd.value.clear, cmd.value.onlyapi);
+		else if (cmd.name === 'demo') Schwarzschild.demo(cmd.value.force, cmd.value.clear, cmd.value.onlyapi);
+		else if (cmd.name === 'publish') Schwarzschild.publish(cmd.value.path, cmd.value.msg, cmd.value.onlyapi);
 	}).launch();
 };
-Schwarzschild.prepare = async (force=false, clear=false, isDemo=true) => {
+Schwarzschild.prepare = async (force=false, clear=false, onlyapi=false, isDemo=true) => {
 	if (clear) await FS.deleteFolders(OutPutPath, true);
 
 	var has = await FS.hasFile(OutPutPath), map, folders;
 	if (!!force || !has) {
 		map = await FS.getFolderMap(__dirname, FolderForbiddens);
-		map = convertFileMap(map);
+		map = FS.convertFileMap(map);
 		map.folders = map.folders.map(f => f.replace(__dirname, OutPutPath));
 		map.folders.unshift(OutPutPath);
 		folders = [];
@@ -352,7 +345,7 @@ Schwarzschild.prepare = async (force=false, clear=false, isDemo=true) => {
 	}
 
 	map = await FS.getFolderMap(SitePath, FolderForbiddens);
-	map = convertFileMap(map);
+	map = FS.convertFileMap(map);
 	map.folders = map.folders.map(f => f.replace(SitePath, OutPutPath));
 	folders = [];
 	map.folders.forEach(f => {
@@ -371,47 +364,38 @@ Schwarzschild.prepare = async (force=false, clear=false, isDemo=true) => {
 	}));
 
 	// 将模组内容替换为项目内容
-	await Promise.all([
+	var tasks;
+	if (onlyapi) tasks = [assembleAPI()];
+	else tasks = [
 		assemblejLAss(),
+		assembleAPI(),
 		realizeSiteTitle(isDemo),
 		realizeSiteMenu(isDemo),
 		realizeRouter(isDemo),
 		realizeAboutSite(isDemo),
 		realizeTailBar(isDemo),
-	]);
+		realizeManifest(),
+	];
+	await Promise.all(tasks);
 };
-Schwarzschild.demo = async (force=false, clear=false) => {
-	await Schwarzschild.prepare(force, clear, true);
+Schwarzschild.demo = async (force=false, clear=false, onlyapi=false) => {
+	await Schwarzschild.prepare(force, clear, onlyapi, true);
 	await runVUE('serve');
 };
-Schwarzschild.publish = async (publishPath, commitMsg) => {
+Schwarzschild.publish = async (publishPath, commitMsg, onlyapi=false) => {
 	publishPath = publishPath || Schwarzschild.config.publish;
 	if (commitMsg === true) commitMsg = 'Update: ' + getTimeString(new Date());
 
-	await Schwarzschild.prepare(true, true, false);
-	await runVUE('build');
-
-	var map = await FS.getFolderMap(BuildPath, FolderForbiddens);
-	map = convertFileMap(map);
-	map.folders = map.folders.map(f => f.replace(BuildPath, publishPath));
-	var folders = [];
-	map.folders.forEach(f => {
-		var l = f.split(/[\\|\/]/).length;
-		folders[l] = folders[l] || [];
-		folders[l].push(f);
-	});
-	for (let subs of folders) {
-		if (!subs || subs.length === 0) continue;
-		await FS.createFolders(subs);
+	if (onlyapi) {
+		await assembleAPI(publishPath);
+		console.log(setStyle(setStyle('已将API文件发布到指定位置：' + publishPath, 'bold'), 'green'));
 	}
-
-	await Promise.all(map.files.map(async file => {
-		var target = file.replace(BuildPath, publishPath);
-		await FS.copyFile(file, target);
-	}));
-
-	console.log(setStyle(setStyle('已发布到指定位置：' + publishPath, 'bold'), 'green'));
-
+	else {
+		await Schwarzschild.prepare(true, true, onlyapi, false);
+		await runVUE('build');
+		await FS.copyFolder(BuildPath, publishPath);
+		console.log(setStyle(setStyle('已发布到指定位置：' + publishPath, 'bold'), 'green'));
+	}
 	if (String.is(commitMsg)) gitAddAndCommit(publishPath, commitMsg);
 };
 

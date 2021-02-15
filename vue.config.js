@@ -2,8 +2,9 @@ module.exports = {
 	lintOnSave: true,
 	productionSourceMap: true,
 	chainWebpack: config => {
-		// 移除 prefetch 插件（避免会预先加载模块/路由）
-		config.plugins.delete('prefetch');
+		/* 移除 prefetch 插件（避免会预先加载模块/路由） */
+		// config.plugins.delete('prefetch');
+
 		// Loader
 		config.module
 			.rule('svg')
@@ -11,13 +12,15 @@ module.exports = {
 			.use('file-loader')
 			.loader('file-loader')
 			.end();
-		// 开启图片压缩
+
+		/* 开启图片压缩 */
 		// config.module
 		// 	.rule('images')
 		// 	.test(/\.(png|jpe?g|gif|svg)(\?.*)?$/)
 		// 	.use('image-webpack-loader')
 		// 	.loader('image-webpack-loader')
 		// 	.options({ bypassOnDebug: true });
+
 		/* 添加分析工具 */
 		if (process.env.NODE_ENV === 'production') {
 			if (process.env.npm_config_report) {
@@ -26,7 +29,7 @@ module.exports = {
 					// eslint-disable-next-line global-require
 					.use(require('webpack-bundle-analyzer').BundleAnalyzerPlugin)
 					.end();
-				config.plugins.delete('prefetch');
+				// config.plugins.delete('prefetch');
 			}
 		}
 	},

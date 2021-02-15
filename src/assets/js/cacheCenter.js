@@ -1,0 +1,59 @@
+(async () => {
+	if (!navigator.serviceWorker) return;
+
+	const channel = new BroadcastChannel('service-messages');
+	channel.addEventListener('message', msg => {
+		console.log('Broadcast Message:');
+		console.log(msg);
+	});
+
+	if (!!window.caches) {
+		let keys = await caches.keys();
+		if (keys.length > 0) {
+			keys.forEach(async key => {
+				var cacheStorage = await caches.open(key);
+				var cacheKeys = await cacheStorage.keys();
+				console.log('>>>> ' + key + ' <<<<');
+				cacheKeys.forEach(cache => {
+					console.log(cache.url);
+				});
+			});
+		}
+	}
+
+	try {
+		let sws = await navigator.serviceWorker.getRegistrations();
+		console.log('Service Worker: ' + sws.length);
+		for (let sw of sws) {
+			if (!!sw.waiting) {
+				console.log('有等待中的新版本 Service Worker');
+				Vue.notify({
+					"title": "有新版网站后台等待更新",
+					"text": "新版 Service Worker 将在下次打开本页面后启用。",
+					"type": "warn",
+					"position": 'top right',
+					"animation-type": "velocity",
+				});
+			}
+		}
+	}
+	catch (err) {
+		console.error('获取已安装 Service 出错：', err);
+	}
+
+	try {
+		let reg = await navigator.serviceWorker.register('/priory.js');
+		reg.onupdatefound = (evt) => {
+			evt.target.update();
+		};
+		console.log('安装 Service Worker ' + (!!reg ? '成功' : '失败'));
+	}
+	catch (err) {
+		console.error('安装本地 Service 出错：', err);
+	}
+
+	channel.postMessage({
+		event: 'initialized',
+		page: location.pathname
+	});
+}) ();

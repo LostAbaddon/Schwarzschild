@@ -1,6 +1,7 @@
 <template>
 	<div id="app">
 		<NavBar/>
+		<notifications />
 		<div id="container">
 			<router-view/>
 		</div>

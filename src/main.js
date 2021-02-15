@@ -1,7 +1,11 @@
+import './assets/js/cacheCenter.js'
 import './assets/js/eventbus.js'
+import './assets/js/granary.js'
 import './assets/js/markup-footnote.js'
 
 import Vue from 'vue'
+import Notifications from 'vue-notification'
+import axios from 'axios';
 import App from './App.vue'
 import router from './router'
 import NavBar from '@/components/navbar.vue'
@@ -9,18 +13,24 @@ import NavMenuBar from '@/components/navmenubar.vue'
 import NavMenuItem from '@/components/navmenuitem.vue'
 import TailBar from '@/components/tail.vue'
 import Crumb from '@/components/crumb.vue'
+import Column from '@/components/column.vue'
 
 require('./assets/css/main.css');
 require('./assets/css/navbar.css');
 require('./assets/css/tail.css');
 require('./assets/css/crumb.css');
+require('./assets/css/column.css');
 require('./assets/css/markup.css');
 
+global.axios = axios;
+global.Vue = Vue;
+Vue.use(Notifications);
 Vue.component('NavBar', NavBar);
 Vue.component('NavMenuBar', NavMenuBar);
 Vue.component('NavMenuItem', NavMenuItem);
 Vue.component('TailBar', TailBar);
 Vue.component('Crumb', Crumb);
+Vue.component('Column', Column);
 
 Vue.config.productionTip = false;
 

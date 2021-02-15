@@ -6,6 +6,7 @@
 </template>
 
 <script>
+const channel = new BroadcastChannel('page-changed');
 export default {
 	name: 'NavMenuItem',
 	props: {
@@ -39,7 +40,7 @@ export default {
 			}
 			if (can_go) {
 				this.$router.push(target);
-				if (same_page) EventBus.pub('ChangePage');
+				if (same_page) channel.postMessage(target);
 			}
 		}
 	}

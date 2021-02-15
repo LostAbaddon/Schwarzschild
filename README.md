@@ -9,7 +9,9 @@
 
 -	vue v2.6.12
 	+	vue-cli v2.9.6
--	fontawesome v5.15.2
+	+	vue-axios v0.21.1
+	+	vue-notification v1.3.20
+-	fontawesome v5.7.1
 	+	free-solid
 	+	free-regular
 	+	free-brands

@@ -1,14 +1,16 @@
 <template>
 	<div class="crumb" v-if="show">
-		<div v-for="(item, index) in path">
-			<span @click="jump(item.path)">{{item.name}}</span>
-		</div>
+		<span class="hint">位置：</span>
+		<template v-for="(item, index) in path">
+			<span @click="jump(item.path)">{{item.name}}</span><i class="fas fa-angle-right" />
+		</template>
 	</div>
 </template>
 
 <script>
 var currCrumb = null;
-EventBus.sub('ChangePage', () => {
+const channel = new BroadcastChannel('page-changed');
+channel.addEventListener('message', msg => {
 	if (!currCrumb) return;
 	currCrumb.update();
 });
@@ -23,9 +25,10 @@ export default {
 	},
 	methods: {
 		jump (path) {
-			this.$router.push({path});
+			let target = {path};
+			this.$router.push(target);
 			var first = path.split('?')[0];
-			if (first === this.$route.path) EventBus.pub('ChangePage');
+			if (first === this.$route.path) channel.postMessage(target);
 		},
 		update () {
 			var path = null, type = '';
@@ -73,6 +76,9 @@ export default {
 	mounted () {
 		this.update();
 		currCrumb = this;
+	},
+	destroyed () {
+		currCrumb = null;
 	}
 }
 </script>
