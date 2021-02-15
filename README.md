@@ -5,7 +5,13 @@
 
 静态网站构建器，可用于 GitHub Pages 等处。
 
-依赖库：
+## 缓存
+
+本网站会使用 Service Worker + CacheStorage 进行页面静态资源缓存。只有当页面中台（Service Worker）更新时才会更新页面静态资源。
+
+同时，本网站会使用 IndexDB 将请求来的数据做缓存，用来缓存文章列表和访问过的文章数据。
+
+## 依赖库
 
 -	vue v2.6.12
 	+	vue-cli v2.9.6
@@ -53,13 +59,16 @@ Schwarzschild 会自动将页面中带有 markup 类名的容器中的内容解�
 
 -	config.json:	项目配置文件
 -	site:	替换 Schwarzschild 的文件，数据文件也可以放在里面
--	components:	项目组件，可自动插入到 Schwarzschild 的 vue 文件中
+-	api: 网站数据文件夹，其中包括文章列表、文章等所有动态数据
 
 ### config.json
 
 ```
 {
 	"title": "项目名，将用在页面 title 上",
+	"shortname": "WebApp 用的网站短名",
+	"description": "WebApp 用的网站介绍",
+	"owner": "网站站长",
 	"publish": "项目发布路径",
 	"jLAss": true, // true表示引用最基础服务，默认是 true
 	"siteMap": [

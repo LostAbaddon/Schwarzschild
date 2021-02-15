@@ -64,8 +64,8 @@ const realizeManifest = async (isDemo=false) => {
 		webApp = await FS.readFile(webAppFile);
 		webApp = webApp.toString();
 		webApp = webApp.replace(/\[:title:\]/gi, Schwarzschild.config.title);
-		webApp = webApp.replace(/\[:shortname:\]/gi, Schwarzschild.config.shortname);
-		webApp = webApp.replace(/\[:description:\]/gi, Schwarzschild.config.description);
+		webApp = webApp.replace(/\[:shortname:\]/gi, Schwarzschild.config.shortname || Schwarzschild.config.title);
+		webApp = webApp.replace(/\[:description:\]/gi, Schwarzschild.config.description || Schwarzschild.config.title);
 	} catch {
 		return;
 	}
