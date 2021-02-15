@@ -13,10 +13,7 @@
 			keys.forEach(async key => {
 				var cacheStorage = await caches.open(key);
 				var cacheKeys = await cacheStorage.keys();
-				console.log('>>>> ' + key + ' <<<<');
-				cacheKeys.forEach(cache => {
-					console.log(cache.url);
-				});
+				console.log('资源缓存库 ' + key + ': ' + cacheKeys.length);
 			});
 		}
 	}
@@ -28,7 +25,7 @@
 			if (!!sw.waiting) {
 				console.log('有等待中的新版本 Service Worker');
 				Vue.notify({
-					"title": "有新版网站后台等待更新",
+					"title": "有新版网站中台等待更新",
 					"text": "新版 Service Worker 将在下次打开本页面后启用。",
 					"type": "warn",
 					"position": 'top right',
@@ -51,9 +48,4 @@
 	catch (err) {
 		console.error('安装本地 Service 出错：', err);
 	}
-
-	channel.postMessage({
-		event: 'initialized',
-		page: location.pathname
-	});
 }) ();
