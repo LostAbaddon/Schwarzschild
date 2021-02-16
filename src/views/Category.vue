@@ -2,7 +2,6 @@
 	<div class="category">
 		<Crumb />
 		<Column />
-		<div>This is a category page!</div>
 	</div>
 </template>
 

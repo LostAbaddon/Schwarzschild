@@ -2,6 +2,7 @@
 	<div id="app">
 		<NavBar/>
 		<notifications class="notification" />
+		<loading />
 		<div id="container">
 			<router-view/>
 		</div>

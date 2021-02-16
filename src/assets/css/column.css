@@ -3,17 +3,88 @@
 	margin-top: 25px;
 	min-height: 300px;
 }
-.column .loading {
-	position: absolute;
+.column caption {
+	position: relative;
+	display: inline-block;
 	width: 100%;
-	padding-top: 135px;
-	font-size: 16px;
+	font-size: 24px;
 	font-weight: bold;
-	text-align: center;
-	pointer-events: none;
-	opacity: 1;
-	transition: opacity 300ms ease-in-out;
+	text-align: left;
+	cursor: default;
 }
-.column .loading.hide {
-	opacity: 0;
+.column caption span {
+	display: inline-block;
+	width: 160px;
+	margin-left: 80px;
+	padding: 5px 0px;
+	border-left: 1px solid rgb(175, 175, 175);
+	border-right: 1px solid rgb(175, 175, 175);
+	text-align: center;
+}
+.column caption:before,
+.column caption:after {
+	content: ' ';
+	display: block;
+	position: absolute;
+	top: 21px;
+	border-bottom: 1px solid rgb(175, 175, 175);
+}
+.column caption:before {
+	left: 0px;
+	width: 80px;
+}
+.column caption:after {
+	left: 240px;
+	right: 0px;
+}
+.column .column-item {
+	box-sizing: border-box;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	padding: 2px 10px;
+	border-bottom: 1px solid rgba(33, 30, 85, 0.15);
+	cursor: pointer;
+	box-shadow: 0px 0px 0px rgba(0, 0, 0, 0);
+}
+.column .column-item:hover {
+	box-shadow: 0px 0px 0px rgba(0, 0, 0, 0);
+}
+.column .column-item header {
+	display: block;
+}
+.column .column-item header .title {
+	display: inline-block;
+	font-size: 18px;
+	font-weight: bolder;
+}
+.column .column-item header .category {
+	float: right;
+	display: inline-block;
+	font-weight: bolder;
+	font-style: italic;
+}
+.column .column-item article {
+	margin: 5px 10px;
+	font-size: 16px;
+	font-family: 楷体;
+}
+.column .column-item footer {
+	box-sizing: border-box;
+	display: block;
+	padding-right: 10px;
+	text-align: right;
+	font-size: 14px;
+	pointer-events: none;
+}
+.column .column-item footer .author {
+	display: inline-block;
+	margin-right: 20px;
+}
+.column .column-item footer .timestamp {
+	display: inline-block;
+}
+.column .column-item footer .timestamp:before {
+	content: '发表于';
+	display: inline-block;
+	margin-right: 5px;
 }

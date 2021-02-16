@@ -278,18 +278,28 @@ Schwarzschild.launch = config => {
 		title: Schwarzschild.pkg.name + " v" + Schwarzschild.pkg.version,
 	}).describe(Schwarzschild.pkg.name + " v" + Schwarzschild.pkg.version)
 	.addOption('--config <config> >> 指定配置文件')
+
 	.add('build >> 生成文件')
 	.addOption('--force -f >> 强制更新所有文件')
 	.addOption('--clear -r >> 强制清除所有文件')
 	.addOption('--onlyapi -o >> 只复制API文件')
+
 	.add('demo >> 启动网站测试服务')
 	.addOption('--force -f >> 强制更新所有文件')
 	.addOption('--clear -r >> 强制清除所有文件')
 	.addOption('--onlyapi -o >> 只复制API文件')
+
 	.add('publish >> 打包网站')
 	.setParam('[path] >> 指定发布路径')
 	.addOption('--onlyapi -o >> 只复制API文件')
 	.addOption('--msg -m [msg] >> Git Commit 信息')
+
+	.add('append >> 添加文章')
+	.addOption('--file -f <file> >> md文件路径')
+	.addOption('--category -c <category> >> 文章分类')
+	.addOption('--overwrite -o >> 可强制覆盖文件')
+	.addOption('--rename -r >> 对同名文件自动重命名')
+
 	.on('command', (param, command) => {
 		var cfg = param.config;
 		if (!!cfg) {
@@ -316,6 +326,7 @@ Schwarzschild.launch = config => {
 		if (cmd.name === 'build') Schwarzschild.prepare(cmd.value.force, cmd.value.clear, cmd.value.onlyapi);
 		else if (cmd.name === 'demo') Schwarzschild.demo(cmd.value.force, cmd.value.clear, cmd.value.onlyapi);
 		else if (cmd.name === 'publish') Schwarzschild.publish(cmd.value.path, cmd.value.msg, cmd.value.onlyapi);
+		else if (cmd.name === 'append') Schwarzschild.appendFile(cmd.value.file, cmd.value.category, cmd.value.overwrite, cmd.value.rename);
 	}).launch();
 };
 Schwarzschild.prepare = async (force=false, clear=false, onlyapi=false, isDemo=true) => {
@@ -397,6 +408,21 @@ Schwarzschild.publish = async (publishPath, commitMsg, onlyapi=false) => {
 		console.log(setStyle(setStyle('已发布到指定位置：' + publishPath, 'bold'), 'green'));
 	}
 	if (String.is(commitMsg)) gitAddAndCommit(publishPath, commitMsg);
+};
+Schwarzschild.appendFile = async (filename, category, overwrite=false, rename=false) => {
+	if (!filename) {
+		console.error('缺少文章路径！');
+		return;
+	}
+	if (!category) {
+		console.error('缺少文章类别！');
+		return;
+	}
+
+	var available = await FS.hasFile(filename);
+	console.log(available);
+
+	console.log(filename, category, overwrite, rename);
 };
 
 module.exports = Schwarzschild;

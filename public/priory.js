@@ -38,8 +38,11 @@ self.addEventListener('fetch', evt => {
 		}
 
 		// 如果没有缓存，则问后台要
+		console.log('>>>> Step 1 (' + fullpath + ')');
 		var remote = fetch(evt.request).then(res => {
+			console.log('>>>> Step 2 (' + fullpath + ')');
 			cacheResource(evt.request, res.clone()).then(() => {
+				console.log('>>>> Step 3 (' + fullpath + ')');
 				channel.postMessage({
 					event: 'cacheUpdated',
 					url: evt.request.url,

@@ -1,5 +1,6 @@
 import './assets/js/cacheCenter.js'
-import './assets/js/eventbus.js'
+import './assets/js/lrucache.js'
+import './assets/js/cacheDB.js'
 import './assets/js/granary.js'
 import './assets/js/markup-footnote.js'
 
@@ -8,6 +9,7 @@ import Notifications from 'vue-notification'
 import axios from 'axios';
 import App from './App.vue'
 import router from './router'
+import Loading from '@/components/loading.vue'
 import NavBar from '@/components/navbar.vue'
 import NavMenuBar from '@/components/navmenubar.vue'
 import NavMenuItem from '@/components/navmenuitem.vue'
@@ -25,6 +27,7 @@ require('./assets/css/markup.css');
 global.axios = axios;
 global.Vue = Vue;
 Vue.use(Notifications);
+Vue.component('Loading', Loading);
 Vue.component('NavBar', NavBar);
 Vue.component('NavMenuBar', NavMenuBar);
 Vue.component('NavMenuItem', NavMenuItem);
