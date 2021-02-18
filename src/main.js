@@ -39,15 +39,6 @@ Vue.config.productionTip = false;
 
 var FootNoteUnInited = true;
 const mutationObserver = new MutationObserver(mutations => {
-	var need_markup = false;
-	mutations.forEach((item, index) => {
-		if (
-			item.target.id === 'container' &&
-			[].some.call(item.addedNodes, node => !!node.classList && node.classList.contains('container'))
-		) need_markup = true;
-	});
-	if (!need_markup) return;
-
 	var markups = document.querySelectorAll('.markup');
 	[].forEach.call(markups, (mu) => {
 		var content = mu.innerText;

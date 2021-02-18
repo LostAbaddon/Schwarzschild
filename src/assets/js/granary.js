@@ -45,6 +45,7 @@ const Barn = {
 			}
 			if (!!data) data = data.data;
 			if (!!data) {
+				console.log(data);
 				await Barn.DB.set('data', url, data);
 				console.log('Barn Update Data: ' + url);
 				if (!!cache) {
@@ -62,7 +63,7 @@ window.Granary = {
 		var result = { articles: [], comments: [] };
 		await Promise.all(Array.generate(limit + 1).map(async index => {
 			var url = source + '-' + index + '.json';
-			var d = await Barn.get(url, limit === index);
+			var d = await Barn.get(url, limit !== index);
 			if (String.is(d)) return;
 			result.articles.push(...d.articles);
 			result.comments.push(...d.comments);
@@ -72,17 +73,28 @@ window.Granary = {
 		return result;
 	},
 	async getCategory (category) {
-		category = category.replace(/^[\/\\]+/, '');
-		var sources = await Barn.get('sources.json', true);
+		var sources = await Barn.get('sources.json', false);
 		var data = [];
 		if (!sources || !sources.sources) return data;
 		await Promise.all(sources.sources.map(async source => {
-			var d = await Granary.getSource(source.owner, source.current);
+			var d = await Granary.getSource(source.owner, source.pages);
 			d = d.articles.filter(art => art.sort.indexOf(category) === 0);
 			data.push(...d);
 		}));
 		data.sort((a, b) => b.publish - a.publish);
 		return data;
+	},
+	async getColumnHeader (category) {
+		var info = '';
+		if (!!category) info = category + '/';
+		try {
+			info = await Barn.get(info + 'info.json');
+		}
+		catch {
+			info = '';
+		}
+		console.log(category, '===>', info);
+		return '';
 	}
 };
 

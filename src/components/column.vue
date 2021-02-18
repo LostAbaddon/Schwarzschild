@@ -1,5 +1,6 @@
 <template>
-	<section class="column" @click="onClick">
+	<section class="column container" @click="onClick">
+		<header v-if="header" class="markup"><pre>{{header}}</pre></header>
 		<caption><span>文章列表</span></caption>
 		<ColumnItem v-for="article in list"
 			:title="article.title"
@@ -52,16 +53,33 @@ export default {
 	data () {
 		return {
 			itemPerPage: 20,
-			list: []
+			list: [],
+			header: ''
 		}
 	},
 	methods: {
+		async getHeaderInfo (category) {
+			var info = await Granary.getColumnHeader(category);
+			console.log(info);
+		},
+		async getArticleList (category) {
+			var articles = await Granary.getCategory(category);
+			articles.forEach((art) => {
+				art.category = getName(art.sort);
+				art.placehoding = false;
+				art.timestamp = getTimeString(new Date(art.publish), "YYMMDDhhmm");
+				art.description = art.description || '暂无';
+				this.list.push(art);
+			});
+			chChangeLoadingHint.postMessage({action: 'hide'});
+		},
 		async update () {
 			chChangeLoadingHint.postMessage({
 				name: '加载中……',
 				action: 'show'
 			});
 			this.list.splice(0, this.list.length);
+			this.header = '';
 
 			var category = null;
 			if (this.$route.path === '/') {
@@ -80,21 +98,16 @@ export default {
 				chChangeLoadingHint.postMessage({name: '本页无内容……'});
 				return;
 			}
-			var articles = await Granary.getCategory(category);
-			articles.forEach((art) => {
-				art.category = getName(art.sort);
-				art.placehoding = false;
-				art.timestamp = getTimeString(new Date(art.publish), "YYMMDDhhmm");
-				art.description = art.description || '暂无';
-				this.list.push(art);
-			});
-			chChangeLoadingHint.postMessage({action: 'hide'});
+			category = category.replace(/^[\/\\]+/, '');
+
+			await Promise.all([this.getHeaderInfo(category), this.getArticleList(category)]);
 		},
 		onClick (evt) {
-			var filename = undefined, category = undefined, ele = evt.target;
+			var filename = undefined, category = undefined, timestamp = undefined, ele = evt.target;
 			while (!filename && !category) {
 				filename = ele.getAttribute('filename');
 				category = ele.getAttribute('path');
+				timestamp = ele.getAttribute('timestamp');
 				ele = ele.parentNode;
 				if (!ele) break;
 			}
@@ -105,7 +118,7 @@ export default {
 				}
 			}
 			else if (!!filename) {
-				this.$router.push({path: '/view', query: {f: filename}});
+				this.$router.push({path: '/view', query: {f: filename, t: timestamp}});
 			}
 		}
 	},

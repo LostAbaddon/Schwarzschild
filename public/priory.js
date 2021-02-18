@@ -30,7 +30,7 @@ self.addEventListener('fetch', evt => {
 	pathname.pop();
 	pathname = pathname.join('/');
 	if (filename === 'priory.js') return;
-	if (!!pathname.match(/^\/api\//i)) return;
+	if (!!pathname.match(/^[\/\\]*api[\/\\]/i) || !!pathname.match(/^[\/\\]*api$/i)) return;
 	caches.open(CacheName).then(cache => cache.add(fullpath)); // 将适合的请求都缓存起来
 	evt.respondWith(caches.match(evt.request).then(cache => {
 		if (cache) {
@@ -38,11 +38,8 @@ self.addEventListener('fetch', evt => {
 		}
 
 		// 如果没有缓存，则问后台要
-		console.log('>>>> Step 1 (' + fullpath + ')');
 		var remote = fetch(evt.request).then(res => {
-			console.log('>>>> Step 2 (' + fullpath + ')');
 			cacheResource(evt.request, res.clone()).then(() => {
-				console.log('>>>> Step 3 (' + fullpath + ')');
 				channel.postMessage({
 					event: 'cacheUpdated',
 					url: evt.request.url,

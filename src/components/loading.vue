@@ -31,6 +31,7 @@ export default {
 			if (data.action === 'show') this.show = true;
 			else if (data.action === 'hide') this.show = false;
 			if (String.is(data.title)) this.title = data.title;
+			if (['spin', 'pulse'].indexOf(data.type) >= 0) this.type = data.type;
 		});
 	}
 }

@@ -6,14 +6,18 @@ require("jLAss");
 loadjLAssModule('fs');
 loadjLAssModule('commandline');
 
+const RecordPerFile = 100;
 const execSync = require('child_process').execSync;
 const CLP = _('CL.CLP');
 const setStyle = _('CL.SetStyle');
+const preparePath = _("Utils").preparePath;
 const FolderForbiddens = ['node_modules', 'dist', 'server', '.git', '.gitignore', '.browserslistrc'];
 
 const SitePath = Path.join(process.cwd(), 'site');
 const OutPutPath = Path.join(process.cwd(), 'output');
 const BuildPath = Path.join(OutPutPath, 'dist');
+const APIPath = Path.join(process.cwd(), 'api');
+const CategoryPath = Path.join(APIPath, 'granary');
 const getTimeString = _('Utils').getTimeString;
 
 const vueServer = new VueService(OutPutPath);
@@ -252,6 +256,15 @@ const assembleAPI = async (publishPath) => {
 	if (!!publishPath) target = Path.join(publishPath, 'api');
 	else target = Path.join(OutPutPath, 'public/api');
 	await FS.copyFolder(source, target);
+	console.log('数据文件复制完毕');
+};
+const assembleImages = async (publishPath) => {
+	var source = Path.join(process.cwd(), 'image');
+	var target;
+	if (!!publishPath) target = Path.join(publishPath, 'image');
+	else target = Path.join(OutPutPath, 'public/image');
+	await FS.copyFolder(source, target);
+	console.log('图片资源复制完毕');
 };
 
 global.Schwarzschild = {};
@@ -297,8 +310,12 @@ Schwarzschild.launch = config => {
 	.add('append >> 添加文章')
 	.addOption('--file -f <file> >> md文件路径')
 	.addOption('--category -c <category> >> 文章分类')
+	.addOption('--title -t <title> >> 设置文章标题')
+	.addOption('--author -a <author> >> 设置文章作者')
+	.addOption('--publishAt -p <publishAt> >> 设置发布时间')
 	.addOption('--overwrite -o >> 可强制覆盖文件')
 	.addOption('--rename -r >> 对同名文件自动重命名')
+	.addOption('--keep -k >> 保留文件')
 
 	.on('command', (param, command) => {
 		var cfg = param.config;
@@ -326,8 +343,12 @@ Schwarzschild.launch = config => {
 		if (cmd.name === 'build') Schwarzschild.prepare(cmd.value.force, cmd.value.clear, cmd.value.onlyapi);
 		else if (cmd.name === 'demo') Schwarzschild.demo(cmd.value.force, cmd.value.clear, cmd.value.onlyapi);
 		else if (cmd.name === 'publish') Schwarzschild.publish(cmd.value.path, cmd.value.msg, cmd.value.onlyapi);
-		else if (cmd.name === 'append') Schwarzschild.appendFile(cmd.value.file, cmd.value.category, cmd.value.overwrite, cmd.value.rename);
-	}).launch();
+		else if (cmd.name === 'append') Schwarzschild.appendFile(
+			cmd.value.file, cmd.value.category,
+			cmd.value.title, cmd.value.author, cmd.value.publishAt,
+			cmd.value.overwrite, cmd.value.rename, cmd.value.keep);
+	})
+	.launch();
 };
 Schwarzschild.prepare = async (force=false, clear=false, onlyapi=false, isDemo=true) => {
 	if (clear) await FS.deleteFolders(OutPutPath, true);
@@ -376,10 +397,11 @@ Schwarzschild.prepare = async (force=false, clear=false, onlyapi=false, isDemo=t
 
 	// 将模组内容替换为项目内容
 	var tasks;
-	if (onlyapi) tasks = [assembleAPI()];
+	if (onlyapi) tasks = [assembleAPI(), assembleImages()];
 	else tasks = [
 		assemblejLAss(),
 		assembleAPI(),
+		assembleImages(),
 		realizeSiteTitle(isDemo),
 		realizeSiteMenu(isDemo),
 		realizeRouter(isDemo),
@@ -409,7 +431,7 @@ Schwarzschild.publish = async (publishPath, commitMsg, onlyapi=false) => {
 	}
 	if (String.is(commitMsg)) gitAddAndCommit(publishPath, commitMsg);
 };
-Schwarzschild.appendFile = async (filename, category, overwrite=false, rename=false) => {
+Schwarzschild.appendFile = async (filename, category, title, author, timestamp, overwrite=false, rename=false, keep=false) => {
 	if (!filename) {
 		console.error('缺少文章路径！');
 		return;
@@ -419,10 +441,213 @@ Schwarzschild.appendFile = async (filename, category, overwrite=false, rename=fa
 		return;
 	}
 
-	var available = await FS.hasFile(filename);
-	console.log(available);
+	// 准备目标路径
+	category = category.split(/[\\\/]+/).filter(c => c.length > 0);
+	var target = Path.basename(filename);
+	var fullFolderPath = Path.join(CategoryPath, ...category);
+	var fullFilePath = Path.join(fullFolderPath, target);
 
-	console.log(filename, category, overwrite, rename);
+	// 判断是否已有文件
+	var exists = await FS.hasFile(fullFilePath);
+	if (exists && !overwrite) {
+		if (rename) {
+			let ext = Path.extname(filename);
+			let bar = target.substr(0, target.length - ext.length);
+			let i = 0;
+			while (true) {
+				let f = Path.join(fullFolderPath, bar + '-' + i + ext);
+				exists = await FS.hasFile(f);
+				if (!exists) {
+					fullFilePath = f;
+					break;
+				}
+				i ++;
+			}
+		}
+		else {
+			console.log('此文件已存在，请修改名称或类别后再添加。');
+			return;
+		}
+	}
+
+	// 创建目标路径
+	try {
+		await preparePath(fullFolderPath);
+	}
+	catch (err) {
+		console.error('创建分类目录失败：' + err.toString());
+		return;
+	}
+
+	var hasTT = String.is(title);
+	var hasAU = String.is(author);
+	var hasDT = timestamp instanceof Date;
+	if (!hasDT && String.is(timestamp)) {
+		try {
+			let t = new Date(timestamp);
+			hasDT = true;
+			timestamp = t;
+		} catch {}
+	}
+
+	// 如果必须信息都外部输入
+	var content, description, text = [];
+	try {
+		content = await FS.readFile(filename);
+		content = content.toString();
+	}
+	catch (err) {
+		if (err.code === 'ENOENT') {
+			console.error(setStyle('指定文件不存在！', 'red'));
+		}
+		else {
+			console.error(err);
+		}
+		return;
+	}
+	content = content.split(/[\n\r]+/);
+	content.some(line => {
+		var m = line.match(/^(标题|title)[：:] *(.+)/i);
+		if (!!m) {
+			if (!hasTT) {
+				title = m[2];
+				hasTT = true;
+			}
+			return hasTT && hasAU && hasDT && !!description;
+		}
+
+		m = line.match(/^(作者|author)[：:] *(.+)/i);
+		if (!!m) {
+			if (!hasAU) {
+				author = m[2];
+				hasAU = true;
+			}
+			return hasTT && hasAU && hasDT && !!description;
+		}
+
+		m = line.match(/^(更新|date)[：:] *(.+)/i);
+		if (!!m) {
+			if (!hasDT) {
+				try {
+					let t = new Date(m[2]);
+					timestamp = t;
+					hasAU = true;
+				} catch {}
+			}
+			return hasTT && hasAU && hasDT && !!description;
+		}
+
+		m = line.match(/^(简介|description)[：:] *(.+)/i);
+		if (!!m) {
+			if (!description) {
+				description = m[2];
+			}
+			return hasTT && hasAU && hasDT && !!description;
+		}
+
+		m = line.match(/^(关键词|keyword)[：:] *(.+)/i);
+		if (!!m) {
+			return hasTT && hasAU && hasDT && !!description;
+		}
+
+		text.push(line);
+	});
+	// 自动生成摘要
+	if (!description) {
+		text = text.map(t => t.replace(/\(.*\)/g, '')).join('');
+		text = text.match(/([^\x00-\xff]|[a-zA-Z0-9]| )+/g);
+		text = text.join(' ');
+		text = text.replace(/ +/g, ' ');
+		if (text.length > 150) text = text.substring(0, 148) + "……";
+		description = text;
+	}
+	author = author || Schwarzschild.config.owner;
+	timestamp = timestamp || new Date();
+
+	// 复制文件
+	try {
+		await FS.copyFile(filename, fullFilePath);
+		console.log('成功复制文件: ' + fullFilePath);
+	}
+	catch (err) {
+		console.error('复制文件出错：' + err.toString());
+		return;
+	}
+	if (!keep) {
+		try {
+			await FS.deleteFiles([filename]);
+		}
+		catch (err) {
+			console.error('删除副本出错：' + err.toString());
+		}
+	}
+
+	// 更新总记录
+	var now = Date.now();
+	var granaryFile = Path.join(APIPath, 'sources.json');
+	var granaryRecord;
+	try {
+		granaryRecord = await FS.readFile(granaryFile);
+		granaryRecord = JSON.parse(granaryRecord);
+	}
+	catch {
+		granaryRecord = {
+			update: 0,
+			sources: []
+		};
+	}
+	granaryRecord.sources = granaryRecord.sources || [];
+	var myRecord = null;
+	granaryRecord.sources.some(rec => {
+		if (rec.owner !== Schwarzschild.config.owner) return;
+		myRecord = rec;
+	});
+	if (!myRecord) {
+		myRecord = {
+			owner: Schwarzschild.config.owner,
+			pages: 0,
+			update: now
+		};
+		granaryRecord.sources.push(myRecord);
+	}
+	myRecord.pages = myRecord.pages || 0;
+	granaryRecord.update = now;
+
+	// 更新分记录
+	var recordFile, records;
+	while (true) {
+		recordFile = Path.join(APIPath, Schwarzschild.config.owner + '-' + myRecord.pages + '.json');
+		try {
+			records = await FS.readFile(recordFile);
+			records = JSON.parse(records);
+		}
+		catch {
+			records = {
+				update: 0,
+				articles: [],
+				comments: []
+			};
+		}
+		if (records.articles.length < RecordPerFile && records.comments.length < RecordPerFile) {
+			break;
+		}
+		myRecord.pages ++;
+	}
+	records.update = now;
+	records.articles.push({
+		"type": "article",
+		"sort": category.join('/'),
+		title, author, description,
+		"publish": timestamp.getTime(),
+		"filename": target
+	});
+
+	// 保存
+	await Promise.all([
+		FS.writeFile(recordFile, JSON.stringify(records)),
+		FS.writeFile(granaryFile, JSON.stringify(granaryRecord))
+	]);
+	console.log('记录已更新！');
 };
 
 module.exports = Schwarzschild;
