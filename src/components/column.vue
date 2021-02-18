@@ -60,7 +60,7 @@ export default {
 	methods: {
 		async getHeaderInfo (category) {
 			var info = await Granary.getColumnHeader(category);
-			console.log(info);
+			this.header = info;
 		},
 		async getArticleList (category) {
 			var articles = await Granary.getCategory(category);

@@ -7,10 +7,14 @@
 	position: relative;
 	display: inline-block;
 	width: 100%;
+	margin-top: 20px;
 	font-size: 24px;
 	font-weight: bold;
 	text-align: left;
 	cursor: default;
+}
+.column caption:first-child {
+	margin-top: 0px;
 }
 .column caption span {
 	display: inline-block;

@@ -25,15 +25,15 @@ const Barn = {
 		if (Barn.ready) return res();
 		Barn.waiters.push(res);
 	}),
-	get (url, notStill=false) {
+	get (url, notStill=false, timestamp=0) {
 		return new Promise(async res => {
 			if (!Barn.ready) {
 				await Barn.waitForReady();
 			}
 			var cache = await Barn.DB.get('data', url);
 			if (!!cache) {
-				res(cache);
-				if (!!notStill) return;
+				res(cache.data);
+				if (!!notStill && timestamp <= cache.update) return;
 			}
 			var data;
 			try {
@@ -46,7 +46,7 @@ const Barn = {
 			if (!!data) data = data.data;
 			if (!!data) {
 				console.log(data);
-				await Barn.DB.set('data', url, data);
+				await Barn.DB.set('data', url, {data, update: Date.now()});
 				console.log('Barn Update Data: ' + url);
 				if (!!cache) {
 					chDataFetched.postMessage({ url, data });
@@ -85,16 +85,17 @@ window.Granary = {
 		return data;
 	},
 	async getColumnHeader (category) {
-		var info = '';
-		if (!!category) info = category + '/';
+		var sources = await Barn.get('sources.json', true);
+
+		var info = 'granary/';
+		if (!!category) info = 'granary/' + category + '/';
 		try {
-			info = await Barn.get(info + 'info.json');
+			info = await Barn.get(info + 'info.json', true, sources.update);
 		}
 		catch {
 			info = '';
 		}
-		console.log(category, '===>', info);
-		return '';
+		return info;
 	}
 };
 
