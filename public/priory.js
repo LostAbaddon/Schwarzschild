@@ -1,4 +1,4 @@
-const CacheName = 'schwarzschild-v1';
+const CacheName = 'schwarzschild';
 const CacheUrl = [
 	'/',
 	'/index.html',

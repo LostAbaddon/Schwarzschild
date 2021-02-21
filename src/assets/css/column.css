@@ -44,6 +44,31 @@
 .column header:empty {
 	display: none;
 }
+.column header article section {
+	margin-top: 20px;
+	margin-bottom: 20px;
+	padding-bottom: 20px;
+	border-bottom: 1px solid rgb(192, 196, 195);
+}
+.column header article section:last-child {
+	margin-bottom: 0px;
+	padding-bottom: 0px;
+	border-bottom: none;
+}
+.column header article section h1 {
+	margin-top: 20px;
+}
+.column header article section h2 {
+	margin-top: 15px;
+}
+.column header article section h3 {
+	margin-top: 10px;
+}
+.column header article section h4,
+.column header article section h5,
+.column header article section h6 {
+	margin-top: 5px;
+}
 .column .column-item {
 	box-sizing: border-box;
 	margin-top: 10px;

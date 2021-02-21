@@ -55,6 +55,10 @@ const Barn = {
 			if (!cache) res(data);
 		});
 	},
+	async clearAllCache () {
+		Barn.DB.clearCache('data');
+		await Barn.DB.clear('data');
+	}
 };
 
 // 资源管理
@@ -101,6 +105,13 @@ window.Granary = {
 			data = '';
 		}
 		return data;
+	},
+	async clearAllCache () {
+		var keys = await caches.keys();
+		if (!keys) return;
+		var tasks = keys.map(key => caches.delete(key));
+		tasks.push(Barn.clearAllCache());
+		await Promise.all(tasks);
 	}
 };
 
