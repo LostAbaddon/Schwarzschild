@@ -30,6 +30,9 @@
 <script>
 export default {
 	name: 'AboutSite',
+	mounted () {
+		callPageLoaded();
+	}
 }
 </script>
 

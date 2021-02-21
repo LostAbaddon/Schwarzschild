@@ -41,6 +41,9 @@
 	left: 240px;
 	right: 0px;
 }
+.column header:empty {
+	display: none;
+}
 .column .column-item {
 	box-sizing: border-box;
 	margin-top: 10px;

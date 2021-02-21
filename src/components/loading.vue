@@ -16,6 +16,11 @@
 
 <script>
 const channel = new BroadcastChannel('change-loading-hint');
+global.callPageLoaded = () => {
+	var ch = new BroadcastChannel('change-loading-hint');
+	ch.postMessage({action: 'hide'});
+};
+
 export default {
 	name: "Loading",
 	data () {

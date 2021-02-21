@@ -89,13 +89,18 @@ window.Granary = {
 
 		var info = 'granary/';
 		if (!!category) info = 'granary/' + category + '/';
+		info = info + 'info.md';
+		var data = sessionStorage.getItem(info);
+		if (!!data) return data;
 		try {
-			info = await Barn.get(info + 'info.json', true, sources.update);
+			data = await Barn.get(info, true, sources.update);
+			data = !!data ? data : '';
+			sessionStorage.setItem(info, data);
 		}
 		catch {
-			info = '';
+			data = '';
 		}
-		return info;
+		return data;
 	}
 };
 

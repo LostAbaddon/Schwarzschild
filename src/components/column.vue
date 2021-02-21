@@ -1,6 +1,6 @@
 <template>
 	<section class="column container" @click="onClick">
-		<header v-if="header" class="markup"><pre>{{header}}</pre></header>
+		<header></header>
 		<caption><span>文章列表</span></caption>
 		<ColumnItem v-for="article in list"
 			:title="article.title"
@@ -54,13 +54,26 @@ export default {
 		return {
 			itemPerPage: 20,
 			list: [],
-			header: ''
 		}
 	},
 	methods: {
 		async getHeaderInfo (category) {
 			var info = await Granary.getColumnHeader(category);
-			this.header = info;
+			var content = '';
+			if (!!info) {
+				content = MarkUp.parse(info, {
+					toc: false,
+					glossary: false,
+					resources: false,
+					showtitle: false,
+					showauthor: false,
+					classname: 'markup-content',
+				});
+			}
+			this.$el.querySelector('header').innerHTML = content;
+			if (!!info) {
+				MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+			}
 		},
 		async getArticleList (category) {
 			var articles = await Granary.getCategory(category);
@@ -71,7 +84,6 @@ export default {
 				art.description = art.description || '暂无';
 				this.list.push(art);
 			});
-			chChangeLoadingHint.postMessage({action: 'hide'});
 		},
 		async update () {
 			chChangeLoadingHint.postMessage({
@@ -90,17 +102,18 @@ export default {
 					category = '/' + this.$route.query.c.split(',').filter(c => c.length > 0).join('/');
 				}
 				else {
-					chChangeLoadingHint.postMessage({name: '本页无内容……'});
+					chChangeLoadingHint.postMessage({action: 'hide'});
 					return;
 				}
 			}
 			else {
-				chChangeLoadingHint.postMessage({name: '本页无内容……'});
+				chChangeLoadingHint.postMessage({action: 'hide'});
 				return;
 			}
 			category = category.replace(/^[\/\\]+/, '');
 
 			await Promise.all([this.getHeaderInfo(category), this.getArticleList(category)]);
+			chChangeLoadingHint.postMessage({action: 'hide'});
 		},
 		onClick (evt) {
 			var filename = undefined, category = undefined, timestamp = undefined, ele = evt.target;

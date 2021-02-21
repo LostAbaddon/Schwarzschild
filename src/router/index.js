@@ -3,7 +3,7 @@ import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import Category from '../views/Category.vue'
 
-Vue.use(VueRouter)
+Vue.use(VueRouter);
 
 const routes = [
 	{
@@ -36,7 +36,7 @@ const routes = [
 			return import('../views/404.vue')
 		}
 	}
-]
+];
 
 const router = new VueRouter({
 	mode: 'hash',
@@ -44,4 +44,12 @@ const router = new VueRouter({
 	routes
 });
 
-export default router
+// router.beforeEach((to, from, next) => {
+// 	console.log('BEFORE:', from.name, '->', to.name);
+// 	next();
+// });
+// router.afterEach((to, from) => {
+// 	console.log('AFTER:', from.name, '->', to.name);
+// });
+
+export default router;
