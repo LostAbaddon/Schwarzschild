@@ -28,6 +28,12 @@ export default {
 				target.path = '/category';
 				target.query = {c: action.join(',')};
 			}
+			else if (type === 'action') {
+				if (action[0] === 'color') {
+					changeThemeColor(action[1]);
+				}
+				return;
+			}
 			else {
 				return;
 			}

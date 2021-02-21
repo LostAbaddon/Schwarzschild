@@ -77,6 +77,13 @@ mutationObserver.observe(document.body, {
 	subtree: true,
 });
 
+global.changeThemeColor = (color) => {
+	if (!color) return;
+	localStorage.setItem('themeColor', color);
+	document.body.setAttribute('theme', color);
+};
+changeThemeColor(localStorage.getItem('themeColor'));
+
 new Vue({
 	router,
 	render: function (h) { return h(App) }

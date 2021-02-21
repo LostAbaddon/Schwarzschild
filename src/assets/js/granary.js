@@ -107,6 +107,7 @@ window.Granary = {
 		return data;
 	},
 	async clearAllCache () {
+		sessionStorage.clear();
 		var keys = await caches.keys();
 		if (!keys) return;
 		var tasks = keys.map(key => caches.delete(key));

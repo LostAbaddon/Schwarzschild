@@ -701,3 +701,21 @@ article.markup-content > section > aside.content-table p.content-item a {
 .MathJax > nobr > span.math > span:empty {
 	visibility: hidden !important;
 }
+
+[theme="dark"] article.markup-content,
+[theme="dark"] article.markup-content h1,
+[theme="dark"] article.markup-content h2,
+[theme="dark"] article.markup-content h3,
+[theme="dark"] article.markup-content h4,
+[theme="dark"] article.markup-content h5,
+[theme="dark"] article.markup-content h6,
+[theme="dark"] article.markup-content a,
+[theme="dark"] article.markup-content a:hover,
+[theme="dark"] article.markup-content a:visited {
+	color: rgb(252, 250, 242);
+}
+[theme="dark"] article.markup-content a[href],
+[theme="dark"] article.markup-content a[href]:hover,
+[theme="dark"] article.markup-content a[href]:visited {
+	color: rgb(125, 185, 222);
+}
