@@ -39,7 +39,6 @@ article.markup-content a[target] {
 	text-underline-offset: 4px;
 }
 article.markup-content a[target]:after {
-	display: inline-block;
 	position: relative;
 	top: -3px;
 	margin-left: 3px;
@@ -579,7 +578,7 @@ article.markup-content > header.article-title p.author {
 }
 article.markup-content > header.article-title p.author,
 article.markup-content > header.article-title p.author a {
-	color: rgb(200, 200, 200);
+	color: rgb(110, 117, 164);
 }
 article.markup-content > section {
 	margin-bottom: 36px;
@@ -716,6 +715,7 @@ article.markup-content > section > aside.content-table p.content-item a {
 }
 [theme="dark"] article.markup-content a[href],
 [theme="dark"] article.markup-content a[href]:hover,
-[theme="dark"] article.markup-content a[href]:visited {
+[theme="dark"] article.markup-content a[href]:visited,
+[theme="dark"] article.markup-content > section > aside.content-table p.content-item a {
 	color: rgb(125, 185, 222);
 }

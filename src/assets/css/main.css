@@ -11,13 +11,7 @@ body {
 	-moz-osx-font-smoothing: grayscale;
 	font-size: 16px;
 	color: rgb(55, 60, 56);
-}
-body[theme="light"] {
-	background-color: rgb(250, 250, 255);
-}
-body[theme="dark"] {
-	background-color: rgb(28, 28, 28);
-	color: rgb(252, 250, 242);
+	transition: background-color 300ms ease-in-out, color 300ms ease-in-out;
 }
 a, a:hover, a:visited {
 	text-decoration: none;
@@ -128,4 +122,12 @@ a, a:hover, a:visited {
 	100% {
 		transform: scale(1, 3);
 	}
+}
+
+body[theme="light"] {
+	background-color: rgb(250, 250, 255);
+}
+body[theme="dark"] {
+	background-color: rgb(28, 28, 28);
+	color: rgb(252, 250, 242);
 }

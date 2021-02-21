@@ -45,7 +45,6 @@ const Barn = {
 			}
 			if (!!data) data = data.data;
 			if (!!data) {
-				console.log(data);
 				await Barn.DB.set('data', url, {data, update: Date.now()});
 				console.log('Barn Update Data: ' + url);
 				if (!!cache) {
@@ -95,7 +94,7 @@ window.Granary = {
 		if (!!category) info = 'granary/' + category + '/';
 		info = info + 'info.md';
 		var data = sessionStorage.getItem(info);
-		if (!!data) return data;
+		if (String.is(data)) return data;
 		try {
 			data = await Barn.get(info, true, sources.update);
 			data = !!data ? data : '';
@@ -106,6 +105,21 @@ window.Granary = {
 		}
 		return data;
 	},
+	async getArticle (filepath, timestamp) {
+		filepath = 'granary/' + filepath;
+		var content = sessionStorage.getItem(filepath);
+		if (String.is(content)) return content;
+
+		try {
+			content = await Barn.get(filepath, true, timestamp);
+			content = !!content ? content : '';
+			sessionStorage.setItem(filepath, content);
+		}
+		catch {
+			content = '你所寻找的文件不存在！';
+		}
+		return content;
+	},
 	async clearAllCache () {
 		sessionStorage.clear();
 		var keys = await caches.keys();
@@ -113,7 +127,7 @@ window.Granary = {
 		var tasks = keys.map(key => caches.delete(key));
 		tasks.push(Barn.clearAllCache());
 		await Promise.all(tasks);
-	}
+	},
 };
 
 chDataFetched.addEventListener('message', msg => {

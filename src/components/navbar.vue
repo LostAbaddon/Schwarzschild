@@ -34,23 +34,6 @@ export default {
 		aboutMenu () {
 			var menu = [
 				{
-					name: '本站',
-					type: 'page',
-					category: 'about'
-				}
-			];
-			if (!!this.aboutMe) {
-				menu.unshift({
-					name: '站长',
-					type: 'page',
-					category: this.aboutMe
-				});
-				menu = [{
-					name: '关于',
-					type: 'page',
-					category: '',
-					subs: menu
-				}, {
 					name: '配色',
 					type: 'action',
 					category: 'color',
@@ -67,10 +50,28 @@ export default {
 						type: 'action',
 						category: 'dark'
 					}]
-				}];
+				},
+				{
+					name: '本站',
+					type: 'page',
+					category: 'about'
+				},
+			];
+			if (!!this.aboutMe) {
+				menu[1] = {
+					name: '关于',
+					type: 'page',
+					category: '',
+					subs: [menu[1]]
+				};
+				menu[1].subs.unshift({
+					name: '站长',
+					type: 'page',
+					category: this.aboutMe
+				});
 			}
 			else {
-				menu[0].name = '关于';
+				menu[1].name = '关于';
 			}
 			return menu;
 		}

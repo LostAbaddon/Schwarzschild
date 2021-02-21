@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import Category from '../views/Category.vue'
+import Viewer from '../views/viewer.vue'
 
 Vue.use(VueRouter);
 
@@ -17,9 +18,9 @@ const routes = [
 		component: Category
 	},
 	{
-		path: '/entertain/rushgo',
-		name: 'RushGo',
-		component: Category
+		path: '/view',
+		name: 'Viewer',
+		component: Viewer
 	},
 	{
 		path: '/about',

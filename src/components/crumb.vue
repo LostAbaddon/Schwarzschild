@@ -25,6 +25,7 @@ export default {
 	},
 	methods: {
 		jump (path) {
+			console.log('>>>>', path);
 			let target = {path};
 			this.$router.push(target);
 			var first = path.split('?')[0];
@@ -39,6 +40,14 @@ export default {
 				if (!!this.$route.query && !!this.$route.query.c) {
 					path = this.$route.query.c.split(',').filter(c => c.length > 0);
 					type = 'viewer';
+				}
+			}
+			else if (this.$route.path === '/view') {
+				if (!!this.$route.query && !!this.$route.query.f) {
+					path = this.$route.query.f.split('/');
+					path.pop();
+					path = path.filter(c => c.length > 0);
+					type = 'view';
 				}
 			}
 			else {
@@ -64,7 +73,7 @@ export default {
 				if (type === 'page') {
 					item.path = '/' + reqs.join('/');
 				}
-				else if (type === 'viewer') {
+				else if (type === 'viewer' || type === 'view') {
 					item.path = '/category?c=' + reqs.join(',')
 				}
 				map = entry.subs;

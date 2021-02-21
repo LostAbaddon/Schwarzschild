@@ -23,6 +23,7 @@ require('./assets/css/tail.css');
 require('./assets/css/crumb.css');
 require('./assets/css/column.css');
 require('./assets/css/markup.css');
+require('./assets/css/article.css');
 
 global.axios = axios;
 global.Vue = Vue;

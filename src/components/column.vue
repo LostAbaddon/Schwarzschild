@@ -117,6 +117,7 @@ export default {
 		},
 		onClick (evt) {
 			var filename = undefined, category = undefined, timestamp = undefined, ele = evt.target;
+			if (!ele) return;
 			while (!filename && !category) {
 				filename = ele.getAttribute('filename');
 				category = ele.getAttribute('path');

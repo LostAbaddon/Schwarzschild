@@ -1,0 +1,6 @@
+div.viewer div.container article header p.author:before {
+	content: '作者：';
+}
+[theme="dark"] div.viewer div.container article header p.author {
+	color: rgb(123, 144, 210);
+}

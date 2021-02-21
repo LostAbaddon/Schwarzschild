@@ -62,10 +62,9 @@ const copyFile = async (source, target) => {
 	return false;
 };
 const realizeManifest = async (isDemo=false) => {
-	var webAppFile = Path.join(OutPutPath, "/public/webapp.json");
 	var webApp;
 	try {
-		webApp = await FS.readFile(webAppFile);
+		webApp = await FS.readFile(Path.join(__dirname, "/public/webapp.json"));
 		webApp = webApp.toString();
 		webApp = webApp.replace(/\[:title:\]/gi, Schwarzschild.config.title);
 		webApp = webApp.replace(/\[:shortname:\]/gi, Schwarzschild.config.shortname || Schwarzschild.config.title);
@@ -73,13 +72,12 @@ const realizeManifest = async (isDemo=false) => {
 	} catch {
 		return;
 	}
-	await FS.writeFile(webAppFile, webApp, 'utf-8');
+	await FS.writeFile(Path.join(OutPutPath, "/public/webapp.json"), webApp, 'utf-8');
 };
 const realizeSiteTitle = async (isDemo=false) => {
-	var cfgFile = Path.join(OutPutPath, "vue.config.js");
 	var cfg;
 	try {
-		cfg = await FS.readFile(cfgFile);
+		cfg = await FS.readFile(Path.join(__dirname, "vue.config.js"));
 		cfg = cfg.toString();
 		cfg = cfg.replace(/\[:Title:\]/gi, Schwarzschild.config.title + (isDemo ? ' (demo)' : ''));
 	} catch {
@@ -93,27 +91,25 @@ const realizeSiteTitle = async (isDemo=false) => {
 		};
 		cfg = 'module.exports = ' + JSON.stringify(cfg, '\t', '\t') + ';';
 	}
-	await FS.writeFile(cfgFile, cfg, 'utf-8');
+	await FS.writeFile(Path.join(OutPutPath, "vue.config.js"), cfg, 'utf-8');
 };
 const realizeSiteMenu = async (isDemo) => {
-	var navMenuFile = Path.join(OutPutPath, "src/components/navbar.vue");
 	var navMenu;
 	try {
-		navMenu = await FS.readFile(navMenuFile);
+		navMenu = await FS.readFile(Path.join(__dirname, "src/components/navbar.vue"));
 		navMenu = navMenu.toString();
 		navMenu = navMenu.replace(/\["site-menu"\]/gi, JSON.stringify(Schwarzschild.config.siteMap, "\t", "\t"));
 		navMenu = navMenu.replace(/\[:site-about-me:\]/gi, !!Schwarzschild.config.aboutMe ? 'aboutMe' : '');
-		await FS.writeFile(navMenuFile, navMenu, 'utf-8');
+		await FS.writeFile(Path.join(OutPutPath, "src/components/navbar.vue"), navMenu, 'utf-8');
 	}
 	catch (err) {
 		console.error(err);
 	}
 };
 const realizeRouter = async (isDemo) => {
-	var routerFile = Path.join(OutPutPath, "src/router/index.js");
 	var router;
 	try {
-		router = await FS.readFile(routerFile);
+		router = await FS.readFile(Path.join(__dirname, "src/router/index.js"));
 		router = router.toString();
 		let vueFile = '../' + Schwarzschild.config.aboutMe;
 		if (!vueFile.match(/\.vue$/i)) vueFile = vueFile + '.vue';
@@ -123,41 +119,39 @@ const realizeRouter = async (isDemo) => {
 		else {
 			router = router.replace(/{ aboutMe: 'aboutMe' },/gi, "");
 		}
-		await FS.writeFile(routerFile, router, 'utf-8');
+		await FS.writeFile(Path.join(OutPutPath, "src/router/index.js"), router, 'utf-8');
 	}
 	catch (err) {
 		console.error(err);
 	}
 };
 const realizeAboutSite = async (isDemo) => {
-	var aboutSiteFile = Path.join(OutPutPath, "src/views/about/site.vue");
 	var aboutSite;
 	try {
-		aboutSite = await FS.readFile(aboutSiteFile);
+		aboutSite = await FS.readFile(Path.join(__dirname, "src/views/about/site.vue"));
 		aboutSite = aboutSite.toString();
 		aboutSite = aboutSite.replace(/\[:library:\]/gi, Schwarzschild.pkg.name);
 		aboutSite = aboutSite.replace(/\[:libraryPage:\]/gi, Schwarzschild.pkg.homepage);
 		aboutSite = aboutSite.replace(/\[:version:\]/gi, "v" + Schwarzschild.pkg.version);
 		aboutSite = aboutSite.replace(/\[:author:\]/gi, Schwarzschild.pkg.author.name);
 		aboutSite = aboutSite.replace(/\[:mail:\]/gi, Schwarzschild.pkg.author.email);
-		await FS.writeFile(aboutSiteFile, aboutSite, 'utf-8');
+		await FS.writeFile(Path.join(OutPutPath, "src/views/about/site.vue"), aboutSite, 'utf-8');
 	}
 	catch (err) {
 		console.error(err);
 	}
 };
 const realizeTailBar = async (isDemo) => {
-	var tailBarFile = Path.join(OutPutPath, "src/components/tail.vue");
 	var tailBar;
 	try {
-		tailBar = await FS.readFile(tailBarFile);
+		tailBar = await FS.readFile(Path.join(__dirname, "src/components/tail.vue"));
 		tailBar = tailBar.toString();
 		tailBar = tailBar.replace(/\[:library:\]/gi, Schwarzschild.pkg.name);
 		tailBar = tailBar.replace(/\[:libraryPage:\]/gi, Schwarzschild.pkg.homepage);
 		tailBar = tailBar.replace(/\[:version:\]/gi, Schwarzschild.pkg.version);
 		tailBar = tailBar.replace(/\[:owner:\]/gi, Schwarzschild.config.owner || Schwarzschild.pkg.author.name);
 		tailBar = tailBar.replace(/\[:now-year:\]/gi, (new Date()).getYear() + 1900);
-		await FS.writeFile(tailBarFile, tailBar, 'utf-8');
+		await FS.writeFile(Path.join(OutPutPath, "src/components/tail.vue"), tailBar, 'utf-8');
 	}
 	catch (err) {
 		console.error(err);
