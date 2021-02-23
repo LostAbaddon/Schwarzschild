@@ -25,7 +25,6 @@ export default {
 	},
 	methods: {
 		jump (path) {
-			console.log('>>>>', path);
 			let target = {path};
 			this.$router.push(target);
 			var first = path.split('?')[0];

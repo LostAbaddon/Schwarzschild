@@ -1,6 +1,9 @@
 div.viewer div.container article header p.author:before {
 	content: '作者：';
 }
+div.viewer div.container article header p.author.date:before {
+	content: '发表于：';
+}
 [theme="dark"] div.viewer div.container article header p.author {
 	color: rgb(123, 144, 210);
 }

@@ -1,5 +1,5 @@
 <template>
-	<section class="column-item" :filename="categoryPath+'/'+filename" :timestamp="timestamp">
+	<section class="column-item" :filename="categoryPath+'/'+filename" :timestamp="timestamp" :author="author">
 		<header>
 			<div class="title">{{title}}</div>
 			<div class="category" :path="categoryPath">{{categoryName}}</div>
@@ -7,7 +7,7 @@
 		<article>{{description}}</article>
 		<footer>
 			<div class="author">{{author}}</div>
-			<div class="timestamp">{{timestamp}}</div>
+			<div class="timestamp">{{timemark}}</div>
 		</footer>
 	</section>
 </template>
@@ -20,7 +20,8 @@ export default {
 		author: String,
 		description: String,
 		type: String,
-		timestamp: String,
+		timemark: String,
+		timestamp: Number,
 		categoryName: String,
 		categoryPath: String,
 		filename: String

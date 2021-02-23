@@ -576,6 +576,9 @@ article.markup-content > header.article-title p.author {
 	line-height: 18px;
 	text-align: right;
 }
+article.markup-content > header.article-title p.author.date {
+	font-style: italic;
+}
 article.markup-content > header.article-title p.author,
 article.markup-content > header.article-title p.author a {
 	color: rgb(110, 117, 164);

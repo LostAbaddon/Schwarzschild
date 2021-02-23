@@ -39,7 +39,76 @@
 }
 .column caption:after {
 	left: 240px;
+	right: 35px;
+}
+.column caption .controller {
+	display: block;
+	box-sizing: border-box;
+	position: absolute;
+	top: 3px;
 	right: 0px;
+	width: 35px;
+}
+.column caption .controller .hint,
+.column caption .controller .styleItem {
+	display: block;
+	box-sizing: border-box;
+	width: 35px;
+	height: 36px;
+	text-align: center;
+	cursor: pointer;
+}
+.column caption .controller .hint i,
+.column caption .controller .styleItem i {
+	pointer-events: none;
+}
+.column caption .controller .hint {
+	position: relative;
+	border-radius: 5px;
+	padding: 6px 4px 5px 6px;
+	background-color: rgba(255, 255, 255, 0);
+	box-shadow: 0px 0px 0px rgba(0, 0, 0, 0), inset 0px 0px 0px 0px rgba(255, 255, 255, 0);
+	transition: background-color 300ms ease-in-out, box-shadow 300ms ease-in-out;
+}
+.column caption .controller:hover .hint {
+	background-color: rgba(255, 255, 255, 0.9);
+	box-shadow: 2px 2px 5px rgba(25, 25, 25, 0.6), inset 0px 0px 0px 1px rgba(127, 127, 127, 0.6);
+}
+.column caption .controller .styleList {
+	position: absolute;
+	box-sizing: border-box;
+	top: 36px;
+	width: 35px;
+	height: 0px;
+	border-radius: 0px 0px 5px 5px;
+	background-color: rgba(255, 255, 255, 0.9);
+	box-shadow: 0px 0px 0px rgba(0, 0, 0, 0), inset 0px 0px 0px 0px rgba(255, 255, 255, 0);
+	opacity: 0;
+	overflow: hidden;
+	transition: height 300ms ease-in-out, box-shadow 300ms ease-in-out, opacity 300ms ease;
+}
+.column caption .controller:hover .styleList {
+	height: 113px;
+	box-shadow: 2px 2px 5px rgba(25, 25, 25, 0.6), inset 0px 0px 0px 1px rgba(127, 127, 127, 0.6);
+	opacity: 1;
+}
+[theme="dark"] .column caption .controller .hint {
+	background-color: rgba(0, 0, 0, 0);
+	box-shadow: 0px 0px 0px rgba(255, 255, 255, 0), inset 0px 0px 0px 0px rgba(0, 0, 0, 0);
+}
+[theme="dark"] .column caption .controller:hover .hint {
+	background-color: rgba(8, 8, 8, 0.9);
+	box-shadow: 2px 2px 5px rgba(75, 75, 75, 0.6), inset 0px 0px 0px 1px rgba(127, 127, 127, 0.6);
+}
+[theme="dark"] .column caption .controller .styleList {
+	background-color: rgba(8, 8, 8, 0.9);
+	box-shadow: 0px 0px 0px rgba(255, 255, 255, 0), inset 0px 0px 0px 0px rgba(255, 255, 255, 0);
+}
+[theme="dark"] .column caption .controller:hover .styleList {
+	box-shadow: 2px 2px 5px rgba(75, 75, 75, 0.6), inset 0px 0px 0px 1px rgba(127, 127, 127, 0.6);
+}
+.column caption .controller .styleItem {
+	padding: 6px 5px 5px 5px;
 }
 .column header:empty {
 	display: none;
@@ -71,8 +140,12 @@
 }
 .column .column-item {
 	box-sizing: border-box;
+	width: 100%;
+	max-width: 800px;
 	margin-top: 10px;
 	margin-bottom: 10px;
+	margin-left: auto;
+	margin-right: auto;
 	padding: 2px 10px;
 	padding-bottom: 10px;
 	border-bottom: 1px solid rgba(33, 30, 85, 0.15);
@@ -120,4 +193,87 @@
 	content: '发表于';
 	display: inline-block;
 	margin-right: 5px;
+}
+.column[columnstyle="bars"] caption {
+	margin-bottom: 20px;
+}
+.column[columnstyle="bars"] .column-item {
+	height: 32px;
+	max-width: 960px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	padding-top: 0px;
+	padding-bottom: 0px;
+	padding-left: 0px;
+	padding-right: 0px;
+}
+.column[columnstyle="bars"] .column-item header {
+	display: inline-block;
+	position: absolute;
+	left: 20px;
+	right: 225px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	word-break: normal;
+	word-spacing: normal;
+	white-space: nowrap;
+}
+.column[columnstyle="bars"] .column-item header .title {
+	display: inline;
+	font-size: 16px;
+}
+.column[columnstyle="bars"] .column-item header .category {
+	float: unset;
+	display: inline;
+	margin-left: 10px;
+}
+.column[columnstyle="bars"] .column-item header .category:before {
+	content: '(';
+}
+.column[columnstyle="bars"] .column-item header .category:after {
+	content: ')';
+}
+.column[columnstyle="bars"] .column-item article {
+	display: none;
+}
+.column[columnstyle="bars"] .column-item footer {
+	display: inline-block;
+	float: right;
+	margin-top: 5px;
+	padding-right: 0px;
+}
+.column[columnstyle="bars"] .column-item footer .timestamp:before {
+	display: none;
+}
+.column[columnstyle="columns"] {
+	display: flex;
+	flex-flow: wrap;
+	justify-content: space-around;
+}
+.column[columnstyle="columns"] .column-item {
+	box-sizing: border-box;
+	flex: 0.1 0.1 49%;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	padding-left: 15px;
+	padding-right: 15px;
+	border: 1px solid rgba(48, 47, 75, 0.8);
+	border-radius: 15px;
+	transition: box-shadow 300ms ease-in-out;
+}
+.column[columnstyle="columns"] .column-item:hover {
+	box-shadow: 3px 3px 8px rgba(8, 8, 8, 0.5);
+}
+[theme="dark"] .column[columnstyle="columns"] .column-item {
+	border: 1px solid rgba(216, 227, 231, 0.8);
+}
+[theme="dark"] .column[columnstyle="columns"] .column-item:hover {
+	box-shadow: 2px 2px 5px rgba(216, 227, 231, 0.6), 4px 4px 8px rgba(8, 8, 8, 0.8);
+}
+.column[columnstyle="columns"] .column-item header .title {
+	display: inline;
+}
+.column[columnstyle="columns"] .column-item header .category {
+	display: inline;
+	margin-right: 15px;
 }
