@@ -100,6 +100,22 @@ const realizeSiteMenu = async (isDemo) => {
 		navMenu = navMenu.toString();
 		navMenu = navMenu.replace(/\["site-menu"\]/gi, JSON.stringify(Schwarzschild.config.siteMap, "\t", "\t"));
 		navMenu = navMenu.replace(/\[:site-about-me:\]/gi, !!Schwarzschild.config.aboutMe ? 'aboutMe' : '');
+		let themes = Schwarzschild.config.themeList || [
+			{
+				"name": "亮",
+				"type": "action",
+				"category": "light"
+			}, {
+				"name": "淡",
+				"type": "action",
+				"category": "normal"
+			}, {
+				"name": "黯",
+				"type": "action",
+				"category": "dark"
+			}
+		];
+		navMenu = navMenu.replace(/\["theme-list"\]/gi, JSON.stringify(themes, "\t", "\t"));
 		await FS.writeFile(Path.join(OutPutPath, "src/components/navbar.vue"), navMenu, 'utf-8');
 	}
 	catch (err) {

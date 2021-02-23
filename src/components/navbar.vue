@@ -37,19 +37,7 @@ export default {
 					name: '配色',
 					type: 'action',
 					category: 'color',
-					subs: [{
-						name: '亮',
-						type: 'action',
-						category: 'light'
-					}, {
-						name: '淡',
-						type: 'action',
-						category: 'normal'
-					}, {
-						name: '黯',
-						type: 'action',
-						category: 'dark'
-					}]
+					subs: ["theme-list"]
 				},
 				{
 					name: '本站',

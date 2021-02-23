@@ -24,9 +24,3 @@
 .crumb i:last-child {
 	display: none;
 }
-[theme="dark"] .crumb span {
-	color: rgb(252, 250, 242);
-}
-[theme="dark"] .crumb span:hover {
-	color: rgb(125, 185, 222);
-}

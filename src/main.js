@@ -17,6 +17,7 @@ import TailBar from '@/components/tail.vue'
 import Crumb from '@/components/crumb.vue'
 import Column from '@/components/column.vue'
 
+require('./assets/css/theme.css');
 require('./assets/css/main.css');
 require('./assets/css/navbar.css');
 require('./assets/css/tail.css');
