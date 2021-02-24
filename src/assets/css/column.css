@@ -68,9 +68,10 @@
 	padding: 6px 4px 5px 6px;
 	background-color: rgba(255, 255, 255, 0);
 	box-shadow: 0px 0px 0px rgba(0, 0, 0, 0), inset 0px 0px 0px 0px rgba(255, 255, 255, 0);
-	transition: background-color 300ms ease-in-out, box-shadow 300ms ease-in-out;
+	transition: background-color 300ms ease-in-out, box-shadow 300ms ease-in-out, border-radius 300ms ease-in-out;
 }
 .column caption .controller:hover .hint {
+	border-radius: 10px 10px 0px 0px;
 	background-color: rgba(255, 255, 255, 0.9);
 	box-shadow: 2px 2px 5px rgba(25, 25, 25, 0.6), inset 0px 0px 0px 1px rgba(127, 127, 127, 0.6);
 }
@@ -80,7 +81,7 @@
 	top: 36px;
 	width: 35px;
 	height: 0px;
-	border-radius: 0px 0px 5px 5px;
+	border-radius: 0px 0px 10px 10px;
 	background-color: rgba(255, 255, 255, 0.9);
 	box-shadow: 0px 0px 0px rgba(0, 0, 0, 0), inset 0px 0px 0px 0px rgba(255, 255, 255, 0);
 	opacity: 0;
@@ -94,6 +95,10 @@
 }
 .column caption .controller .styleItem {
 	padding: 6px 5px 5px 5px;
+	transition: transform 300ms ease-in-out;
+}
+.column caption .controller .styleItem:hover {
+	transform: scale(1.05);
 }
 .column header:empty {
 	display: none;
@@ -231,6 +236,7 @@
 	display: flex;
 	flex-flow: wrap;
 	justify-content: space-around;
+	margin-top: 5px;
 }
 .column[columnstyle="columns"] .column-item {
 	box-sizing: border-box;

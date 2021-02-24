@@ -53,10 +53,11 @@ export default {
 					subs: [menu[1]]
 				};
 				menu[1].subs.unshift({
-					name: '站长',
+					name: '本站',
 					type: 'page',
 					category: this.aboutMe
 				});
+				menu[1].subs[1].name = '系统';
 			}
 			else {
 				menu[1].name = '关于';

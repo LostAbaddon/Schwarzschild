@@ -13,10 +13,27 @@ body {
 	color: rgb(55, 60, 56);
 	transition: background-color 300ms ease-in-out, color 300ms ease-in-out;
 }
+body::-webkit-scrollbar {
+	width: 12px;
+	background-color: transparent;
+	cursor: pointer;
+}
+body::-webkit-scrollbar-thumb {
+	background-color: rgb(75, 75, 75);
+	box-shadow: inset 2px 2px 3px rgba(255, 255, 255, 0.5), inset -2px -2px 3px rgba(23, 23, 23, 0.5);
+	cursor: pointer;
+}
+body::-webkit-scrollbar-track {
+	background-color: rgba(225, 225, 225, 0.1);
+	box-shadow: inset 2px 2px 3px rgba(53, 53, 53, 0.2);
+	cursor: pointer;
+}
+
 a, a:hover, a:visited {
 	text-decoration: none;
 	color: rgb(36, 134, 185);
 }
+
 .fa.fa-faster,
 .fas.fa-faster,
 .far.fa-faster,
@@ -45,6 +62,7 @@ a, a:hover, a:visited {
 	-webkit-animation-duration: 3.0s;
 	animation-duration: 3.0s;
 }
+
 #container {
 	margin-left: 50px;
 	margin-right: 50px;
@@ -56,6 +74,7 @@ a, a:hover, a:visited {
 	margin-left: auto;
 	margin-right: auto;
 }
+
 .loading {
 	position: fixed;
 	width: 100%;
@@ -107,6 +126,7 @@ a, a:hover, a:visited {
 .loading .hint .animate.pulse .fas:nth-child(5) {
 	animation-delay: 800ms;
 }
+
 @-webkit-keyframes loading-pulse {
 	0% {
 		transform: scale(1, 3);
