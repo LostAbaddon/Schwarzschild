@@ -54,10 +54,6 @@
 	opacity: 0;
 	transform: translateY(-100%);
 }
-.nav-bar > .nav-container.right > .nav-menu-bar > .nav-menu-item > .nav-menu-bar {
-	left: auto;
-	right: 5px;
-}
 .nav-bar > .nav-container > .nav-menu-bar > .nav-menu-item:hover > .nav-menu-bar {
 	opacity: 1;
 	transform: translateY(0%);

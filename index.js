@@ -61,6 +61,41 @@ const copyFile = async (source, target) => {
 	}
 	return false;
 };
+const realizeCustomPages = async (isDemo=false) => {
+	var pagesPath = Path.join(process.cwd(), 'pages');
+	var targetPath = Path.join(OutPutPath, 'src/pages');
+	var has = await FS.hasFile(pagesPath);
+	if (!has) return;
+
+	var map, pathList = [];
+	[map, _] = await Promise.all([FS.getFolderMap(pagesPath), FS.copyFolder(pagesPath, targetPath)]);
+	map = FS.convertFileMap(map);
+	pathList = map.files.map(p => {
+		var name = Path.basename(p).replace(/\.vue$/i, '');
+		var path = p.replace(pagesPath, '../pages').replace(/\\/g, '/');
+		console.log('复制自定义页面文件：', path);
+		return '{"path":"/' + name + '","name":"' + name + '","component":function(){return import("' + path + '")}}'
+	});
+	pathList = pathList.join(',') + ',';
+
+
+	var router;
+	try {
+		router = await FS.readFile(Path.join(__dirname, "src/router/index.js"));
+		router = router.toString();
+		let vueFile = '../' + Schwarzschild.config.aboutMe;
+		if (!vueFile.match(/\.vue$/i)) vueFile = vueFile + '.vue';
+		if (!!Schwarzschild.config.aboutMe) {
+			pathList = pathList + "{path:'/aboutMe',name:'AboutMe',component:function(){return import('" + vueFile + "')}},";
+		}
+		router = router.replace(/{ aboutMe: 'aboutMe' },/gi, pathList);
+		await FS.writeFile(Path.join(OutPutPath, "src/router/index.js"), router, 'utf-8');
+		console.log('关于页与自定义页配置完成');
+	}
+	catch (err) {
+		console.error(err);
+	}
+};
 const realizeManifest = async (isDemo=false) => {
 	var webApp;
 	try {
@@ -73,6 +108,7 @@ const realizeManifest = async (isDemo=false) => {
 		return;
 	}
 	await FS.writeFile(Path.join(OutPutPath, "/public/webapp.json"), webApp, 'utf-8');
+	console.log('WebApp配置文件配置成功');
 };
 const realizeSiteTitle = async (isDemo=false) => {
 	var cfg;
@@ -92,6 +128,7 @@ const realizeSiteTitle = async (isDemo=false) => {
 		cfg = 'module.exports = ' + JSON.stringify(cfg, '\t', '\t') + ';';
 	}
 	await FS.writeFile(Path.join(OutPutPath, "vue.config.js"), cfg, 'utf-8');
+	console.log('vue.config.js文件配置成功');
 };
 const realizeSiteMenu = async (isDemo) => {
 	var navMenu;
@@ -117,25 +154,7 @@ const realizeSiteMenu = async (isDemo) => {
 		];
 		navMenu = navMenu.replace(/\["theme-list"\]/gi, JSON.stringify(themes, "\t", "\t"));
 		await FS.writeFile(Path.join(OutPutPath, "src/components/navbar.vue"), navMenu, 'utf-8');
-	}
-	catch (err) {
-		console.error(err);
-	}
-};
-const realizeRouter = async (isDemo) => {
-	var router;
-	try {
-		router = await FS.readFile(Path.join(__dirname, "src/router/index.js"));
-		router = router.toString();
-		let vueFile = '../' + Schwarzschild.config.aboutMe;
-		if (!vueFile.match(/\.vue$/i)) vueFile = vueFile + '.vue';
-		if (!!Schwarzschild.config.aboutMe) {
-			router = router.replace(/{ aboutMe: 'aboutMe' },/gi, "{path:'/aboutMe',name:'AboutMe',component:function(){return import('" + vueFile + "')}},");
-		}
-		else {
-			router = router.replace(/{ aboutMe: 'aboutMe' },/gi, "");
-		}
-		await FS.writeFile(Path.join(OutPutPath, "src/router/index.js"), router, 'utf-8');
+		console.log('导航条配置成功');
 	}
 	catch (err) {
 		console.error(err);
@@ -152,6 +171,7 @@ const realizeAboutSite = async (isDemo) => {
 		aboutSite = aboutSite.replace(/\[:author:\]/gi, Schwarzschild.pkg.author.name);
 		aboutSite = aboutSite.replace(/\[:mail:\]/gi, Schwarzschild.pkg.author.email);
 		await FS.writeFile(Path.join(OutPutPath, "src/views/about/site.vue"), aboutSite, 'utf-8');
+		console.log('关于系统页配置成功');
 	}
 	catch (err) {
 		console.error(err);
@@ -168,6 +188,7 @@ const realizeTailBar = async (isDemo) => {
 		tailBar = tailBar.replace(/\[:owner:\]/gi, Schwarzschild.config.owner || Schwarzschild.pkg.author.name);
 		tailBar = tailBar.replace(/\[:now-year:\]/gi, (new Date()).getYear() + 1900);
 		await FS.writeFile(Path.join(OutPutPath, "src/components/tail.vue"), tailBar, 'utf-8');
+		console.log('页尾条配置成功');
 	}
 	catch (err) {
 		console.error(err);
@@ -412,9 +433,9 @@ Schwarzschild.prepare = async (force=false, clear=false, onlyapi=false, isDemo=t
 		assemblejLAss(),
 		assembleAPI(),
 		assembleImages(),
+		realizeCustomPages(isDemo),
 		realizeSiteTitle(isDemo),
 		realizeSiteMenu(isDemo),
-		realizeRouter(isDemo),
 		realizeAboutSite(isDemo),
 		realizeTailBar(isDemo),
 		realizeManifest(),
