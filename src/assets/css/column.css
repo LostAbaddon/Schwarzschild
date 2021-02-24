@@ -95,10 +95,10 @@
 }
 .column caption .controller .styleItem {
 	padding: 6px 5px 5px 5px;
-	transition: transform 300ms ease-in-out;
+	transition: color 300ms ease-in-out;
 }
 .column caption .controller .styleItem:hover {
-	transform: scale(1.05);
+	color: rgb(194, 31, 48);
 }
 .column header:empty {
 	display: none;

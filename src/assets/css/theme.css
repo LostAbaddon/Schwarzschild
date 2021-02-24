@@ -28,6 +28,9 @@ body[theme="dark"] {
 [theme="dark"] .column caption .controller:hover .styleList {
 	box-shadow: 2px 2px 5px rgba(75, 75, 75, 0.6), inset 0px 0px 0px 1px rgba(127, 127, 127, 0.6);
 }
+[theme="dark"] .column caption .controller .styleItem:hover {
+	color: rgb(237, 90, 101);
+}
 [theme="dark"] .column .column-item {
 	border-bottom: 1px solid rgba(252, 250, 242, 0.15);
 }

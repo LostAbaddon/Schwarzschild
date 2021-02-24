@@ -1,11 +1,11 @@
 <template>
-	<div class="container">
-		星系正在构建中，请星侠稍后！
+	<div class="page_not_found">
+		<div class="frame"></div>
+		<div class="title">星系正在构建中，请星侠稍后！</div>
 	</div>
 </template>
 
 <script>
-// @ is an alias to /src
 export default {
 	name: 'PageNotFound',
 	mounted () {
@@ -13,11 +13,3 @@ export default {
 	}
 }
 </script>
-
-<style scoped>
-.container {
-	font-size: 24px;
-	font-weight: bolder;
-	text-align: center;
-}
-</style>

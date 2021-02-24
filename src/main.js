@@ -19,6 +19,7 @@ import Column from '@/components/column.vue'
 
 require('./assets/css/theme.css');
 require('./assets/css/main.css');
+require('./assets/css/404.css');
 require('./assets/css/navbar.css');
 require('./assets/css/tail.css');
 require('./assets/css/crumb.css');

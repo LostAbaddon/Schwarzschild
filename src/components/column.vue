@@ -1,18 +1,18 @@
 <template>
 	<section class="column container" @click="onClick">
 		<header></header>
-		<caption>
+		<caption v-if="showList">
 			<span>文章列表</span>
 			<div class="controller">
 				<div class="hint"><i class="fas fa-sliders-h"></i></div>
 				<div class="styleList">
-					<div class="styleItem" name="lines"><i class="fas fa-grip-lines"></i></div>
 					<div class="styleItem" name="bars"><i class="fas fa-bars"></i></div>
+					<div class="styleItem" name="lines"><i class="fas fa-stream"></i></div>
 					<div class="styleItem" name="columns"><i class="fas fa-columns"></i></div>
 				</div>
 			</div>
 		</caption>
-		<ColumnItem v-for="article in list"
+		<ColumnItem v-if="showList" v-for="article in list"
 			:title="article.title"
 			:author="article.author"
 			:description="article.description"
@@ -65,6 +65,7 @@ export default {
 		return {
 			itemPerPage: 20,
 			list: [],
+			showList: true,
 		}
 	},
 	methods: {
@@ -99,13 +100,14 @@ export default {
 			});
 		},
 		async update () {
-			var style = localStorage.getItem('columnStyle') || 'lines';
-			this.$el.setAttribute('columnStyle', style);
-
 			chChangeLoadingHint.postMessage({
 				name: '加载中……',
 				action: 'show'
 			});
+
+			var style = localStorage.getItem('columnStyle') || 'lines';
+			this.$el.setAttribute('columnStyle', style);
+
 			this.list.splice(0, this.list.length);
 			this.header = '';
 
@@ -128,7 +130,36 @@ export default {
 			}
 			category = category.replace(/^[\/\\]+/, '');
 
-			await Promise.all([this.getHeaderInfo(category), this.getArticleList(category)]);
+			var cateList = category.split('/').filter(c => c.length > 0);
+			var cateType = SiteMap;
+			if (cateList.length > 0) {
+				cateList.some(cate => {
+					cate = cateType[cate];
+					if (!!cate.subs && cate.subs.length > 0) {
+						cateType = cate.subs;
+					}
+					else {
+						cateType = cate.type;
+						return true;
+					}
+				});
+			}
+			else {
+				cateType = 'viewer';
+			}
+
+			if (cateType === 'folder') {
+				this.showList = false;
+				await this.getHeaderInfo(category);
+			}
+			else if (cateType === 'viewer') {
+				this.showList = true;
+				await Promise.all([this.getHeaderInfo(category), this.getArticleList(category)]);
+			}
+			else {
+				this.showList = false;
+			}
+
 			chChangeLoadingHint.postMessage({action: 'hide'});
 		},
 		onClick (evt) {

@@ -24,7 +24,7 @@ export default {
 			if (type === 'page') {
 				target.path = '/' + action.join('/');
 			}
-			else if (type === 'viewer') {
+			else if (type === 'viewer' || type === 'folder') {
 				target.path = '/category';
 				target.query = {c: action.join(',')};
 			}

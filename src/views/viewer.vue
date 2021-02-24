@@ -27,13 +27,18 @@ export default {
 				Granary.getArticle(article, timestamp),
 				Granary.getArticle('copyright.md'),
 			]);
-			if (!!copyright) {
+
+			var html = '', hasContent = true;
+			if (!content) {
+				hasContent = false;
+				html = '<div class="page_not_found"><div class="frame"></div><div class="title">指定内容不存在，请联系站长。</div></div>';
+			}
+			else if (!!copyright) {
 				content = content + '\n\n\n' + copyright;
 			}
-			if (timestamp === 0) timestamp = Date.now();
 
-			var html = '<div>解析失败……</div>';
-			if (!!content) {
+			if (hasContent) {
+				if (timestamp === 0) timestamp = Date.now();
 				html = MarkUp.parse(content, {
 					toc: true,
 					glossary: true,
@@ -44,9 +49,13 @@ export default {
 					date: timestamp,
 					classname: 'markup-content',
 				});
+				if (!html) {
+					html = '<div class="page_not_found"><div class="frame"></div><div class="title">MarkUp 内容解析失败，请联系作者。</div></div>';
+					hasContent = false;
+				}
 			}
 			this.$el.querySelector('div.container').innerHTML = html;
-			if (!!content) {
+			if (hasContent) {
 				MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 			}
 
