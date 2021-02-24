@@ -50,7 +50,7 @@ const mutationObserver = new MutationObserver(mutations => {
 			toc: mu.classList.contains('toc'),
 			glossary: mu.classList.contains('glossary'),
 			resources: mu.classList.contains('resources'),
-			showtitle: false,
+			showtitle: mu.classList.contains('showtitle'),
 			showauthor: false,
 			classname: 'markup-content',
 		});

@@ -23,6 +23,9 @@ export default {
 			path: []
 		}
 	},
+	props: {
+		target: String
+	},
 	methods: {
 		jump (path) {
 			let target = {path};
@@ -50,7 +53,8 @@ export default {
 				}
 			}
 			else {
-				path = this.$route.path.split('/').filter(c => c.length > 0);
+				let fullpath = this.target || this.$route.path;
+				path = fullpath.split('/').filter(c => c.length > 0);
 				type = 'page';
 			}
 			if (!path) {

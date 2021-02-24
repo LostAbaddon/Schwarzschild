@@ -104,11 +104,23 @@ const realizeManifest = async (isDemo=false) => {
 		webApp = webApp.replace(/\[:title:\]/gi, Schwarzschild.config.title);
 		webApp = webApp.replace(/\[:shortname:\]/gi, Schwarzschild.config.shortname || Schwarzschild.config.title);
 		webApp = webApp.replace(/\[:description:\]/gi, Schwarzschild.config.description || Schwarzschild.config.title);
-	} catch {
-		return;
+		await FS.writeFile(Path.join(OutPutPath, "/public/webapp.json"), webApp, 'utf-8');
+		console.log('WebApp配置文件配置成功');
+	} catch (err) {
+		console.error(err);
 	}
-	await FS.writeFile(Path.join(OutPutPath, "/public/webapp.json"), webApp, 'utf-8');
-	console.log('WebApp配置文件配置成功');
+};
+const realizeMiddleGround = async () => {
+	var middleGround;
+	try {
+		middleGround = await FS.readFile(Path.join(__dirname, "/public/priory.js"));
+		middleGround = middleGround.toString();
+		middleGround = '/* 更新于：' + getTimeString(new Date()) + ' */\n' + middleGround;
+		await FS.writeFile(Path.join(OutPutPath, "/public/priory.js"), middleGround, 'utf-8');
+		console.log('中台控制模块更新成功');
+	} catch (err) {
+		console.error(err);
+	}
 };
 const realizeSiteTitle = async (isDemo=false) => {
 	var cfg;
@@ -434,6 +446,7 @@ Schwarzschild.prepare = async (force=false, clear=false, onlyapi=false, isDemo=t
 		assembleAPI(),
 		assembleImages(),
 		realizeCustomPages(isDemo),
+		realizeMiddleGround(isDemo),
 		realizeSiteTitle(isDemo),
 		realizeSiteMenu(isDemo),
 		realizeAboutSite(isDemo),
