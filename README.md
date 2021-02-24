@@ -42,6 +42,16 @@ Schwarzschild.launch(require('./config.json'));
 -	publish<br>
 	使用 vue-cli 来生成页面，并导出到指定目录<br>
 	可设置 commit message 信息来自动 commit 更改信息
+-	append<br>
+	添加文件并更新目录
+	+	file：	必选，mu/md文件路径
+	+	category：	必选，文章分类
+	+	title：	可选，目录页显示的文章名
+	+	author:	可选，目录页显示的作者名
+	+	publishAt：	可选，目录页显示的文章发布时间
+	+	overwrite：	可选，是否覆盖原有mu/md文件
+	+	rename：	可选，如制定目录和文件名的文件已存在则将新文件自动重命名
+	+	keep：	可选，决定是否保留原有文件
 
 ### MarkUp 用法
 
@@ -59,7 +69,10 @@ Schwarzschild 会自动将页面中带有 markup 类名的容器中的内容解�
 
 -	config.json:	项目配置文件
 -	site:	替换 Schwarzschild 的文件，数据文件也可以放在里面
--	api: 网站数据文件夹，其中包括文章列表、文章等所有动态数据
+-	api:	网站数据文件夹，其中包括文章列表、文章等所有动态数据
+-	image:	存放页面所用图片等静态文件的目录
+-	pages:	自定义页面（vue）所在目录
+-	output：	vue-cli打包目录，自动生成
 
 ### config.json
 
