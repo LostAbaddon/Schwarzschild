@@ -55,7 +55,7 @@ export default {
 			else {
 				let fullpath = this.target || this.$route.path;
 				path = fullpath.split('/').filter(c => c.length > 0);
-				type = 'page';
+				type = 'view';
 			}
 			if (!path) {
 				this.show = false;
