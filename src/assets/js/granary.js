@@ -135,10 +135,10 @@ window.Granary = {
 	},
 	async clearAllCache () {
 		sessionStorage.clear();
-		var keys = await caches.keys();
-		if (!keys) return;
-		var tasks = keys.map(key => caches.delete(key));
-		tasks.push(Barn.clearAllCache());
+		var tasks = [
+			caches.delete('schwarzschild'),
+			Barn.clearAllCache()
+		];
 		await Promise.all(tasks);
 	},
 };
