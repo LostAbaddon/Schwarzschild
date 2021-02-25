@@ -1,7 +1,7 @@
 const chDataFetched = new BroadcastChannel('fetch-data');
 
 const Barn = {
-	server: '/api/',
+	server: '',
 	DB: null,
 	ready: false,
 	async init () {
@@ -46,7 +46,6 @@ const Barn = {
 			if (!!data) data = data.data;
 			if (!!data) {
 				await Barn.DB.set('data', url, {data, update: Date.now()});
-				console.log('Barn Update Data: ' + url);
 				if (!!cache) {
 					chDataFetched.postMessage({ url, data });
 				}
@@ -65,7 +64,7 @@ window.Granary = {
 	async getSource (source, limit) {
 		var result = { articles: [], comments: [] };
 		await Promise.all(Array.generate(limit + 1).map(async index => {
-			var url = source + '-' + index + '.json';
+			var url = '/api/' + source + '-' + index + '.json';
 			var d = await Barn.get(url, limit !== index);
 			if (String.is(d)) return;
 			result.articles.push(...d.articles);
@@ -76,7 +75,7 @@ window.Granary = {
 		return result;
 	},
 	async getCategory (category) {
-		var sources = await Barn.get('sources.json', false);
+		var sources = await Barn.get('/api/sources.json', false);
 		var data = [];
 		if (!sources || !sources.sources) return data;
 		await Promise.all(sources.sources.map(async source => {
@@ -88,10 +87,10 @@ window.Granary = {
 		return data;
 	},
 	async getColumnHeader (category) {
-		var sources = await Barn.get('sources.json', true);
+		var sources = await Barn.get('/api/sources.json', true);
 
-		var info = 'granary/';
-		if (!!category) info = 'granary/' + category + '/';
+		var info = '/api/granary/';
+		if (!!category) info = '/api/granary/' + category + '/';
 		info = info + 'info.md';
 		var data = sessionStorage.getItem(info);
 		if (String.is(data)) return data;
@@ -106,7 +105,7 @@ window.Granary = {
 		return data;
 	},
 	async getArticle (filepath, timestamp) {
-		filepath = 'granary/' + filepath;
+		filepath = '/api/granary/' + filepath;
 		var content = sessionStorage.getItem(filepath);
 		if (String.is(content)) return content;
 
@@ -116,6 +115,20 @@ window.Granary = {
 			sessionStorage.setItem(filepath, content);
 		}
 		catch {
+			content = '你所寻找的文件不存在！';
+		}
+		return content;
+	},
+	async getContent (filepath) {
+		var content = sessionStorage.getItem(filepath);
+		if (String.is(content)) return content;
+
+		try {
+			content = await Barn.get(filepath, true, 0);
+			content = !!content ? content : '';
+			sessionStorage.setItem(filepath, content);
+		}
+		catch (err) {
 			content = '你所寻找的文件不存在！';
 		}
 		return content;
