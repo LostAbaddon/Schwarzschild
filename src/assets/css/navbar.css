@@ -37,6 +37,13 @@
 .nav-bar > .nav-container > .nav-menu-bar > .nav-menu-item {
 	display: inline-block;
 }
+.nav-bar > .nav-container .nav-menu-item a {
+	position: relative;
+	z-index: 2;
+}
+.nav-bar > .nav-container .nav-menu-item .nav-menu-bar {
+	z-index: 0;
+}
 .nav-bar > .nav-container > .nav-menu-bar > .nav-menu-item .nav-menu-bar {
 	display: block;
 	position: absolute;
