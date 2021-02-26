@@ -28,7 +28,7 @@ export default {
 				Granary.getArticle('copyright.md'),
 			]);
 
-			var html = '', hasContent = true;
+			var html = '', title = '', hasContent = true;
 			if (!content) {
 				hasContent = false;
 				html = '<div class="page_not_found"><div class="frame"></div><div class="title">指定内容不存在，请联系站长。</div></div>';
@@ -39,7 +39,7 @@ export default {
 
 			if (hasContent) {
 				if (timestamp === 0) timestamp = Date.now();
-				html = MarkUp.parse(content, {
+				let markup = MarkUp.fullParse(content, {
 					toc: true,
 					glossary: true,
 					resources: false,
@@ -49,6 +49,8 @@ export default {
 					date: timestamp,
 					classname: 'markup-content',
 				});
+				title = ' | ' +  markup.title;
+				html = markup.content;
 				if (!html) {
 					html = '<div class="page_not_found"><div class="frame"></div><div class="title">MarkUp 内容解析失败，请联系作者。</div></div>';
 					hasContent = false;
@@ -58,6 +60,7 @@ export default {
 			if (hasContent) {
 				MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 			}
+			document.title = this.SiteName + title;
 
 			chChangeLoadingHint.postMessage({
 				action: 'hide'

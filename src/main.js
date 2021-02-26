@@ -50,6 +50,8 @@ require('./assets/css/article.css');
 
 global.axios = axios;
 global.Vue = Vue;
+
+Vue.prototype.SiteName = ":TITLE:";
 Vue.use(Notifications);
 Vue.component('Loading', Loading);
 Vue.component('NavBar', NavBar);

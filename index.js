@@ -207,7 +207,7 @@ const realizeTailBar = async (isDemo) => {
 		console.error(err);
 	}
 };
-const assemblejLAss = async () => {
+const assemblejLAss = async (isDemo) => {
 	if (!Schwarzschild.config.jLAss) return;
 	Schwarzschild.config.jLAss = ['extends'];
 	var jpath = Path.join(__dirname, 'node_modules/jLAss/src');
@@ -291,10 +291,10 @@ const assemblejLAss = async () => {
 
 	// 添加引用
 	var content = await FS.readFile(Path.join(__dirname, 'src/main.js'));
-	content = imports.join('\n') + '\n\n' + content.toString();
+	content = imports.join('\n') + '\n\n' + content.toString().replace(/":TITLE:"/gi, '"' + Schwarzschild.config.title + (isDemo ? ' (demo)"' : '"'));
 	await FS.writeFile(Path.join(OutPutPath, 'src/main.js'), content, 'utf-8');
 };
-const assembleAPI = async (publishPath) => {
+const assembleAPI = async (isDemo, publishPath) => {
 	var source = Path.join(process.cwd(), 'api');
 	var target;
 	if (!!publishPath) target = Path.join(publishPath, 'api');
@@ -302,7 +302,7 @@ const assembleAPI = async (publishPath) => {
 	await FS.copyFolder(source, target);
 	console.log('数据文件复制完毕');
 };
-const assembleImages = async (publishPath) => {
+const assembleImages = async (isDemo, publishPath) => {
 	var source = Path.join(process.cwd(), 'image');
 	var target;
 	if (!!publishPath) target = Path.join(publishPath, 'image');
@@ -441,18 +441,18 @@ Schwarzschild.prepare = async (force=false, clear=false, onlyapi=false, isDemo=t
 
 	// 将模组内容替换为项目内容
 	var tasks;
-	if (onlyapi) tasks = [assembleAPI(), assembleImages()];
+	if (onlyapi) tasks = [assembleAPI(isDemo), assembleImages(isDemo)];
 	else tasks = [
-		assemblejLAss(),
-		assembleAPI(),
-		assembleImages(),
+		assemblejLAss(isDemo),
+		assembleAPI(isDemo),
+		assembleImages(isDemo),
 		realizeCustomPages(isDemo),
 		realizeMiddleGround(isDemo),
 		realizeSiteTitle(isDemo),
 		realizeSiteMenu(isDemo),
 		realizeAboutSite(isDemo),
 		realizeTailBar(isDemo),
-		realizeManifest(),
+		realizeManifest(isDemo),
 	];
 	await Promise.all(tasks);
 };
@@ -465,7 +465,7 @@ Schwarzschild.publish = async (publishPath, commitMsg, onlyapi=false) => {
 	if (commitMsg === true) commitMsg = 'Update: ' + getTimeString(new Date());
 
 	if (onlyapi) {
-		await assembleAPI(publishPath);
+		await assembleAPI(false, publishPath);
 		console.log(setStyle(setStyle('已将API文件发布到指定位置：' + publishPath, 'bold'), 'green'));
 	}
 	else {

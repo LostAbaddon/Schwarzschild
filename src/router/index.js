@@ -44,13 +44,8 @@ const router = new VueRouter({
 	base: process.env.BASE_URL,
 	routes
 });
-
-// router.beforeEach((to, from, next) => {
-// 	console.log('BEFORE:', from.name, '->', to.name);
-// 	next();
-// });
-// router.afterEach((to, from) => {
-// 	console.log('AFTER:', from.name, '->', to.name);
-// });
+router.afterEach((to, from) => {
+	document.title = Vue.prototype.SiteName;
+});
 
 export default router;
