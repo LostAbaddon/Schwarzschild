@@ -1,7 +1,7 @@
 <template>
 	<div class="viewer">
 		<Crumb />
-		<div class="container"></div>
+		<div class="container" @click="onClick"></div>
 	</div>
 </template>
 
@@ -62,6 +62,37 @@ export default {
 			chChangeLoadingHint.postMessage({
 				action: 'hide'
 			});
+		},
+		onClick (evt) {
+			var ele = evt.target;
+			if (ele.nodeName.toLowerCase() === 'a') {
+				let path = ele.getAttribute('href');
+				if (!!path) {
+					if (path.indexOf('#') === 0) {
+						path = path.replace(/^#+[\\\/]*/, '');
+						path = path.split(/[\\\/]+/);
+						path = { path: '/category', query: {c: path.join(',')} };
+						evt.preventDefault();
+						this.$router.push(path);
+						return;
+					}
+					else if (path.indexOf('/page/') === 0) {
+						path = path.replace('/page/', '/');
+						path = {path};
+						evt.preventDefault();
+						this.$router.push(path);
+						return;
+					}
+					else if (path.indexOf('/article/') === 0) {
+						path = path.replace('/article/', '');
+						path = encodeURIComponent(path);
+						path = {path: '/view', query: {f: path}};
+						evt.preventDefault();
+						this.$router.push(path);
+						return;
+					}
+				}
+			}
 		}
 	},
 	mounted () {

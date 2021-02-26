@@ -73,8 +73,9 @@ const realizeCustomPages = async (isDemo=false) => {
 	pathList = map.files.map(p => {
 		var name = Path.basename(p).replace(/\.vue$/i, '');
 		var path = p.replace(pagesPath, '../pages').replace(/\\/g, '/');
+		var url = p.replace(pagesPath, '').replace(/\\/g, '/').replace(/\.vue$/i, '');
 		console.log('复制自定义页面文件：', path);
-		return '{"path":"/' + name + '","name":"' + name + '","component":function(){return import("' + path + '")}}'
+		return '{"path":"' + url + '","name":"' + name + '","component":function(){return import("' + path + '")}}'
 	});
 	pathList = pathList.join(',') + ',';
 

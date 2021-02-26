@@ -67,9 +67,14 @@ Schwarzschild 会自动将页面中带有 markup 类名的容器中的内容解�
 
 ## 项目目录
 
--	config.json:	项目配置文件
--	site:	替换 Schwarzschild 的文件，数据文件也可以放在里面
--	api:	网站数据文件夹，其中包括文章列表、文章等所有动态数据
+-	config.json:					项目配置文件
+-	site:							替换 Schwarzschild 的文件，数据文件也可以放在里面
+-	api:							网站数据文件夹，其中包括文章列表、文章等所有动态数据
+	+	source.json:				订阅源目录（append 命令自动生成）
+	+	<username>-<index>.json:	订阅源文章列表，index为分页序数（append 命令自动生成）
+	+	granary:					分类信息与分类文章目录
+		>	info.md:				分类介绍
+		>	其它:					文章
 -	image:	存放页面所用图片等静态文件的目录
 -	pages:	自定义页面（vue）所在目录
 -	output：	vue-cli打包目录，自动生成
@@ -121,6 +126,8 @@ Schwarzschild 会自动将页面中带有 markup 类名的容器中的内容解�
 
 # TODO
 
+-	整体
+	1.	适配手机端
 -	目录页
 	1.	分页功能
 	2.	分类功能
@@ -138,3 +145,5 @@ Schwarzschild 会自动将页面中带有 markup 类名的容器中的内容解�
 	6.	五子棋
 	7.	把科普页补回去
 	8.	补完更多过去的文章
+-	Asimov MarkUp 解析插件
+	1.	增加来源以及同一份内容的外站页的解析功能

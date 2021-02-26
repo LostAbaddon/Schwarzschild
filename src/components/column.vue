@@ -173,6 +173,36 @@ export default {
 				localStorage.setItem('columnStyle', name);
 				return;
 			}
+			else if (ele.nodeName.toLowerCase() === 'a') {
+				let path = ele.getAttribute('href');
+				if (!!path) {
+					if (path.indexOf('#') === 0) {
+						path = path.replace(/^#+[\\\/]*/, '');
+						path = path.split(/[\\\/]+/);
+						path = { path: '/category', query: {c: path.join(',')} };
+						evt.preventDefault();
+						this.$router.push(path);
+						let channel = new BroadcastChannel('page-changed');
+						channel.postMessage(path);
+						return;
+					}
+					else if (path.indexOf('/page/') === 0) {
+						path = path.replace('/page/', '/');
+						path = {path};
+						evt.preventDefault();
+						this.$router.push(path);
+						return;
+					}
+					else if (path.indexOf('/article/') === 0) {
+						path = path.replace('/article/', '');
+						path = encodeURIComponent(path);
+						path = {path: '/view', query: {f: path}};
+						evt.preventDefault();
+						this.$router.push(path);
+						return;
+					}
+				}
+			}
 			var filename = undefined, category = undefined, timestamp = undefined, author = undefined;
 			if (!ele) return;
 			while (!filename && !category) {

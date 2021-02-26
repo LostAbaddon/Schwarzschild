@@ -1,3 +1,24 @@
+((root, ua, nav) => {
+	root.Devices = {};
+
+	Devices.isAndroid = !!ua.match(/Android/i);
+	Devices.isiPhone = !!ua.match(/iPhone/i);
+	Devices.isiPad = !!ua.match(/iPad/i);
+	Devices.isiPod = !!ua.match(/iPod/i);
+	Devices.isiOS = Devices.isiPhone || Devices.isiPad || Devices.isiPod;
+	Devices.isBlackBerry = !!ua.match(/BlackBerry/i);
+	Devices.isIE = nav.pointerEnabled || nav.msPointerEnabled;
+	Devices.isSafari = (ua.indexOf('safari') >= 0 && ua.indexOf('chrome') < 0 && ua.indexOf('android') < 0);
+	Devices.isOpera = !!ua.match(/Opera/i) && !ua.match(/Opera Mini/i);
+	Devices.isOperaMini = !!ua.match(/Opera Mini/i);
+	Devices.isWinPhone = !!ua.match(/IEMobile/i) || !!ua.match(/WPDesktop/i);
+	Devices.isWebOS = !!ua.match(/webOS/i);
+	Devices.isUiWebView = !!ua.match(/AppleWebKit/i);
+	Devices.isMobile = Devices.isAndroid || Devices.isiOS || Devices.isBlackBerry || Devices.isWinPhone || Devices.isWebOS;
+
+	if (Devices.isMobile) document.body.classList.add('mobile');
+}) (window, window.navigator.userAgent, window.navigator);
+
 import './assets/js/cacheCenter.js'
 import './assets/js/lrucache.js'
 import './assets/js/cacheDB.js'
