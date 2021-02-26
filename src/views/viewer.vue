@@ -68,15 +68,7 @@ export default {
 			if (ele.nodeName.toLowerCase() === 'a') {
 				let path = ele.getAttribute('href');
 				if (!!path) {
-					if (path.indexOf('#') === 0) {
-						path = path.replace(/^#+[\\\/]*/, '');
-						path = path.split(/[\\\/]+/);
-						path = { path: '/category', query: {c: path.join(',')} };
-						evt.preventDefault();
-						this.$router.push(path);
-						return;
-					}
-					else if (path.indexOf('/page/') === 0) {
+					if (path.indexOf('/page/') === 0) {
 						path = path.replace('/page/', '/');
 						path = {path};
 						evt.preventDefault();
@@ -87,6 +79,13 @@ export default {
 						path = path.replace('/article/', '');
 						path = encodeURIComponent(path);
 						path = {path: '/view', query: {f: path}};
+						evt.preventDefault();
+						this.$router.push(path);
+						return;
+					}
+					else if (path.indexOf('/category/') === 0) {
+						path = path.replace('/article/', '').replace(/[\\\/]+/g, ',');
+						path = {path: '/category', query: {c: path}};
 						evt.preventDefault();
 						this.$router.push(path);
 						return;
