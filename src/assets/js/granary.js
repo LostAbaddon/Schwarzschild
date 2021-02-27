@@ -45,7 +45,7 @@ const Barn = {
 			}
 			if (!!data) data = data.data;
 			if (!!data) {
-				await Barn.DB.set('data', url, {data, update: Date.now()});
+				await Barn.DB.set('data', url, {data, update: timestamp || Date.now()});
 				if (!!cache) {
 					chDataFetched.postMessage({ url, data });
 				}

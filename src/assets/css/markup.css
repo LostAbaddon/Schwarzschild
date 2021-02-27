@@ -317,8 +317,9 @@ article.markup-content div.resource.float-right {
 	float: right;
 }
 article.markup-content div.image-wall div.resource {
-	margin: 0px;
 	display: inline-block;
+	width: 100%;
+	margin: 0px;
 	vertical-align: middle;
 }
 article.markup-content div.resource figure {
