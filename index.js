@@ -17,7 +17,6 @@ const SitePath = Path.join(process.cwd(), 'site');
 const OutPutPath = Path.join(process.cwd(), 'output');
 const BuildPath = Path.join(OutPutPath, 'dist');
 const APIPath = Path.join(process.cwd(), 'api');
-const CategoryPath = Path.join(APIPath, 'granary');
 const getTimeString = _('Utils').getTimeString;
 
 const vueServer = new VueService(OutPutPath);
@@ -207,6 +206,18 @@ const realizeTailBar = async (isDemo) => {
 		console.error(err);
 	}
 };
+const realizeGranaryConfig = async (isDemo) => {
+	var cfg;
+	try {
+		cfg = await FS.readFile(Path.join(__dirname, "/src/assets/js/granary.js"));
+		cfg = cfg.toString();
+		cfg = cfg.replace("DataGranary: '/api/granary'", "DataGranary: '/api/" + Schwarzschild.config.database + "'");
+		await FS.writeFile(Path.join(OutPutPath, "/src/assets/js/granary.js"), cfg, 'utf-8');
+		console.log('granary.js文件配置成功');
+	} catch (err) {
+		console.error(err);
+	}
+};
 const assemblejLAss = async (isDemo) => {
 	if (!Schwarzschild.config.jLAss) return;
 	Schwarzschild.config.jLAss = ['extends'];
@@ -310,6 +321,26 @@ const assembleImages = async (isDemo, publishPath) => {
 	await FS.copyFolder(source, target);
 	console.log('图片资源复制完毕');
 };
+const removeOldPublishFiles = async (publishPath) => {
+	var map = await FS.getFolderMap(publishPath, FolderForbiddens);
+	map = FS.convertFileMap(map).files;
+	map = map.filter(f => {
+		var name = Path.basename(f);
+		if (!name.match(/^\w+\-\w+\.\w+\.(js|css|js\.map)$/i)) return;
+		return true;
+	});
+	await FS.deleteFiles(map);
+};
+const removeJSMapFiles = async (publishPath) => {
+	var map = await FS.getFolderMap(publishPath, FolderForbiddens);
+	map = FS.convertFileMap(map).files;
+	map = map.filter(f => {
+		var name = Path.basename(f);
+		if (!name.match(/^\w+\-\w+\.\w+\.js\.map$/i)) return;
+		return true;
+	});
+	await FS.deleteFiles(map);
+};
 
 global.Schwarzschild = {};
 Schwarzschild.config = {};
@@ -349,6 +380,7 @@ Schwarzschild.launch = config => {
 	.add('publish >> 打包网站')
 	.setParam('[path] >> 指定发布路径')
 	.addOption('--onlyapi -o >> 只复制API文件')
+	.addOption('--removeMaps -r >> 删除JS-Map')
 	.addOption('--msg -m [msg] >> Git Commit 信息')
 
 	.add('append >> 添加文章')
@@ -379,6 +411,7 @@ Schwarzschild.launch = config => {
 			}
 		}
 		if (!!config) global.Schwarzschild.config = config;
+		Schwarzschild.config.database = Schwarzschild.config.database || 'granary';
 
 		var cmd = param.mission;
 		if (cmd.length > 0) cmd = cmd[0];
@@ -386,7 +419,7 @@ Schwarzschild.launch = config => {
 
 		if (cmd.name === 'build') Schwarzschild.prepare(cmd.value.force, cmd.value.clear, cmd.value.onlyapi);
 		else if (cmd.name === 'demo') Schwarzschild.demo(cmd.value.force, cmd.value.clear, cmd.value.onlyapi);
-		else if (cmd.name === 'publish') Schwarzschild.publish(cmd.value.path, cmd.value.msg, cmd.value.onlyapi);
+		else if (cmd.name === 'publish') Schwarzschild.publish(cmd.value.path, cmd.value.msg, cmd.value.onlyapi, cmd.value.removeMaps);
 		else if (cmd.name === 'append') Schwarzschild.appendFile(
 			cmd.value.file, cmd.value.category,
 			cmd.value.title, cmd.value.author, cmd.value.publishAt,
@@ -446,6 +479,7 @@ Schwarzschild.prepare = async (force=false, clear=false, onlyapi=false, isDemo=t
 		assemblejLAss(isDemo),
 		assembleAPI(isDemo),
 		assembleImages(isDemo),
+		realizeGranaryConfig(isDemo),
 		realizeCustomPages(isDemo),
 		realizeMiddleGround(isDemo),
 		realizeSiteTitle(isDemo),
@@ -460,18 +494,25 @@ Schwarzschild.demo = async (force=false, clear=false, onlyapi=false) => {
 	await Schwarzschild.prepare(force, clear, onlyapi, true);
 	await runVUE('serve');
 };
-Schwarzschild.publish = async (publishPath, commitMsg, onlyapi=false) => {
+Schwarzschild.publish = async (publishPath, commitMsg, onlyapi=false, removeMaps=false) => {
 	publishPath = publishPath || Schwarzschild.config.publish;
 	if (commitMsg === true) commitMsg = 'Update: ' + getTimeString(new Date());
 
 	if (onlyapi) {
-		await assembleAPI(false, publishPath);
+		await Promise.all([assembleAPI(false, publishPath), assembleImages(false, publishPath)]);
 		console.log(setStyle(setStyle('已将API文件发布到指定位置：' + publishPath, 'bold'), 'green'));
 	}
 	else {
-		await Schwarzschild.prepare(true, true, onlyapi, false);
-		await runVUE('build');
+		await Promise.all([
+			async () => {
+				await Schwarzschild.prepare(true, true, onlyapi, false);
+				await runVUE('build');
+			},
+			removeOldPublishFiles(Path.join(publishPath, 'js')),
+			removeOldPublishFiles(Path.join(publishPath, 'css'))
+		]);
 		await FS.copyFolder(BuildPath, publishPath);
+		if (removeMaps) await removeJSMapFiles(Path.join(publishPath, 'js'));
 		console.log(setStyle(setStyle('已发布到指定位置：' + publishPath, 'bold'), 'green'));
 	}
 	if (String.is(commitMsg)) gitAddAndCommit(publishPath, commitMsg);
@@ -487,9 +528,10 @@ Schwarzschild.appendFile = async (filename, category, title, author, timestamp, 
 	}
 
 	// 准备目标路径
+	var categoryPath = Path.join(APIPath, Schwarzschild.config.database);
 	category = category.split(/[\\\/]+/).filter(c => c.length > 0);
 	var target = Path.basename(filename);
-	var fullFolderPath = Path.join(CategoryPath, ...category);
+	var fullFolderPath = Path.join(categoryPath, ...category);
 	var fullFilePath = Path.join(fullFolderPath, target);
 
 	// 判断是否已有文件

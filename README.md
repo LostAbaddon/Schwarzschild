@@ -72,7 +72,7 @@ Schwarzschild 会自动将页面中带有 markup 类名的容器中的内容解�
 -	api:							网站数据文件夹，其中包括文章列表、文章等所有动态数据
 	+	source.json:				订阅源目录（append 命令自动生成）
 	+	<username>-<index>.json:	订阅源文章列表，index为分页序数（append 命令自动生成）
-	+	granary:					分类信息与分类文章目录
+	+	granary:					分类信息与分类文章目录，可在config中配置
 		>	info.md:				分类介绍
 		>	其它:					文章
 -	image:	存放页面所用图片等静态文件的目录
@@ -89,6 +89,7 @@ Schwarzschild 会自动将页面中带有 markup 类名的容器中的内容解�
 	"owner": "网站站长",
 	"publish": "项目发布路径",
 	"jLAss": true, // true表示引用最基础服务，默认是 true
+	"database": "api目录下数据文件存放的目录名",
 	"siteMap": [
 		{
 			"name": "目录1，viewer表示内容页，category对应到本地文件夹中内容目录路径",
