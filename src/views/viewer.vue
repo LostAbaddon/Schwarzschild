@@ -60,7 +60,7 @@ export default {
 			if (hasContent) {
 				MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 			}
-			document.title = this.SiteName + title;
+			document.title = title + ' (' + this.SiteName + ')';
 
 			chChangeLoadingHint.postMessage({
 				action: 'hide'

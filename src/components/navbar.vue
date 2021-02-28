@@ -1,12 +1,15 @@
 <template>
 	<div class="nav-bar">
-		<router-link to="/">首页</router-link>
-		<i class="fas fa-caret-right" />
-		<div class="nav-container">
-			<NavMenuBar :menu="menu" />
-		</div>
-		<div class="about-bar nav-container right">
-			<NavMenuBar :menu="aboutMenu" />
+		<div class="nav-hint"><i class="fas fa-angle-right" /></div>
+		<div class="nav-docker">
+			<router-link to="/">首页</router-link>
+			<i class="fas fa-caret-right" />
+			<div class="nav-container">
+				<NavMenuBar :menu="menu" />
+			</div>
+			<div class="about-bar nav-container right">
+				<NavMenuBar :menu="aboutMenu" />
+			</div>
 		</div>
 	</div>
 </template>
@@ -20,6 +23,27 @@ const generateSiteMap = menu => {
 		map[m.category] = item;
 	});
 	return map;
+};
+global.getPathNameList = (path, needHome=true) => {
+	if (!global.SiteMap) return null;
+	var map = global.SiteMap, reqs = [], result = [];
+	path.some((p, i) => {
+		if (!map) return true;
+		var entry = map[p];
+		if (!entry) return true;
+		var item = { name: entry.name };
+		reqs.push(p);
+		if (entry.type === 'page') {
+			item.path = '/' + reqs.join('/');
+		}
+		else if (entry.type === 'viewer' || entry.type === 'view') {
+			item.path = '/category?c=' + reqs.join(',')
+		}
+		map = entry.subs;
+		result.push(item);
+	});
+	if (needHome) result.unshift({ name: "首页", path: '/' });
+	return result;
 };
 
 export default {

@@ -3,8 +3,7 @@
 
 	const channel = new BroadcastChannel('service-messages');
 	channel.addEventListener('message', msg => {
-		console.log('Broadcast Message:');
-		console.log(msg);
+		console.log('CacheUpdated: ' + msg.data.url + ' (' + msg.data.timestamp + ')');
 	});
 
 	if (!!window.caches) {

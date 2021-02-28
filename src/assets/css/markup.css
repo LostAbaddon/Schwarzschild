@@ -126,6 +126,7 @@ article.markup-content span.color-dark {
 article.markup-content p {
 	margin: 10px 0px;
 	padding-left: 20px;
+	line-height: 1.5;
 }
 article.markup-content p.indent.indent-1 {
 	text-indent: 20px;

@@ -45,7 +45,18 @@ const router = new VueRouter({
 	routes
 });
 router.afterEach((to, from) => {
-	document.title = Vue.prototype.SiteName;
+	if (to.name === 'Category') {
+		let list = getPathNameList(to.query.c.split(','), false);
+		if (!list) {
+			document.title = Vue.prototype.SiteName;
+		}
+		else {
+			document.title = Vue.prototype.SiteName + ' / ' + list.map(c => c.name).join(' / ');
+		}
+	}
+	else {
+		document.title = Vue.prototype.SiteName;
+	}
 });
 
 export default router;

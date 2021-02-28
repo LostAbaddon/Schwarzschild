@@ -66,23 +66,7 @@ export default {
 			this.path.splice(0, this.path.length);
 			if (type === 'viewer' || type === 'page') path.pop();
 
-			var map = SiteMap, reqs = [];
-			path.some((p, i) => {
-				if (!map) return true;
-				var entry = map[p];
-				if (!entry) return true;
-				var item = { name: entry.name };
-				reqs.push(p);
-				if (type === 'page') {
-					item.path = '/' + reqs.join('/');
-				}
-				else if (type === 'viewer' || type === 'view') {
-					item.path = '/category?c=' + reqs.join(',')
-				}
-				map = entry.subs;
-				this.path.push(item);
-			});
-			this.path.unshift({ name: "首页", path: '/' });
+			this.path.push(...(getPathNameList(path)));
 		}
 	},
 	mounted () {

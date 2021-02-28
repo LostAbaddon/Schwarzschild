@@ -17,6 +17,7 @@
 	Devices.isMobile = Devices.isAndroid || Devices.isiOS || Devices.isBlackBerry || Devices.isWinPhone || Devices.isWebOS;
 
 	if (Devices.isMobile) document.body.classList.add('mobile');
+	else document.body.classList.add('notmobile');
 }) (window, window.navigator.userAgent, window.navigator);
 
 import './assets/js/cacheCenter.js'
@@ -39,6 +40,7 @@ import Crumb from '@/components/crumb.vue'
 import Column from '@/components/column.vue'
 
 require('./assets/css/theme.css');
+require('./assets/css/mobile.css');
 require('./assets/css/main.css');
 require('./assets/css/404.css');
 require('./assets/css/navbar.css');

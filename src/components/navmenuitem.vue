@@ -1,6 +1,7 @@
 <template>
 	<div class="nav-menu-item">
 		<a @click="click(type, action)">{{title}}<i class="fas fa-caret-down" v-if="!!subs" /></a>
+		<i class="hint fas fa-caret-right" v-if="!!subs" />
 		<NavMenuBar v-if="!!subs" :menu="subs" :supers="action" />
 	</div>
 </template>

@@ -142,6 +142,6 @@ window.Granary = {
 };
 
 chDataFetched.addEventListener('message', msg => {
-	console.log('CacheEvent:', msg);
+	console.log('DataUpdated: ' + msg.data.url);
 });
 Barn.init();
