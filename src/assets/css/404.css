@@ -7,6 +7,7 @@
 	margin-top: 30px;
 	padding-bottom: 56.25%;
 	background-image: url('/404.png');
+	background-size: cover;
 }
 .page_not_found .title {
 	position: absolute;

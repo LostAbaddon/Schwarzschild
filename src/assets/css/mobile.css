@@ -189,6 +189,10 @@
 	margin-right: 0px;
 }
 
+.mobile .page_not_found .title {
+	font-size: 28px;
+}
+
 @media screen and (max-width: 480px) {
 	.mobile .tail-bar .left {
 		display: block;
