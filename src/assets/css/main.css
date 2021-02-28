@@ -73,7 +73,7 @@ a, a:hover, a:visited {
 #app {
 	box-sizing: border-box;
 	height: 100%;
-	overflow: scroll;
+	overflow: auto;
 }
 
 #container {

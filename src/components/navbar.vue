@@ -36,7 +36,7 @@ global.getPathNameList = (path, needHome=true) => {
 		if (entry.type === 'page') {
 			item.path = '/' + reqs.join('/');
 		}
-		else if (entry.type === 'viewer' || entry.type === 'view') {
+		else if (entry.type === 'viewer' || entry.type === 'view' || entry.type === 'folder') {
 			item.path = '/category?c=' + reqs.join(',')
 		}
 		map = entry.subs;

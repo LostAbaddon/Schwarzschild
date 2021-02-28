@@ -87,6 +87,7 @@ Schwarzschild 会自动将页面中带有 markup 类名的容器中的内容解�
 	"shortname": "WebApp 用的网站短名",
 	"description": "WebApp 用的网站介绍",
 	"owner": "网站站长",
+	"GA": "GA ID，可不填，不填则不会启动GA跟踪服务",
 	"publish": "项目发布路径",
 	"jLAss": true, // true表示引用最基础服务，默认是 true
 	"database": "api目录下数据文件存放的目录名",
@@ -128,7 +129,6 @@ Schwarzschild 会自动将页面中带有 markup 类名的容器中的内容解�
 # TODO
 
 -	整体
-	1.	适配手机端
 -	目录页
 	1.	分页功能
 	2.	分类功能

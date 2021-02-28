@@ -60,6 +60,21 @@ const copyFile = async (source, target) => {
 	}
 	return false;
 };
+const realizeHomePage = async (isDemo) => {
+	var html;
+	try {
+		html = await FS.readFile(Path.join(__dirname, "/public/index.html"));
+		html = html.toString();
+		if (!!Schwarzschild.config.GA) {
+			html = html.replace('var gaid="";', 'var gaid="' + Schwarzschild.config.GA + '";');
+		}
+		html = html.replace(/\[:HomePageDescription:\]/gi, Schwarzschild.config.description || Schwarzschild.config.title);
+		await FS.writeFile(Path.join(OutPutPath, "/public/index.html"), html, 'utf-8');
+		console.log('Index页配置成功');
+	} catch (err) {
+		console.error(err);
+	}
+};
 const realizeCustomPages = async (isDemo=false) => {
 	var pagesPath = Path.join(process.cwd(), 'pages');
 	var targetPath = Path.join(OutPutPath, 'src/pages');
@@ -321,22 +336,22 @@ const assembleImages = async (isDemo, publishPath) => {
 	await FS.copyFolder(source, target);
 	console.log('图片资源复制完毕');
 };
-const removeOldPublishFiles = async (publishPath) => {
-	var map = await FS.getFolderMap(publishPath, FolderForbiddens);
+const removeOldPublishFiles = async (targetPath) => {
+	var map = await FS.getFolderMap(targetPath, FolderForbiddens);
 	map = FS.convertFileMap(map).files;
 	map = map.filter(f => {
 		var name = Path.basename(f);
-		if (!name.match(/^\w+\-\w+\.\w+\.(js|css|js\.map)$/i)) return;
+		if (!name.match(/^(\w+\-\w+|index)\.\w+\.(js|css|js\.map)$/i)) return;
 		return true;
 	});
 	await FS.deleteFiles(map);
 };
-const removeJSMapFiles = async (publishPath) => {
-	var map = await FS.getFolderMap(publishPath, FolderForbiddens);
+const removeJSMapFiles = async (targetPath) => {
+	var map = await FS.getFolderMap(targetPath, FolderForbiddens);
 	map = FS.convertFileMap(map).files;
 	map = map.filter(f => {
 		var name = Path.basename(f);
-		if (!name.match(/^\w+\-\w+\.\w+\.js\.map$/i)) return;
+		if (!name.match(/^(\w+\-\w+|index)\.\w+\.js\.map$/i)) return;
 		return true;
 	});
 	await FS.deleteFiles(map);
@@ -479,6 +494,7 @@ Schwarzschild.prepare = async (force=false, clear=false, onlyapi=false, isDemo=t
 		assemblejLAss(isDemo),
 		assembleAPI(isDemo),
 		assembleImages(isDemo),
+		realizeHomePage(isDemo),
 		realizeGranaryConfig(isDemo),
 		realizeCustomPages(isDemo),
 		realizeMiddleGround(isDemo),
@@ -504,10 +520,10 @@ Schwarzschild.publish = async (publishPath, commitMsg, onlyapi=false, removeMaps
 	}
 	else {
 		await Promise.all([
-			async () => {
+			(async () => {
 				await Schwarzschild.prepare(true, true, onlyapi, false);
 				await runVUE('build');
-			},
+			})(),
 			removeOldPublishFiles(Path.join(publishPath, 'js')),
 			removeOldPublishFiles(Path.join(publishPath, 'css'))
 		]);
