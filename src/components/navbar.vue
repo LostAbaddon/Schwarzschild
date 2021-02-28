@@ -1,6 +1,6 @@
 <template>
 	<div class="nav-bar">
-		<div class="nav-hint"><i class="fas fa-angle-right" /></div>
+		<div class="nav-hint" @click="onClick"><i class="fas fa-angle-right" /></div>
 		<div class="nav-docker">
 			<router-link to="/">首页</router-link>
 			<i class="fas fa-caret-right" />
@@ -91,6 +91,12 @@ export default {
 	},
 	mounted () {
 		global.SiteMap = generateSiteMap(this.menu);
+	},
+	methods: {
+		onClick () {
+			if (!Devices.isMobile) return;
+			document.querySelector('.masker').classList.add('show');
+		}
 	}
 }
 </script>

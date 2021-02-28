@@ -57,6 +57,7 @@ router.afterEach((to, from) => {
 	else {
 		document.title = Vue.prototype.SiteName;
 	}
+	document.querySelector('#app').scrollTo(0, 0);
 });
 
 export default router;

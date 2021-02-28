@@ -51,6 +51,25 @@ a, a:hover, a:visited {
 	animation-duration: 3.0s;
 }
 
+.masker {
+	position: fixed;
+	display: block;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	height: 0%;
+	z-index: 10;
+	background-color: rgba(62, 56, 65, 0.5);
+	opacity: 0;
+	pointer-events: none;
+	transition: all 300ms ease-in-out;
+}
+.masker.show {
+	height: 100%;
+	opacity: 1;
+	pointer-events: all;
+}
+
 #app {
 	box-sizing: border-box;
 	height: 100%;
