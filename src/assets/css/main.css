@@ -200,6 +200,7 @@ a, a:hover, a:visited {
 	font-size: 20px;
 	color: rgb(215, 196, 187);
 	text-shadow: 1px 1px 3px rgba(85, 66, 54, 0.6);
+	text-align: center;
 }
 .imageShowcase .imageButton {
 	position: absolute;
@@ -212,7 +213,7 @@ a, a:hover, a:visited {
 	cursor: pointer;
 }
 .imageShowcase .imageButton[inactive] {
-	opacity: 0;
+	opacity: 0 !important;
 	pointer-events: none;
 }
 .imageShowcase .imageButton:hover {
