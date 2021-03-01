@@ -33,8 +33,14 @@ export default {
 	created () {
 		channel.addEventListener('message', async msg => {
 			var data = msg.data;
-			if (data.action === 'show') this.show = true;
-			else if (data.action === 'hide') this.show = false;
+			if (data.action === 'show') {
+				data.title = data.title || '载入中……';
+				this.show = true;
+			}
+			else if (data.action === 'hide') {
+				data.title = data.title || '载入中……';
+				this.show = false;
+			}
 			if (String.is(data.title)) this.title = data.title;
 			if (['spin', 'pulse'].indexOf(data.type) >= 0) this.type = data.type;
 		});

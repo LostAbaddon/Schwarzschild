@@ -1,6 +1,8 @@
 // 音频视频图片的拓展插件
 
 (() => {
+	const chChangeLoadingHint = new BroadcastChannel('change-loading-hint');
+
 	const queryAll = (tag, host) => {
 		host = host || document;
 		var eles = host.querySelectorAll(tag);
@@ -30,6 +32,7 @@
 				a.onplay = () => stopOthers(a, avs);
 			});
 
+			var imageCount = 0, imageLoaded = 0;
 			queryAll('.markup-content .image-wall').forEach(w => {
 				var divs = queryAll('div.resource', w);
 
@@ -99,8 +102,13 @@
 			});
 
 			await Promise.all(queryAll('div.resource.image').map(div => new Promise(res => {
+				imageCount ++;
 				var img = div.querySelector('img'), fig = div.querySelector('figure');
-				if (!img) return res();
+				if (!img) {
+					imageLoaded ++;
+					chChangeLoadingHint.postMessage({title: '载入图片: ' + imageLoaded + ' / ' + imageCount});
+					return res();
+				}
 				var inside = div.classList.contains('inside');
 				if (!inside) div.classList.add('outside');
 
@@ -135,12 +143,16 @@
 						div._wall._callback(rateWidth, rateHeight);
 					}
 
+					imageLoaded ++;
+					chChangeLoadingHint.postMessage({title: '载入图片: ' + imageLoaded + ' / ' + imageCount});
 					res();
 				};
 				img.onerror = () => {
 					img._available = false;
 					div.classList.add('failed');
 
+					imageLoaded ++;
+					chChangeLoadingHint.postMessage({title: '载入图片: ' + imageLoaded + ' / ' + imageCount});
 					res();
 				};
 			})));
