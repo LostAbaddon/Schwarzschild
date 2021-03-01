@@ -140,6 +140,17 @@ a, a:hover, a:visited {
 .loading .hint .animate.pulse .fas:nth-child(5) {
 	animation-delay: 800ms;
 }
+.loading .forceQuit {
+	position: absolute;
+	bottom: 20px;
+	right: 20px;
+	padding: 5px 10px;
+	border-radius: 8px;
+	font-size: 20px;
+	color: rgba(237, 227, 231, 0.6);
+	background-color: rgba(23, 23, 23, 0.6);
+	cursor: pointer;
+}
 
 @-webkit-keyframes loading-pulse {
 	0% {
