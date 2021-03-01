@@ -291,6 +291,9 @@ article.markup-content div.image-wall {
 	width: 100%;
 	overflow: hidden;
 }
+article.markup-content div.resource {
+	cursor: pointer;
+}
 article.markup-content div.image-wall.loaded {
 	display: block;
 }
@@ -382,7 +385,9 @@ article.markup-content div.resource figure.loaded img {
 	width: 100%;
 	height: 100%;
 }
-
+article.markup-content div.resource.failed {
+	pointer-events: none;
+}
 article.markup-content div.image-wall div.image-container {
 	white-space: nowrap;
 	width: 100%;
@@ -445,7 +450,6 @@ article.markup-content div.image-wall div.image-button-left {
 article.markup-content div.image-wall div.image-button-right {
 	right: 5px;
 }
-
 article.markup-content hr {
 	margin-top: 30px;
 	margin-bottom: 30px;

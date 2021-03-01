@@ -89,20 +89,25 @@ a, a:hover, a:visited {
 	margin-right: auto;
 }
 
-.loading {
+.loading,
+.imageShowcase {
 	position: fixed;
 	width: 100%;
 	height: 100%;
-	z-index: 100;
 	font-size: 32px;
 	font-weight: bold;
-	background-color: rgba(45, 12, 19, 0.3);
 	opacity: 1;
 	transition: opacity 300ms ease-in-out;
 }
-.loading.hide {
+.loading.hide,
+.imageShowcase.hide {
 	opacity: 0;
 	pointer-events: none;
+}
+
+.loading {
+	z-index: 100;
+	background-color: rgba(45, 12, 19, 0.3);
 }
 .loading .hint {
 	position: absolute;
@@ -150,6 +155,83 @@ a, a:hover, a:visited {
 	color: rgba(237, 227, 231, 0.6);
 	background-color: rgba(23, 23, 23, 0.6);
 	cursor: pointer;
+}
+
+.imageShowcase {
+	z-index: 90;
+	background-color: rgba(45, 12, 19, 0.7);
+}
+.imageShowcase .imageFrame {
+	position: absolute;
+	top: 0px;
+	bottom: 0px;
+	left: 0px;
+	width: 100%;
+}
+.imageShowcase .imageFrame .imagePage {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	transition: left 300ms ease-in-out;
+}
+.imageShowcase .imageFrame .imagePage .imageInstance {
+	position: relative;
+	max-width: 100%;
+	height: 100%;
+	margin-left: auto;
+	margin-right: auto;
+	background-size: contain;
+	background-position: center;
+	background-repeat: no-repeat;
+}
+.imageShowcase .imageFrame .imagePage .imageLegend {
+	position: absolute;
+	min-width: 100px;
+	max-width: 80%;
+	word-break: break-word;
+	white-space: normal;
+	left: 50%;
+	bottom: 10px;
+	padding: 5px 10px;
+	transform: translateX(-50%);
+	border-bottom: 1px solid rgb(189, 192, 186);
+	font-size: 20px;
+	color: rgb(215, 196, 187);
+	text-shadow: 1px 1px 3px rgba(85, 66, 54, 0.6);
+}
+.imageShowcase .imageButton {
+	position: absolute;
+	top: 50%;
+	margin-top: -40px;
+	font-size: 80px;
+	color: rgb(93, 172, 129);
+	opacity: 0.6;
+	transition: opacity 300ms ease-in-out;
+	cursor: pointer;
+}
+.imageShowcase .imageButton[inactive] {
+	opacity: 0;
+	pointer-events: none;
+}
+.imageShowcase .imageButton:hover {
+	opacity: 1;
+}
+.mobile .imageShowcase .imageButton {
+	opacity: 0.8;
+}
+.imageShowcase .imageButton.left {
+	left: 10px;
+}
+.imageShowcase .imageButton.right {
+	right: 10px;
+}
+.imageShowcase .imageButton.close {
+	top: 35px;
+	right: 20px;
+	margin-top: 0px;
+	font-size: 30px;
 }
 
 @-webkit-keyframes loading-pulse {

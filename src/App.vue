@@ -3,6 +3,7 @@
 		<NavBar/>
 		<notifications class="notification" />
 		<loading />
+		<ImageShowcase />
 		<div id="container">
 			<router-view/>
 		</div>

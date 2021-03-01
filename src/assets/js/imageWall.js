@@ -2,6 +2,7 @@
 
 (() => {
 	const chChangeLoadingHint = new BroadcastChannel('change-loading-hint');
+	const chShowImage = new BroadcastChannel('show-image');
 
 	const queryAll = (tag, host) => {
 		host = host || document;
@@ -94,7 +95,8 @@
 						div.style.width = (100 / w._total) + '%';
 					});
 				};
-				divs.map(div => {
+
+				divs.forEach(div => {
 					w._frame.appendChild(div);
 					div._wall = w;
 					div.classList.add('inside');
