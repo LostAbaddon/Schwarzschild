@@ -356,6 +356,14 @@ const removeJSMapFiles = async (targetPath) => {
 	});
 	await FS.deleteFiles(map);
 };
+const updateSingleFile = async (filename, publishPath) => {
+	var filepath = Path.join(process.cwd(), filename);
+	if (FS.hasFile(filepath)) {
+		try {
+			await copyFile(filepath, Path.join(publishPath, filename));
+		} catch {}
+	}
+};
 
 global.Schwarzschild = {};
 Schwarzschild.config = {};
@@ -527,7 +535,11 @@ Schwarzschild.publish = async (publishPath, commitMsg, onlyapi=false, removeMaps
 			removeOldPublishFiles(Path.join(publishPath, 'js')),
 			removeOldPublishFiles(Path.join(publishPath, 'css'))
 		]);
-		await FS.copyFolder(BuildPath, publishPath);
+		await Promise.all([
+			FS.copyFolder(BuildPath, publishPath),
+			updateSingleFile('README.md', publishPath),
+			updateSingleFile('LICENSE', publishPath)
+		]);
 		if (removeMaps) await removeJSMapFiles(Path.join(publishPath, 'js'));
 		console.log(setStyle(setStyle('已发布到指定位置：' + publishPath, 'bold'), 'green'));
 	}
