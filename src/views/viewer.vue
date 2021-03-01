@@ -93,6 +93,12 @@ export default {
 						this.$router.push(path);
 						return;
 					}
+					else if (path.indexOf('#') === 0) {
+						let last = location.hash;
+						setTimeout(() => {
+							history.replaceState(null, '', last);
+						}, 0);
+					}
 				}
 			}
 		}

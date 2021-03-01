@@ -81,11 +81,12 @@ Vue.prototype.afterMarkUp = async () => {
 				inlineMath: [["$","$"]]}
 			}
 		);
+		MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 	}
 	else {
 		MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 	}
-	ImageWall.init();
+	await ImageWall.init();
 };
 const mutationObserver = new MutationObserver(mutations => {
 	var markups = document.querySelectorAll('.markup');
