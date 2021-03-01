@@ -89,7 +89,7 @@ window.Granary = {
 		return data;
 	},
 	async getColumnHeader (category) {
-		var sources = await Barn.get(Barn.API + '/sources.json', true);
+		var sources = await Barn.get(Barn.API + '/sources.json', false);
 		sources = sources || {};
 		sources.update = sources.update || 0;
 
@@ -107,9 +107,14 @@ window.Granary = {
 		}
 		return data;
 	},
-	async getArticle (filepath, timestamp) {
-		filepath = Barn.DataGranary + '/' + filepath;
+	async getArticle (filepath, timestamp=0) {
+		if (timestamp <= 0) {
+			var sources = await Barn.get(Barn.API + '/sources.json', false);
+			sources = sources || {};
+			timestamp = sources.update || 0;
+		}
 
+		filepath = Barn.DataGranary + '/' + filepath;
 		var content;
 		try {
 			content = await Barn.get(filepath, true, timestamp);
@@ -120,10 +125,16 @@ window.Granary = {
 		}
 		return content;
 	},
-	async getContent (filepath) {
+	async getContent (filepath, notStill=true) {
+		if (notStill) {
+			var sources = await Barn.get(Barn.API + '/sources.json', false);
+			sources = sources || {};
+			timestamp = sources.update || 0;
+		}
+
 		var content;
 		try {
-			content = await Barn.get(filepath, true, 0);
+			content = await Barn.get(filepath, notStill, timestamp);
 			content = !!content ? content : '';
 		}
 		catch (err) {

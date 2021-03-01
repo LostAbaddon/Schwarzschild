@@ -40,13 +40,13 @@ export default {
 			}
 			else if (this.$route.path === '/category') {
 				if (!!this.$route.query && !!this.$route.query.c) {
-					path = this.$route.query.c.split(',').filter(c => c.length > 0);
+					path = decodeURIComponent(this.$route.query.c).split(',').filter(c => c.length > 0);
 					type = 'viewer';
 				}
 			}
 			else if (this.$route.path === '/view') {
 				if (!!this.$route.query && !!this.$route.query.f) {
-					path = this.$route.query.f.split('/');
+					path = decodeURIComponent(this.$route.query.f).split('/');
 					path.pop();
 					path = path.filter(c => c.length > 0);
 					type = 'view';

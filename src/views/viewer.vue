@@ -25,7 +25,7 @@ export default {
 			timestamp = timestamp || 0;
 			var [content, copyright] = await Promise.all([
 				Granary.getArticle(article, timestamp),
-				Granary.getArticle('copyright.md'),
+				Granary.getContent('api/copyright.md'),
 			]);
 
 			var html = '', title = '', hasContent = true;
