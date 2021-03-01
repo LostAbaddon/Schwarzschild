@@ -25,6 +25,7 @@ import './assets/js/lrucache.js'
 import './assets/js/cacheDB.js'
 import './assets/js/granary.js'
 import './assets/js/markup-footnote.js'
+import './assets/js/imageWall.js'
 
 import Vue from 'vue'
 import Notifications from 'vue-notification'
@@ -66,22 +67,7 @@ Vue.component('Column', Column);
 Vue.config.productionTip = false;
 
 var FootNoteUnInited = true;
-const mutationObserver = new MutationObserver(mutations => {
-	var markups = document.querySelectorAll('.markup');
-	[].forEach.call(markups, (mu) => {
-		var content = mu.innerText;
-		content = content.replace(/^\t+|\t+$/g, '\n');
-		content = MarkUp.parse(content, {
-			toc: mu.classList.contains('toc'),
-			glossary: mu.classList.contains('glossary'),
-			resources: mu.classList.contains('resources'),
-			showtitle: mu.classList.contains('showtitle'),
-			showauthor: false,
-			classname: 'markup-content',
-		});
-		mu.innerHTML = content;
-		mu.classList.remove('markup');
-	});
+Vue.prototype.afterMarkUp = async () => {
 	if (FootNoteUnInited) {
 		FootNoteUnInited = false;
 		InitNotes(document.body.querySelector('#container'));
@@ -99,6 +85,25 @@ const mutationObserver = new MutationObserver(mutations => {
 	else {
 		MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 	}
+	ImageWall.init();
+};
+const mutationObserver = new MutationObserver(mutations => {
+	var markups = document.querySelectorAll('.markup');
+	[].forEach.call(markups, (mu) => {
+		var content = mu.innerText;
+		content = content.replace(/^\t+|\t+$/g, '\n');
+		content = MarkUp.parse(content, {
+			toc: mu.classList.contains('toc'),
+			glossary: mu.classList.contains('glossary'),
+			resources: mu.classList.contains('resources'),
+			showtitle: mu.classList.contains('showtitle'),
+			showauthor: false,
+			classname: 'markup-content',
+		});
+		mu.innerHTML = content;
+		mu.classList.remove('markup');
+	});
+	if (markups.length > 0) Vue.prototype.afterMarkUp();
 });
 mutationObserver.observe(document.body, {
 	childList: true,

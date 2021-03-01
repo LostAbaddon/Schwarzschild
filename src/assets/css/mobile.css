@@ -87,10 +87,14 @@
 }
 
 .mobile .nav-bar {
-	width: auto;
-	height: auto;
+	width: 50px;
+	height: 50px;
 	background-color: transparent;
 	box-shadow: none;
+}
+.mobile .nav-bar:hover {
+	width: auto;
+	height: auto;
 }
 .mobile .nav-bar > .nav-hint {
 	display: block;

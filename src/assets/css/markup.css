@@ -287,8 +287,11 @@ article.markup-content div.resource {
 	text-align: center;
 }
 article.markup-content div.image-wall {
-	white-space: nowrap;
-	overflow: auto;
+	display: none;
+	width: 100%;
+}
+article.markup-content div.image-wall.loaded {
+	display: block;
 }
 article.markup-content div.image-wall::-webkit-scrollbar {
 	width: 12px;
@@ -318,10 +321,10 @@ article.markup-content div.resource.float-right {
 	float: right;
 }
 article.markup-content div.image-wall div.resource {
+	position: relative;
 	display: inline-block;
-	width: 100%;
+	max-width: 100%;
 	margin: 0px;
-	vertical-align: middle;
 }
 article.markup-content div.resource figure {
 	position: relative;
@@ -331,16 +334,21 @@ article.markup-content div.resource figure {
 	margin: 0px;
 	padding: 0px;
 	line-height: 0px;
+	background-repeat: no-repeat;
+	background-size: contain;
+	background-position: center;
 }
 article.markup-content div.resource figure img,
 article.markup-content div.resource figure video,
 article.markup-content div.resource figure audio {
 	max-width: 100%;
 	text-align: center;
+	outline: none;
 }
 article.markup-content div.resource figcaption {
 	display: inline-block;
 	min-width: 100px;
+	max-width: 95%;
 	margin-top: 5px;
 	margin-bottom: 10px;
 	margin-left: auto;
@@ -351,9 +359,90 @@ article.markup-content div.resource figcaption {
 	font-size: 16px;
 	line-height: 18px;
 	text-align: center;
+	word-break: break-all;
+	white-space: normal;
 }
 article.markup-content div.resource figcaption:empty {
 	display: none;
+}
+
+article.markup-content div.resource.outside {
+	max-width: 100%;
+	margin-left: auto;
+	margin-right: auto;
+}
+article.markup-content div.resource figure.loaded {
+	height: 0px;
+	margin-left: auto;
+	margin-right: auto;
+}
+article.markup-content div.resource figure.loaded img {
+	opacity: 0;
+	width: 100%;
+	height: 100%;
+}
+
+article.markup-content div.image-wall div.image-container {
+	white-space: nowrap;
+	width: 100%;
+}
+article.markup-content div.image-wall div.image-container.image-float {
+	position: absolute;
+	top: 0px;
+	height: 100%;
+	transition: transform 300ms ease-in-out;
+}
+article.markup-content div.image-wall div.image-container div.image-frame {
+	display: inline-block;
+	width: 100%;
+}
+article.markup-content div.image-wall div.image-container.image-float div.image-frame {
+	height: 100%;
+	vertical-align: top;
+}
+article.markup-content div.image-wall div.image-container.image-ghost div.image-frame div.resource {
+	opacity: 0;
+	pointer-events: none;
+}
+article.markup-content div.image-wall div.image-container.image-float div.image-frame div.resource {
+	height: 100%;
+}
+article.markup-content div.image-wall div.image-container div.image-frame div.resource figcaption {
+	position: absolute;
+	bottom: 0px;
+	left: 50%;
+	transform: translateX(-50%);
+	background-color: rgba(23, 23, 23, 0.6);
+}
+article.markup-content div.image-wall div.image-button-left,
+article.markup-content div.image-wall div.image-button-right {
+	position: absolute;
+	top: 50%;
+	margin-top: -30px;
+	opacity: 0.4;
+	font-size: 50px;
+	text-shadow: 1px 1px 5px rgba(23, 23, 23, 0.8);
+	transition: all 300ms ease-in-out;
+	cursor: pointer;
+}
+.mobile article.markup-content div.image-wall div.image-button-left,
+.mobile article.markup-content div.image-wall div.image-button-right {
+	opacity: 0.8;
+}
+article.markup-content div.image-wall div.image-button-left:hover,
+article.markup-content div.image-wall div.image-button-right:hover {
+	opacity: 1;
+}
+article.markup-content div.image-wall div.image-button-left.inactive,
+article.markup-content div.image-wall div.image-button-right.inactive {
+	opacity: 0;
+	pointer-events: none;
+}
+article.markup-content div.image-wall div.image-button-left {
+	left: 5px;
+}
+article.markup-content div.image-wall div.image-button-right {
+	right: 5px;
 }
 
 article.markup-content hr {

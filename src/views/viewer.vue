@@ -58,7 +58,7 @@ export default {
 			}
 			this.$el.querySelector('div.container').innerHTML = html;
 			if (hasContent) {
-				MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+				await this.afterMarkUp();
 			}
 			document.title = title + ' (' + this.SiteName + ')';
 

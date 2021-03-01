@@ -84,7 +84,7 @@ export default {
 			}
 			this.$el.querySelector('header').innerHTML = content;
 			if (!!info) {
-				MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+				await this.afterMarkUp();
 			}
 		},
 		async getArticleList (category) {
