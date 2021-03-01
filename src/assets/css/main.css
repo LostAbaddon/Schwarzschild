@@ -234,6 +234,10 @@ a, a:hover, a:visited {
 	margin-top: 0px;
 	font-size: 30px;
 }
+.mobile .imageShowcase .imageButton.close {
+	top: 15px;
+	right: 15px;
+}
 
 @-webkit-keyframes loading-pulse {
 	0% {
