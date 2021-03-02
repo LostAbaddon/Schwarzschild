@@ -88,9 +88,9 @@ Vue.config.productionTip = false;
 
 var FootNoteUnInited = true;
 Vue.prototype.afterMarkUp = async () => {
+	InitNotes(document.body.querySelector('#container'));
 	if (FootNoteUnInited) {
 		FootNoteUnInited = false;
-		InitNotes(document.body.querySelector('#container'));
 		MathJax.Hub.Config({
 			extensions: ["tex2jax.js"],
 			TeX: {
