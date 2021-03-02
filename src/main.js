@@ -20,6 +20,24 @@
 	else document.body.classList.add('notmobile');
 }) (window, window.navigator.userAgent, window.navigator);
 
+window.loadJS = (filepath) => new Promise(res => {
+	var js = document.createElement('script');
+	js.type = 'text/javascript';
+	js.src = filepath;
+	js.onload = res;
+	js.onerror = res;
+	document.body.appendChild(js);
+});
+window.loadCSS = (filepath) => new Promise(res => {
+	var css = document.createElement('link');
+	css.type = 'text/css';
+	css.rel = 'stylesheet';
+	css.href = filepath;
+	css.onload = res;
+	css.onerror = res;
+	document.body.appendChild(css);
+});
+
 import './assets/js/cacheCenter.js'
 import './assets/js/lrucache.js'
 import './assets/js/cacheDB.js'
