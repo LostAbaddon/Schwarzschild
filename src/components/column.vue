@@ -176,8 +176,8 @@ export default {
 			else if (ele.nodeName.toLowerCase() === 'a') {
 				let path = ele.getAttribute('href');
 				if (!!path) {
-					if (path.indexOf('#') === 0) {
-						path = path.replace(/^#+[\\\/]*/, '');
+					if (path.match(/^#+[\/\\]+/) === 0) {
+						path = path.replace(/^#+[\\\/]+/, '');
 						path = path.split(/[\\\/]+/);
 						path = { path: '/category', query: {c: path.join(',')} };
 						evt.preventDefault();
@@ -185,6 +185,12 @@ export default {
 						let channel = new BroadcastChannel('page-changed');
 						channel.postMessage(path);
 						return;
+					}
+					else if (path.indexOf('#') === 0) {
+						let last = location.hash;
+						setTimeout(() => {
+							location.hash = last;
+						}, 0);
 					}
 					else if (path.indexOf('/page/') === 0) {
 						path = path.replace('/page/', '/');
