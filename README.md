@@ -126,6 +126,16 @@ Schwarzschild 会自动将页面中带有 markup 类名的容器中的内容解�
 }
 ```
 
+### 前端公共接口
+
+这是一组预置的 HTML 端公共接口，可以提供一些便捷服务。
+
+-	jLAss 库
+-	Devices 组件：用来判断当前浏览器环境
+-	js 函数
+	+	loadJS：动态加载 JS
+	+	loadCSS：动态加载 CSS
+
 ## 示例项目
 
 [本人网站](https://lostabaddon.github.io/)便是用本库所做，点击[这里](https://github.com/LostAbaddon/LASiteBuilder)查看[网站项目](https://github.com/LostAbaddon/LASiteBuilder)。
