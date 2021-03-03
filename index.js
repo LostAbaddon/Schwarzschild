@@ -91,7 +91,8 @@ const realizeCustomPages = async (isDemo=false) => {
 		console.log('复制自定义页面文件：', path);
 		return '{"path":"' + url + '","name":"' + name + '","component":function(){return import("' + path + '")}}'
 	});
-	pathList = pathList.join(',') + ',';
+	if (pathList.length > 0) pathList = pathList.join(',') + ',';
+	else pathList = '';
 
 
 	var router;

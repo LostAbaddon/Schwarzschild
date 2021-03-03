@@ -2,7 +2,7 @@
 	<div class="crumb" v-if="show">
 		<span class="hint">位置：</span>
 		<template v-for="(item, index) in path">
-			<span @click="jump(item.path)">{{item.name}}</span><i class="fas fa-angle-right" />
+			<span @click="jump(item.path, item.query)">{{item.name}}</span><i class="fas fa-angle-right" />
 		</template>
 	</div>
 </template>
@@ -27,11 +27,11 @@ export default {
 		target: String
 	},
 	methods: {
-		jump (path) {
-			let target = {path};
+		jump (path, query) {
+			query = Proxy.toObject(query);
+			var target = {path, query};
 			this.$router.push(target);
-			var first = path.split('?')[0];
-			if (first === this.$route.path) channel.postMessage(target);
+			if (path === this.$route.path) channel.postMessage(target);
 		},
 		update () {
 			var path = null, type = '';
@@ -73,7 +73,7 @@ export default {
 		this.update();
 		currCrumb = this;
 	},
-	destroyed () {
+	unmounted () {
 		currCrumb = null;
 	}
 }

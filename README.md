@@ -13,15 +13,14 @@
 
 ## 依赖库
 
--	vue v2.6.12
-	+	vue-cli v2.9.6
-	+	vue-axios v0.21.1
-	+	vue-notification v1.3.20
+-	vue v3.0.7
+	+	vue-axios v3.2.4
+	+	vue-router v4.0.0
 -	fontawesome v5.15.2
 	+	free-solid
 	+	free-regular
 	+	free-brands
--	[jLAss v1.0.2](https://github.com/LostAbaddon/jLAss): 自建 JS 库
+-	[jLAss v1.0.3](https://github.com/LostAbaddon/jLAss): 自建 JS 库
 -	[Asimov v1.0.0](https://github.com/LostAbaddon/Asimov): 自建的 MarkDown 解析器，支持更多语法（MarkUp）
 
 ## 用法

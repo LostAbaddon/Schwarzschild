@@ -37,7 +37,8 @@ global.getPathNameList = (path, needHome=true) => {
 			item.path = '/' + reqs.join('/');
 		}
 		else if (entry.type === 'viewer' || entry.type === 'view' || entry.type === 'folder') {
-			item.path = '/category?c=' + reqs.join(',')
+			item.path = '/category';
+			item.query = {c:reqs.join(',')};
 		}
 		map = entry.subs;
 		result.push(item);

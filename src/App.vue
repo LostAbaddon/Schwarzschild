@@ -1,16 +1,14 @@
 <template>
-	<div id="app">
-		<NavBar/>
-		<notifications class="notification" />
-		<loading />
-		<ImageShowcase />
-		<div id="container">
-			<router-view/>
-		</div>
-		<div id="footnoteFrame"></div>
-		<TailBar />
-		<div class="masker" @click="onClick"></div>
+	<NavBar/>
+	<loading />
+	<Notification hAlign="right" vAlign="top" />
+	<ImageShowcase />
+	<div id="container">
+		<router-view/>
 	</div>
+	<div id="footnoteFrame"></div>
+	<TailBar />
+	<div class="masker" @click="onClick"></div>
 </template>
 
 <script>

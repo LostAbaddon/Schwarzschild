@@ -14,16 +14,15 @@
 	},
 	"dependencies": {
 		"Asimov": "github:LostAbaddon/Asimov",
-		"axios": "^0.21.1",
 		"jLAss": "github:LostAbaddon/jLAss",
-		"vue": "^2.6.11",
-		"vue-cli": "^2.9.6",
-		"vue-notification": "^1.3.20",
-		"vue-router": "^3.2.0"
+		"vue": "^3.0.7",
+		"vue-axios": "^3.2.4",
+		"vue-dk-toast": "^2.1.2",
+		"vue-router": "^4.0.0-0"
 	},
 	"devDependencies": {
-		"@vue/cli-plugin-router": "^4.5.0",
-		"@vue/cli-service": "^4.5.0",
-		"vue-template-compiler": "^2.6.11"
+		"@vue/cli-plugin-router": "~4.5.0",
+		"@vue/cli-service": "~4.5.0",
+		"@vue/compiler-sfc": "^3.0.0"
 	}
 }

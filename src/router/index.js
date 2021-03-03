@@ -1,10 +1,7 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
-import Category from '../views/Category.vue'
-import Viewer from '../views/viewer.vue'
-
-Vue.use(VueRouter);
+import { createRouter, createWebHashHistory } from 'vue-router';
+import Home from '../views/Home.vue';
+import Category from '../views/Category.vue';
+import Viewer from '../views/viewer.vue';
 
 const routes = [
 	{
@@ -31,7 +28,14 @@ const routes = [
 	},
 	{ aboutMe: 'aboutMe' },
 	{
-		path: '*',
+		path: '/404',
+		name: 'PageNotFound',
+		component: function () {
+			return import('../views/404.vue')
+		}
+	},
+	{
+		path: '/:pathMatch(.*)*',
 		name: 'PageNotFound',
 		component: function () {
 			return import('../views/404.vue')
@@ -39,23 +43,22 @@ const routes = [
 	}
 ];
 
-const router = new VueRouter({
-	mode: 'hash',
-	base: process.env.BASE_URL,
+const router = createRouter({
+	history: createWebHashHistory(),
 	routes
 });
 router.afterEach((to, from) => {
 	if (to.name === 'Category') {
 		let list = getPathNameList(to.query.c.split(','), false);
 		if (!list) {
-			document.title = Vue.prototype.SiteName;
+			document.title = router.app.config.globalProperties.SiteName;
 		}
 		else {
-			document.title = Vue.prototype.SiteName + ' / ' + list.map(c => c.name).join(' / ');
+			document.title = router.app.config.globalProperties.SiteName + ' / ' + list.map(c => c.name).join(' / ');
 		}
 	}
 	else {
-		document.title = Vue.prototype.SiteName;
+		document.title = router.app.config.globalProperties.SiteName;
 	}
 	document.querySelector('#app').scrollTo(0, 0);
 });

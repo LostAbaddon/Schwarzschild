@@ -23,12 +23,11 @@
 		for (let sw of sws) {
 			if (!!sw.waiting) {
 				console.log('有等待中的新版本 Service Worker');
-				Vue.notify({
-					"title": "有新版网站中台等待更新",
-					"text": "新版 Service Worker 将在下次打开本页面后启用。",
-					"type": "warn",
-					"position": 'top right',
-					"animation-type": "velocity",
+				notify({
+					title: "有新版网站中台等待更新",
+					message: "新版 Service Worker 将在下次打开本页面后启用。",
+					duration: 5000,
+					type: "warn"
 				});
 			}
 		}

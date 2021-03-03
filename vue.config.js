@@ -1,9 +1,11 @@
+// const {VueLoaderPlugin} = require('vue-loader');
+
 module.exports = {
 	lintOnSave: true,
 	productionSourceMap: true,
 	chainWebpack: config => {
 		/* 移除 prefetch 插件（避免会预先加载模块/路由） */
-		// config.plugins.delete('prefetch');
+		config.plugins.delete('prefetch');
 
 		// Loader
 		config.module
@@ -29,7 +31,7 @@ module.exports = {
 					// eslint-disable-next-line global-require
 					.use(require('webpack-bundle-analyzer').BundleAnalyzerPlugin)
 					.end();
-				// config.plugins.delete('prefetch');
+				config.plugins.delete('prefetch');
 			}
 		}
 	},

@@ -174,40 +174,7 @@ export default {
 				return;
 			}
 			else if (ele.nodeName.toLowerCase() === 'a') {
-				let path = ele.getAttribute('href');
-				if (!!path) {
-					if (path.match(/^#+[\/\\]+/) === 0) {
-						path = path.replace(/^#+[\\\/]+/, '');
-						path = path.split(/[\\\/]+/);
-						path = { path: '/category', query: {c: path.join(',')} };
-						evt.preventDefault();
-						this.$router.push(path);
-						let channel = new BroadcastChannel('page-changed');
-						channel.postMessage(path);
-						return;
-					}
-					else if (path.indexOf('#') === 0) {
-						let last = location.hash;
-						setTimeout(() => {
-							location.hash = last;
-						}, 0);
-					}
-					else if (path.indexOf('/page/') === 0) {
-						path = path.replace('/page/', '/');
-						path = {path};
-						evt.preventDefault();
-						this.$router.push(path);
-						return;
-					}
-					else if (path.indexOf('/article/') === 0) {
-						path = path.replace('/article/', '');
-						path = encodeURIComponent(path);
-						path = {path: '/view', query: {f: path}};
-						evt.preventDefault();
-						this.$router.push(path);
-						return;
-					}
-				}
+				if (onVueHyperLinkTriggered(this, evt)) return;
 			}
 			var filename = undefined, category = undefined, timestamp = undefined, author = undefined;
 			if (!ele) return;
@@ -234,7 +201,7 @@ export default {
 		currColumn = this;
 		this.update();
 	},
-	destroyed () {
+	unmounted () {
 		currColumn = null;
 	}
 }

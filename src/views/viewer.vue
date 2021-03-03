@@ -67,40 +67,7 @@ export default {
 			});
 		},
 		onClick (evt) {
-			var ele = evt.target;
-			if (ele.nodeName.toLowerCase() === 'a') {
-				let path = ele.getAttribute('href');
-				if (!!path) {
-					if (path.indexOf('/page/') === 0) {
-						path = path.replace('/page/', '/');
-						path = {path};
-						evt.preventDefault();
-						this.$router.push(path);
-						return;
-					}
-					else if (path.indexOf('/article/') === 0) {
-						path = path.replace('/article/', '');
-						path = encodeURIComponent(path);
-						path = {path: '/view', query: {f: path}};
-						evt.preventDefault();
-						this.$router.push(path);
-						return;
-					}
-					else if (path.indexOf('/category/') === 0) {
-						path = path.replace('/article/', '').replace(/[\\\/]+/g, ',');
-						path = {path: '/category', query: {c: path}};
-						evt.preventDefault();
-						this.$router.push(path);
-						return;
-					}
-					else if (path.indexOf('#') === 0) {
-						let last = location.hash;
-						setTimeout(() => {
-							history.replaceState(null, '', last);
-						}, 0);
-					}
-				}
-			}
+			onVueHyperLinkTriggered(this, evt);
 		}
 	},
 	mounted () {
