@@ -23,7 +23,7 @@ window.onVueHyperLinkTriggered = (vue, evt) => {
 	var path = ele.getAttribute('href');
 	if (!path) return false;
 
-	if (path.match(/^#+[\/\\]+/) === 0) {
+	if (path.indexOf('#/') === 0) {
 		path = path.replace(/^#+[\\\/]+/, '');
 		path = path.split(/[\\\/]+/);
 		path = { path: '/category', query: {c: path.join(',')} };
@@ -41,6 +41,10 @@ window.onVueHyperLinkTriggered = (vue, evt) => {
 		}
 		evt.preventDefault();
 		return true;
+	}
+	else if (path.indexOf('/page/#/') === 0) {
+		path = path.replace(/^[\\\/]+page[\\\/]+#+[\\\/]+/, '/');
+		path = { path };
 	}
 	else if (path.indexOf('/page/') === 0) {
 		path = path.replace('/page/', '/');
