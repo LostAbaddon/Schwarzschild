@@ -17,23 +17,23 @@ export default {
 				action: 'show'
 			});
 
-			var article = this.$route.query.f, timestamp = this.$route.query.t * 1, author = this.$route.query.a || 'LostAbaddon';
+			var article = this.$route.query.f, timestamp = this.$route.query.t * 1;
 			if (!article) {
 				this.$router.push({path: '/'});
 				return;
 			}
+			var isMU = !!article.match(/\.mu$/i);
 			timestamp = timestamp || 0;
-			var [content, copyright] = await Promise.all([
-				Granary.getArticle(article, timestamp),
-				Granary.getContent('api/copyright.md'),
-			]);
+			var tasks = [Granary.getArticle(article, timestamp)];
+			if (isMU) tasks.push(Granary.getContent('api/copyright.md'));
+			var [content, copyright] = await Promise.all(tasks);
 
 			var html = '', title = '', hasContent = true;
 			if (!content) {
 				hasContent = false;
 				html = '<div class="page_not_found"><div class="frame"></div><div class="title">指定内容不存在，请联系站长。</div></div>';
 			}
-			else if (!!copyright) {
+			else if (!!copyright && isMU) {
 				content = content + '\n\n\n' + copyright;
 			}
 
@@ -41,11 +41,10 @@ export default {
 				if (timestamp === 0) timestamp = Date.now();
 				let markup = MarkUp.fullParse(content, {
 					toc: true,
-					glossary: true,
+					glossary: isMU,
 					resources: false,
 					showtitle: true,
-					showauthor: true,
-					author,
+					showauthor: isMU,
 					date: timestamp,
 					classname: 'markup-content',
 				});
