@@ -1,6 +1,7 @@
 // const {VueLoaderPlugin} = require('vue-loader');
 
 module.exports = {
+	filenameHashing: false,
 	lintOnSave: true,
 	productionSourceMap: true,
 	chainWebpack: config => {

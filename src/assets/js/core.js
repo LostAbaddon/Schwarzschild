@@ -1,25 +1,3 @@
-((root, ua, nav) => {
-	root.Devices = {};
-
-	Devices.isAndroid = !!ua.match(/Android/i);
-	Devices.isiPhone = !!ua.match(/iPhone/i);
-	Devices.isiPad = !!ua.match(/iPad/i);
-	Devices.isiPod = !!ua.match(/iPod/i);
-	Devices.isiOS = Devices.isiPhone || Devices.isiPad || Devices.isiPod;
-	Devices.isBlackBerry = !!ua.match(/BlackBerry/i);
-	Devices.isIE = nav.pointerEnabled || nav.msPointerEnabled;
-	Devices.isSafari = (ua.indexOf('safari') >= 0 && ua.indexOf('chrome') < 0 && ua.indexOf('android') < 0);
-	Devices.isOpera = !!ua.match(/Opera/i) && !ua.match(/Opera Mini/i);
-	Devices.isOperaMini = !!ua.match(/Opera Mini/i);
-	Devices.isWinPhone = !!ua.match(/IEMobile/i) || !!ua.match(/WPDesktop/i);
-	Devices.isWebOS = !!ua.match(/webOS/i);
-	Devices.isUiWebView = !!ua.match(/AppleWebKit/i);
-	Devices.isMobile = Devices.isAndroid || Devices.isiOS || Devices.isBlackBerry || Devices.isWinPhone || Devices.isWebOS;
-
-	if (Devices.isMobile) document.body.classList.add('mobile');
-	else document.body.classList.add('notmobile');
-}) (window, window.navigator.userAgent, window.navigator);
-
 window.loadJS = (filepath) => new Promise(res => {
 	var js = document.createElement('script');
 	js.type = 'text/javascript';
@@ -88,7 +66,9 @@ window.onVueHyperLinkTriggered = (vue, evt) => {
 	return true;
 };
 
-window.afterVueLoaded = (app) => {
+LifeCycle.on.ready(app => {
+	console.log('Schwarzschild Blackhole System is READY!');
+
 	var FootNoteUnInited = true;
 	app.config.globalProperties.afterMarkUp = async () => {
 		InitNotes(document.body.querySelector('#container'));
@@ -133,14 +113,13 @@ window.afterVueLoaded = (app) => {
 		childList: true,
 		subtree: true,
 	});
-
 	global.changeThemeColor = (color) => {
 		if (!color) return;
 		localStorage.setItem('themeColor', color);
 		document.body.setAttribute('theme', color);
 	};
 	changeThemeColor(localStorage.getItem('themeColor'));
-};
-window.afterVueInitialed = (app) => {
-	console.log('Schwarzschild Blackhole System is READY!');
-};
+});
+LifeCycle.on.initialized((app) => {
+	console.log('Schwarzschild Blackhole System is INITIALIZED!');
+});

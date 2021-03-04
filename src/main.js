@@ -35,22 +35,29 @@ require('./assets/css/article.css');
 
 global.axios = axios;
 
-const app = createApp(App);
-app.config.globalProperties.SiteName = ":TITLE:";
+if (Devices.isMobile) document.body.classList.add('mobile');
+else document.body.classList.add('notmobile');
 
-app.use(Notification);
-app.component('Loading', Loading);
-app.component('NavBar', NavBar);
-app.component('NavMenuBar', NavMenuBar);
-app.component('NavMenuItem', NavMenuItem);
-app.component('TailBar', TailBar);
-app.component('ImageShowcase', ImageShowcase);
-app.component('Crumb', Crumb);
-app.component('Column', Column);
+(async () => {
+	if (await LifeCycle.emit.loaded()) {
+		const app = createApp(App);
+		app.config.globalProperties.SiteName = ":TITLE:";
 
-afterVueLoaded(app);
+		app.use(Notification);
+		app.component('Loading', Loading);
+		app.component('NavBar', NavBar);
+		app.component('NavMenuBar', NavMenuBar);
+		app.component('NavMenuItem', NavMenuItem);
+		app.component('TailBar', TailBar);
+		app.component('ImageShowcase', ImageShowcase);
+		app.component('Crumb', Crumb);
+		app.component('Column', Column);
 
-app.use(router).mount('#app');
-router.app = app;
+		if (await LifeCycle.emit.ready(app)) {
+			app.use(router).mount('#app');
+			router.app = app;
 
-afterVueInitialed(app);
+			await LifeCycle.emit.initialized(app);
+		}
+	}
+}) ();

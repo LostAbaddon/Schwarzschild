@@ -69,6 +69,23 @@ const realizeHomePage = async (isDemo) => {
 			html = html.replace('var gaid="";', 'var gaid="' + Schwarzschild.config.GA + '";');
 		}
 		html = html.replace(/\[:HomePageDescription:\]/gi, Schwarzschild.config.description || Schwarzschild.config.title);
+
+		if (!!Schwarzschild.config.lifecycle) {
+			let filepath = Path.join(process.cwd(), Schwarzschild.config.lifecycle);
+			let has = await FS.hasFile(filepath);
+			if (has) {
+				let filename = Path.basename(Schwarzschild.config.lifecycle);
+				let target = Path.join(OutPutPath, 'public/js', filename);
+				try {
+					await FS.copyFile(filepath, target);
+					html = html.replace(
+						/<script type="text\/javascript" src="<%= BASE_URL %>js\/patch\.js"><\/script>/i,
+						'<script type="text/javascript" src="<%= BASE_URL %>js/patch.js"></script><script type="text/javascript" src="<%= BASE_URL %>js/' + filename + '"></script>'
+					);
+				} catch {}
+			}
+		}
+
 		await FS.writeFile(Path.join(OutPutPath, "/public/index.html"), html, 'utf-8');
 		console.log('Index页配置成功');
 	} catch (err) {

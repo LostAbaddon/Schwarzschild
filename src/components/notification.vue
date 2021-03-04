@@ -13,7 +13,6 @@ window.notify = msg => {
 	if (!current) return;
 	current.showMessage(msg);
 };
-const msgLifeCycle = new Map();
 
 export default {
 	name: "Notification",

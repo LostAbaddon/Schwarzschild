@@ -121,6 +121,7 @@ Schwarzschild 会自动将页面中带有 markup 类名的容器中的内容解�
 			"category": "主题ID，与 theme.css 中 theme 字段适配"
 		}
 	],
+	"lifecycle": "与生命周期相关的自定义函数所在 JS 文件路径",
 	"aboutMe": "项目目录中AboutMe的vue文件相对site/src的路径"
 }
 ```
@@ -162,3 +163,9 @@ Schwarzschild 会自动将页面中带有 markup 类名的容器中的内容解�
 -	Asimov MarkUp 解析插件
 	1.	增加来源以及同一份内容的外站页的解析功能
 	2.	PPT 模式
+
+# 注意事项
+
+Vue 3 用的 WebPack 打包出来的代码在大部分浏览器上都可以正常运行，但在大部分 Safari 浏览器上会被认定为语法错误，所以需要加装 babel 插件来将 ES6 代码降级为 ES5。
+
+大家可以自己进行配置，这里不默认做这步操作，因为我不喜欢做这种没营养的事……
