@@ -767,13 +767,20 @@ Schwarzschild.appendFile = async (filename, category, title, author, timestamp, 
 		myRecord.pages ++;
 	}
 	records.update = now;
-	records.articles.push({
+	var articlesList = {};
+	records.articles.forEach(item => {
+		var path = item.sort + '/' + item.filename;
+		articlesList[path] = item;
+	});
+	articlesList[category.join('/') + '/' + target] = {
 		"type": "article",
 		"sort": category.join('/'),
 		title, author, description,
 		"publish": timestamp.getTime(),
 		"filename": target
-	});
+	};
+	records.articles = Object.values(articlesList);
+	records.articles.sort((itemA, itemB) => itemB.publish - itemA.publish);
 
 	// 保存
 	await Promise.all([
