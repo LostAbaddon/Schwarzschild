@@ -158,7 +158,7 @@ export default {
 
 			if (!!likeCoin) {
 				this.showLikeCoin = true;
-				this.likecoin = "https://button.like.cox/" + likeCoin;
+				this.likecoin = "https://button.like.co/" + likeCoin;
 			}
 			else {
 				this.likecoin = "";
