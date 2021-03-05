@@ -73,7 +73,7 @@ export default {
 			var info = await Granary.getColumnHeader(category);
 			var content = '';
 			if (!!info) {
-				content = MarkUp.parse(info, {
+				content = await MarkUp.parse(info, {
 					toc: false,
 					glossary: false,
 					resources: false,

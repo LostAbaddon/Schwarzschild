@@ -95,12 +95,12 @@ LifeCycle.on.ready(app => {
 		}
 		await ImageWall.init();
 	};
-	const mutationObserver = new MutationObserver(mutations => {
+	const mutationObserver = new MutationObserver(async mutations => {
 		var markups = document.querySelectorAll('.markup');
-		[].forEach.call(markups, (mu) => {
+		await Promise.all([].map.call(markups, async mu => {
 			var content = mu.innerText;
 			content = content.replace(/^\t+|\t+$/g, '\n');
-			content = MarkUp.parse(content, {
+			content = await MarkUp.parse(content, {
 				toc: mu.classList.contains('toc'),
 				glossary: mu.classList.contains('glossary'),
 				resources: mu.classList.contains('resources'),
@@ -110,8 +110,8 @@ LifeCycle.on.ready(app => {
 			});
 			mu.innerHTML = content;
 			mu.classList.remove('markup');
-		});
-		if (markups.length > 0) app.config.globalProperties.afterMarkUp();
+		}));
+		if (markups.length > 0) await app.config.globalProperties.afterMarkUp();
 	});
 	mutationObserver.observe(document.body, {
 		childList: true,

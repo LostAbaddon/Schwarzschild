@@ -55,7 +55,7 @@ export default {
 
 			if (hasContent) {
 				if (timestamp === 0) timestamp = Date.now();
-				let markup = MarkUp.fullParse(content, {
+				let markup = await MarkUp.fullParse(content, {
 					toc: true,
 					glossary: isMU,
 					resources: false,

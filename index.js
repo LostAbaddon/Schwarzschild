@@ -278,6 +278,7 @@ const assemblejLAss = async (isDemo) => {
 			files.push([path, path.replace(f[1], f[0])]);
 		});
 	}));
+	console.log('jLAss 准备完毕');
 
 	// 复制文件
 	files.push([Path.join(jpath, 'utils/datetime.js'), Path.join(outputPath, 'utils/datetime.js')]);
@@ -301,37 +302,11 @@ const assemblejLAss = async (isDemo) => {
 			console.error('写入jLAss文件(' + f[1] + ')失败: ', err.toString());
 		}
 	}));
+	console.log('jLAss 插件准备完毕');
 
 	// 复制 MarkUp 文件
-	var muPath = Path.join(__dirname, 'node_modules/Asimov');
-	var outputPathP = Path.join(OutPutPath, 'public/Asimov');
-	var outputPathA = Path.join(OutPutPath, 'src/assets/Asimov');
-	var map;
-	[map] = await Promise.all([
-		FS.getFolderMap(muPath),
-		FS.createFolders([outputPathP]),
-		FS.createFolders([outputPathA]),
-	]);
-	var markups = [];
-	await Promise.all(map.files.map(async (f, i) => {
-		var o;
-		if (f.match(/\.js$/i)) {
-			o = f.replace(muPath, outputPathA);
-			if (await copyFile(f, o)) console.log('复制Asimov文件: ' + f);
-			o = o.replace(outputPathA, '.\\assets\\Asimov');
-			if (o.match(/markup\.js/i)) {
-				imports.push('import "' + o.replace(/\\/g, '/') + '"');
-			}
-			else if (!o.match(/index\.js/i)) {
-				markups.push('import "' + o.replace(/\\/g, '/') + '"');
-			}
-		}
-		else {
-			o = f.replace(muPath, outputPathP);
-			if (await copyFile(f, o)) console.log('复制Asimov文件: ' + f);
-		}
-	}));
-	markups.forEach(f => imports.push(f));
+	await FS.copyFolder(Path.join(__dirname, 'node_modules/Asimov'), Path.join(OutPutPath, 'public/Asimov'));
+	console.log('Asimov 线程内模块准备完毕');
 
 	// 添加引用
 	var content = await FS.readFile(Path.join(__dirname, 'src/main.js'));

@@ -1,6 +1,6 @@
 # Schwarzschild
 
--	Version: 0.1.0
+-	Version: 0.1.1
 -	Author: [LostAbaddon](lostabaddon@gmail.com)
 
 静态网站构建器，可用于 GitHub Pages 等处。

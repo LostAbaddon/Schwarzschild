@@ -1,5 +1,3 @@
-const generateRandomKey = MarkUp.generateRandomKey;
-
 // CC 版权信息，LikeCoin 设置
 MarkUp.addExtension({
 	name: 'CC&Like',

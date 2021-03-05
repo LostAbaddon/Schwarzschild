@@ -3,6 +3,7 @@ import './assets/js/cacheCenter.js';
 import './assets/js/lrucache.js';
 import './assets/js/cacheDB.js';
 import './assets/js/granary.js';
+import './assets/js/markup.js';
 import './assets/js/markup-footnote.js';
 import './assets/js/imageWall.js';
 
@@ -22,8 +23,6 @@ import ImageShowcase from '@/components/imageShowcase.vue';
 import Crumb from '@/components/crumb.vue';
 import Column from '@/components/column.vue';
 
-import "./assets/js/extmarkup.js";
-
 require('./assets/css/theme.css');
 require('./assets/css/mobile.css');
 require('./assets/css/main.css');
@@ -42,6 +41,8 @@ else document.body.classList.add('notmobile');
 
 (async () => {
 	if (await LifeCycle.emit.loaded()) {
+		await InitAsimov();
+
 		const app = createApp(App);
 		app.config.globalProperties.SiteName = ":TITLE:";
 		app.config.globalProperties.SiteOwner = ":OWNER:";
