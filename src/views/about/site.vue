@@ -12,6 +12,8 @@
 
 同时，本网站会使用 [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) 将请求来的数据做缓存，用来缓存文章列表和访问过的文章数据。
 
+另一方面，本站用 [SharedWorker](https://developer.mozilla.org/en-US/docs/Web/API/SharedWorker) 来做 MarkUp 解析，以避免影响主线程中操作。
+
 ## 本网站构建于——
 
 -	vue v3.0.7

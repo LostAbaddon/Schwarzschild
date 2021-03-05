@@ -212,7 +212,7 @@ a, a:hover, a:visited {
 	transition: opacity 300ms ease-in-out;
 	cursor: pointer;
 }
-.imageShowcase .imageButton[inactive] {
+.imageShowcase .imageButton[inactive="true"] {
 	opacity: 0 !important;
 	pointer-events: none;
 }

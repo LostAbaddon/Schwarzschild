@@ -158,7 +158,7 @@ export default {
 
 			if (!!likeCoin) {
 				this.showLikeCoin = true;
-				this.likecoin = "https://button.like.co/" + likeCoin;
+				this.likecoin = "https://button.like.cox/" + likeCoin;
 			}
 			else {
 				this.likecoin = "";
@@ -166,7 +166,7 @@ export default {
 		},
 		onClick (evt) {
 			onVueHyperLinkTriggered(this, evt);
-		}
+		},
 	},
 	mounted () {
 		this.update();
