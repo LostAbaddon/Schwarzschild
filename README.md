@@ -158,7 +158,6 @@ Schwarzschild 会自动将页面中带有 markup 类名的容器中的内容解�
 	1.	回复功能（indexedDB）
 	2.	划词评论（indexedDB）
 	3.	加密阅读
-	4.	增加打赏
 -	工具页（Site中）
 	1.	MarkUp 编辑器
 	2.	计算器与绘图工具
