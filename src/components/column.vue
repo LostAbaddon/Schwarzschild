@@ -176,13 +176,12 @@ export default {
 			else if (ele.nodeName.toLowerCase() === 'a') {
 				if (onVueHyperLinkTriggered(this, evt)) return;
 			}
-			var filename = undefined, category = undefined, timestamp = undefined, author = undefined;
+			var filename = undefined, category = undefined, timestamp = undefined;
 			if (!ele) return;
 			while (!filename && !category) {
 				filename = ele.getAttribute('filename');
 				category = ele.getAttribute('path');
 				timestamp = ele.getAttribute('timestamp') * 1;
-				author = ele.getAttribute('author');
 				ele = ele.parentNode;
 				if (!ele || ele === document.body) break;
 			}
@@ -193,7 +192,7 @@ export default {
 				}
 			}
 			else if (!!filename) {
-				this.$router.push({path: '/view', query: {f: filename, t: timestamp, a: author}});
+				this.$router.push({path: '/view', query: {f: filename, t: timestamp}});
 			}
 		}
 	},

@@ -1,5 +1,5 @@
 <template>
-	<section class="column-item" :filename="categoryPath+'/'+filename" :timestamp="timestamp" :author="author">
+	<section class="column-item" :filename="categoryPath+'/'+filename" :timestamp="timestamp">
 		<header>
 			<div class="title">{{title}}</div>
 			<div class="category" :path="categoryPath">{{categoryName}}</div>
