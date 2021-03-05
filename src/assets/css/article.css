@@ -4,3 +4,15 @@ div.viewer div.container article header p.author:before {
 div.viewer div.container article header p.author.date:before {
 	content: '发表于：';
 }
+div.viewer div.likeCoinArea {
+	margin-top: 20px;
+	padding-top: 50px;
+	border-top: 1px solid rgb(75, 75, 75);
+}
+div.viewer div.likeCoinArea iframe {
+	width: 100%;
+	height: 280px;
+	padding: 0px;
+	border: none;
+	outline: none;
+}

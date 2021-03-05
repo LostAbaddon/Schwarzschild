@@ -335,7 +335,15 @@ const assemblejLAss = async (isDemo) => {
 
 	// 添加引用
 	var content = await FS.readFile(Path.join(__dirname, 'src/main.js'));
-	content = imports.join('\n') + '\n\n' + content.toString().replace(/":TITLE:"/gi, '"' + Schwarzschild.config.title + (isDemo ? ' (demo)"' : '"'));
+	content = content.toString().replace(/":TITLE:"/gi, JSON.stringify(Schwarzschild.config.title + (isDemo ? ' (demo)' : '')));
+	content = content.replace(/":OWNER:"/gi, JSON.stringify(Schwarzschild.config.owner || Schwarzschild.pkg.author.name));
+	if (!!Schwarzschild.config.likeCoin) {
+		content = content.replace(/":LIKECOIN:"/gi, JSON.stringify(Schwarzschild.config.likeCoin));
+	}
+	else {
+		content = content.replace(/":LIKECOIN:"/gi, 'null');
+	}
+	content = imports.join('\n') + '\n\n' + content;
 	await FS.writeFile(Path.join(OutPutPath, 'src/main.js'), content, 'utf-8');
 };
 const assembleAPI = async (isDemo, publishPath) => {

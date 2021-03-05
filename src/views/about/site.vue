@@ -22,7 +22,7 @@
 	+	free-regular
 	+	free-brands
 -	[jLAss v1.0.3](https://github.com/LostAbaddon/jLAss): 自建 JS 库
--	[Asimov v1.0.0](https://github.com/LostAbaddon/Asimov): 自建的 MarkDown 解析器，支持更多语法（MarkUp）
+-	[Asimov v1.0.1](https://github.com/LostAbaddon/Asimov): 自建的 MarkDown 解析器，支持更多语法（MarkUp）
 
 ## 强制清空缓存
 

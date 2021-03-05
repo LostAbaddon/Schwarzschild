@@ -22,6 +22,8 @@ import ImageShowcase from '@/components/imageShowcase.vue';
 import Crumb from '@/components/crumb.vue';
 import Column from '@/components/column.vue';
 
+import "./assets/js/extmarkup.js";
+
 require('./assets/css/theme.css');
 require('./assets/css/mobile.css');
 require('./assets/css/main.css');
@@ -42,6 +44,8 @@ else document.body.classList.add('notmobile');
 	if (await LifeCycle.emit.loaded()) {
 		const app = createApp(App);
 		app.config.globalProperties.SiteName = ":TITLE:";
+		app.config.globalProperties.SiteOwner = ":OWNER:";
+		app.config.globalProperties.LikeCoin = ":LIKECOIN:";
 
 		app.use(Notification);
 		app.component('Loading', Loading);

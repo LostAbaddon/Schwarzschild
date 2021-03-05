@@ -70,9 +70,10 @@ article.markup-content a[href]:hover {
 }
 
 article.markup-content u {
-	text-decoration: none;
 	padding: 1px;
-	border-bottom: 1px solid rgb(225, 225, 227);
+	text-decoration: none;
+	text-decoration-thickness: from-font;
+	text-underline-offset: 4px;
 }
 
 article.markup-content span.text-wavy {

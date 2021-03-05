@@ -21,7 +21,7 @@
 	+	free-regular
 	+	free-brands
 -	[jLAss v1.0.3](https://github.com/LostAbaddon/jLAss): 自建 JS 库
--	[Asimov v1.0.0](https://github.com/LostAbaddon/Asimov): 自建的 MarkDown 解析器，支持更多语法（MarkUp）
+-	[Asimov v1.0.1](https://github.com/LostAbaddon/Asimov): 自建的 MarkDown 解析器，支持更多语法（MarkUp）
 
 ## 用法
 
@@ -122,7 +122,12 @@ Schwarzschild 会自动将页面中带有 markup 类名的容器中的内容解�
 		}
 	],
 	"lifecycle": "与生命周期相关的自定义函数所在 JS 文件路径",
-	"aboutMe": "项目目录中AboutMe的vue文件相对site/src的路径"
+	"aboutMe": "项目目录中AboutMe的vue文件相对site/src的路径",
+	"likeCoin": "LikeCoin上的账户ID",
+	"likeCoin": {
+		"id": "LikeCoin上的账户ID",
+		"forbidden": ["禁用LikeCoin的域名列表"]
+	}
 }
 ```
 
