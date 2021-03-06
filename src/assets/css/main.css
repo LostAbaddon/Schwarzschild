@@ -58,7 +58,7 @@ a, a:hover, a:visited {
 	left: 0px;
 	right: 0px;
 	height: 0%;
-	z-index: 10;
+	z-index: 500;
 	background-color: rgba(62, 56, 65, 0.5);
 	opacity: 0;
 	pointer-events: none;
@@ -106,7 +106,7 @@ a, a:hover, a:visited {
 }
 
 .loading {
-	z-index: 100;
+	z-index: 200;
 	background-color: rgba(45, 12, 19, 0.3);
 }
 .loading .hint {
@@ -158,7 +158,7 @@ a, a:hover, a:visited {
 }
 
 .imageShowcase {
-	z-index: 90;
+	z-index: 120;
 	background-color: rgba(45, 12, 19, 0.7);
 }
 .imageShowcase .imageFrame {
@@ -219,9 +219,6 @@ a, a:hover, a:visited {
 .imageShowcase .imageButton:hover {
 	opacity: 1;
 }
-.mobile .imageShowcase .imageButton {
-	opacity: 0.8;
-}
 .imageShowcase .imageButton.left {
 	left: 10px;
 }
@@ -234,9 +231,9 @@ a, a:hover, a:visited {
 	margin-top: 0px;
 	font-size: 30px;
 }
-.mobile .imageShowcase .imageButton.close {
-	top: 15px;
-	right: 15px;
+
+.backer {
+	display: none;
 }
 
 @-webkit-keyframes loading-pulse {

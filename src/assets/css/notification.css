@@ -5,14 +5,11 @@
 	max-width: 30%;
 	top: 25px;
 	left: 50%;
-	z-index: 120;
+	z-index: 550;
 	transform: translateX(-50%);
 	flex-direction: column-reverse;
 	text-align: center;
 	transition: all 300ms ease-in-out;
-}
-.mobile .notifaction-frame {
-	top: 0px;
 }
 @media screen and (max-width: 1000px) {
 	.notifaction-frame {

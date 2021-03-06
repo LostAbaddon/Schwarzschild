@@ -1,6 +1,6 @@
 <template>
 	<section class="column container" @click="onClick">
-		<header></header>
+		<header ref="header"></header>
 		<caption v-if="showList">
 			<span>文章列表</span>
 			<div class="controller">
@@ -82,7 +82,7 @@ export default {
 					classname: 'markup-content',
 				});
 			}
-			this.$el.querySelector('header').innerHTML = content;
+			this.$refs.header.innerHTML = content;
 			if (!!info) {
 				await this.afterMarkUp();
 			}
