@@ -41,7 +41,7 @@ body[theme="dark"] {
 	box-shadow: 2px 2px 5px rgba(216, 227, 231, 0.6), 4px 4px 8px rgba(8, 8, 8, 0.8);
 }
 
-[theme="dark"] div.viewer div.container article header p.author {
+[theme="dark"] div.container article header p.author {
 	color: rgb(123, 144, 210);
 }
 
@@ -62,4 +62,22 @@ body[theme="dark"] {
 [theme="dark"] article.markup-content a[href]:visited,
 [theme="dark"] article.markup-content > section > aside.content-table p.content-item a {
 	color: rgb(125, 185, 222);
+}
+
+[theme="dark"] div#container div.floatMenu > i.fas {
+	color: rgb(252, 250, 242);
+	background-color: rgb(28, 13, 26);
+	box-shadow: 0px 0px 3px rgba(226, 225, 228, 0.6);
+}
+[theme="dark"] div#container div.floatMenu div.menuItem {
+	color: rgb(252, 250, 242);
+}
+[theme="dark"] div#container div.floatMenu div.menuItem[read="true"] {
+	color: rgb(71, 75, 76);
+}
+@media screen and (max-width: 1400px) {
+	[theme="dark"] div#container div.floatMenu div.menuFrame {
+		border-color: rgba(238, 247, 242, 1);
+		background-color: rgba(20, 30, 27, 0.95);
+	}
 }

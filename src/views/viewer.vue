@@ -1,14 +1,22 @@
 <template>
-	<div class="viewer">
-		<Crumb />
-		<div ref="article" class="container" @click="onClick"></div>
-		<div class="likeCoinArea" v-if="showLikeCoin">
-			<iframe :src="likecoin"></iframe>
+	<Crumb />
+	<div ref="menu" class="floatMenu">
+		<i class="fas fa-bars"></i>
+		<div class="menuFrame">
+			<div v-for="item in menuList" class="menuItem"
+				:read="item.read"
+				:level="item.level"
+				@click="gotoMenu(item.key)">{{item.title}}</div>
 		</div>
+	</div>
+	<div ref="article" class="container" @click="onClick"></div>
+	<div class="likeCoinArea" v-if="showLikeCoin">
+		<iframe v-if="!!likecoin" :src="likecoin"></iframe>
 	</div>
 </template>
 
 <script>
+const chScroll = new BroadcastChannel('page-scroll');
 const chChangeLoadingHint = new BroadcastChannel('change-loading-hint');
 const CCLicenses = ['BY', 'SA', 'NC', 'ND'];
 const LicensesContent = {
@@ -18,12 +26,28 @@ const LicensesContent = {
 	ND: "禁止演绎"
 };
 
+var current = null, timer;
+chScroll.addEventListener('message', ({data}) => {
+	if (!current) return;
+	if (!!timer) {
+		clearTimeout(timer);
+	}
+	timer = setTimeout(() => {
+		if (!current) return;
+		current.onScroll(data);
+		timer = null;
+	}, 100);
+});
+
 export default {
 	name: 'Viewer',
 	data () {
 		return {
 			likecoin: "",
-			showLikeCoin: false
+			showLikeCoin: false,
+			menuList: [],
+			chapList: [],
+			chapMap: {}
 		}
 	},
 	methods: {
@@ -53,9 +77,10 @@ export default {
 				content = content + '\n\n\n' + copyright;
 			}
 
+			var markup;
 			if (hasContent) {
 				if (timestamp === 0) timestamp = Date.now();
-				let markup = await MarkUp.fullParse(content, {
+				markup = await MarkUp.fullParse(content, {
 					toc: true,
 					glossary: isMU,
 					resources: false,
@@ -65,7 +90,6 @@ export default {
 					classname: 'markup-content',
 				});
 				markup.meta.others = markup.meta.others || {};
-				this.addLikeCoin(markup.meta.others.LikeCoin);
 				copyright = markup.meta.others.CopyRight;
 				title = '《' + markup.title + '》';
 				html = markup.content;
@@ -77,10 +101,17 @@ export default {
 			this.$refs.article.innerHTML = html;
 			if (hasContent) {
 				await this.afterMarkUp();
+				this.addLikeCoin(markup.meta.others.LikeCoin);
+				this.refreshMenu(markup);
 				if (!!copyright && isMU) {
 					await wait();
-					this.adjustCopyRight(copyright)
+					this.adjustCopyRight(copyright);
 				}
+			}
+			else {
+				this.showLikeCoin = false;
+				this.likecoin = '';
+				this.refreshMenu();
 			}
 			document.title = title + ' (' + this.SiteName + ')';
 
@@ -164,12 +195,66 @@ export default {
 				this.likecoin = "";
 			}
 		},
+		refreshMenu (markup) {
+			this.menuList.clear();
+			this.chapList.clear();
+			for (let key in this.chapMap) {
+				delete this.chapMap[key];
+			}
+
+			if (!markup) return;
+
+			markup.chapList.forEach(chap => {
+				this.menuList.push({
+					level: chap[0] - 1,
+					key: chap[1],
+					title: chap[2],
+					read: false
+				});
+				var chapEle = this.$refs.article.querySelector('a[name="' + chap[1] + '"]');
+				if (!!chapEle) {
+					this.chapList.push(chapEle);
+					this.chapMap[chap[1]] = chapEle;
+				}
+			});
+		},
+		onScroll (option) {
+			var limit = Devices.isMobile ? 0 : 25, index = 0, noLeft = true;
+			var delta = option.top / (option.total - option.height);
+			delta = (delta * delta) * option.height;
+			this.chapList.some((chap, i) => {
+				var top = chap.getBoundingClientRect().top;
+				top -= delta;
+				if (top > limit) {
+					noLeft = false;
+					index = i;
+					return true;
+				}
+			});
+			if (index === 0 && noLeft) index = this.menuList.length
+
+			for (let i = 0; i < this.menuList.length; i ++) {
+				this.menuList[i].read = i < index;
+			}
+		},
 		onClick (evt) {
 			onVueHyperLinkTriggered(this, evt);
 		},
+		gotoMenu (menuKey) {
+			var chap = this.chapMap[menuKey];
+			if (!chap) return;
+			var top = chap.getBoundingClientRect().top - (Devices.isMobile ? 5 : 30);
+			app.scrollBy({top, behavior: 'smooth'});
+			this.$refs.article.focus();
+		}
 	},
-	mounted () {
-		this.update();
+	async mounted () {
+		current = this;
+		await this.update();
+		this.$refs.article.focus();
+	},
+	unmounted () {
+		current = null;
 	}
 }
 </script>

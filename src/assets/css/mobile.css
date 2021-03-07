@@ -60,6 +60,20 @@
 	right: 15px;
 }
 
+.mobile div#container div.floatMenu {
+	top: 2px;
+}
+@media screen and (max-width: 1400px) {
+	.mobile div#container div.floatMenu:hover {
+		height: 300px;
+	}
+}
+@media screen and (max-width: 1095px) {
+	.mobile div#container div.floatMenu {
+		right: 5px;
+	}
+}
+
 .mobile .column caption span {
 	margin-left: 40px;
 }

@@ -1,18 +1,173 @@
-div.viewer div.container article header p.author:before {
+div#container div.container article header p.author:before {
 	content: '作者：';
 }
-div.viewer div.container article header p.author.date:before {
+div#container div.container article header p.author.date:before {
 	content: '发表于：';
 }
-div.viewer div.likeCoinArea {
+
+div#container div.likeCoinArea {
 	margin-top: 20px;
 	padding-top: 50px;
 	border-top: 1px solid rgb(75, 75, 75);
 }
-div.viewer div.likeCoinArea iframe {
+div#container div.likeCoinArea iframe {
 	width: 100%;
 	height: 280px;
 	padding: 0px;
 	border: none;
 	outline: none;
+}
+
+div#container div.floatMenu {
+	box-sizing: border-box;
+	position: absolute;
+	top: 130px;
+	left: 50%;
+	right: 5px;
+	margin-left: 505px;
+	width: auto;
+	overflow-x: hidden;
+}
+div#container div.floatMenu > i.fas {
+	display: none;	
+}
+div#container div.floatMenu div.menuFrame {
+	position: relative;
+	transition: all 300ms ease-in-out;
+}
+div#container div.floatMenu div.menuItem {
+	box-sizing: border-box;
+	display: none;
+	font-size: 16px;
+	color: rgb(55, 60, 56);
+	transition: all 300ms ease-in-out;
+	cursor: pointer;
+}
+div#container div.floatMenu div.menuItem[read="true"] {
+	color: rgb(207, 204, 201);
+}
+div#container div.floatMenu div.menuItem[level="0"] {
+	display: block;
+	font-size: 18px;
+	font-weight: bolder;
+	margin-top: 10px;
+}
+div#container div.floatMenu div.menuItem[level="1"] {
+	display: block;
+	margin-top: 5px;
+	padding-left: 15px;
+}
+div#container div.floatMenu div.menuItem[level="2"] {
+	display: block;
+	margin-top: 3px;
+	padding-left: 30px;
+}
+div#container div.floatMenu div.menuItem[level="3"] {
+	display: block;
+	margin-top: 1px;
+	padding-left: 45px;
+	font-size: 14px;
+}
+div#container div.floatMenu div.menuItem:first-child {
+	margin-top: 0px;
+}
+div#container div.floatMenu div.menuItem:empty {
+	display: none;
+}
+@media screen and (max-width: 1400px) {
+	div#container div.floatMenu {
+		left: auto;
+		right: 50%;
+		width: 40px;
+		max-width: 100%;
+		height: 40px;
+		margin-left: 0px;
+		margin-right: -540px;
+		z-index: 100;
+		overflow-y: hidden;
+		transition: width 300ms step-end,
+					height 300ms step-end;
+	}
+	div#container div.floatMenu:hover {
+		width: 300px;
+		height: 600px;
+		transition: width 300ms step-start,
+					height 300ms step-start;
+	}
+	div#container div.floatMenu > i.fas {
+		position: absolute;
+		display: block;
+		top: 5px;
+		right: 5px;
+		width: 30px;
+		height: 30px;
+		text-align: center;
+		line-height: 30px;
+		color: rgb(55, 60, 56);
+		border-radius: 5px;
+		background-color: rgb(226, 225, 228);
+		box-shadow: 0px 0px 3px rgba(48, 47, 75, 0.6);
+		cursor: pointer;
+		transition: all 300ms ease-in-out;
+	}
+	div#container div.floatMenu:hover > i.fas {
+		right: -35px;
+	}
+	div#container div.floatMenu div.menuFrame {
+		position: relative;
+		box-sizing: border-box;
+		width: 100%;
+		max-height: 100%;
+		padding-top: 5px;
+		padding-bottom: 5px;
+		padding-left: 10px;
+		padding-right: 0px;
+		border-radius: 5px 0px 0px 5px;
+		border: 1px solid rgb(20, 30, 27);
+		border-right: none;
+		background-color: rgba(238, 247, 242, 0.95);
+		overflow-x: hidden;
+		overflow-y: auto;
+		transform: translateX(100%);
+		transition: all 300ms ease-in-out;
+	}
+	.notmobile div#container div.floatMenu div.menuFrame::-webkit-scrollbar {
+		width: 10px;
+		background-color: transparent;
+		cursor: pointer;
+	}
+	.notmobile div#container div.floatMenu div.menuFrame::-webkit-scrollbar-thumb {
+		border-radius: 5px;
+		background-color: rgb(75, 75, 75);
+		box-shadow: inset 2px 2px 3px rgba(255, 255, 255, 0.5);
+		cursor: pointer;
+	}
+	.notmobile div#container div.floatMenu div.menuFrame::-webkit-scrollbar-track {
+		border-radius: 5px;
+		background-color: rgba(225, 225, 225, 0.1);
+		box-shadow: inset 2px 2px 3px rgba(53, 53, 53, 0.2);
+		cursor: pointer;
+	}
+	div#container div.floatMenu:hover div.menuFrame {
+		transform: translateX(0%);
+	}
+	div#container div.floatMenu div.menuItem {
+		position: relative;
+		left: 50px;
+		width: 100%;
+		text-align: left;
+	}
+	div#container div.floatMenu div.menuItem[read="true"] {
+		text-shadow: 1px 1px 2px rgba(33, 55, 61, 0.5);
+	}
+	div#container div.floatMenu:hover div.menuItem {
+		left: 0px;
+	}
+}
+@media screen and (max-width: 1095px) {
+	div#container div.floatMenu {
+		left: auto;
+		right: 10px;
+		margin-right: 0px;
+	}
 }

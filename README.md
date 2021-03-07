@@ -145,29 +145,6 @@ Schwarzschild 会自动将页面中带有 markup 类名的容器中的内容解�
 
 [本人网站](https://lostabaddon.github.io/)便是用本库所做，点击[这里](https://github.com/LostAbaddon/LASiteBuilder)查看[网站项目](https://github.com/LostAbaddon/LASiteBuilder)。
 
-# TODO
-
--	整体
-	1.	发现有新内容时自动刷新
-	2.	发布时自动UGLIY
--	目录页
-	1.	分页功能
-	2.	分类功能
-	3.	搜索功能
--	文章页
-	1.	回复功能（indexedDB）
-	2.	划词评论（indexedDB）
-	3.	加密阅读
--	工具页（Site中）
-	1.	MarkUp 编辑器
-	2.	计算器与绘图工具
-	3.	俄罗斯方块
-	4.	魔药课（2048变态版）
-	5.	补完更多过去的文章
--	Asimov MarkUp 解析插件
-	1.	增加CC选择与显示协同
-	2.	PPT 模式
-
 # 注意事项
 
 Vue 3 用的 WebPack 打包出来的代码在大部分浏览器上都可以正常运行，但在大部分 Safari 浏览器上会被认定为语法错误，所以需要加装 babel 插件来将 ES6 代码降级为 ES5。

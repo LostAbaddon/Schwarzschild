@@ -417,6 +417,8 @@ Schwarzschild.launch = config => {
 	.addOption('--rename -r >> 对同名文件自动重命名')
 	.addOption('--keep -k >> 保留文件')
 
+	.add('update >> 更新记录时间')
+
 	.on('command', (param, command) => {
 		var cfg = param.config;
 		if (!!cfg) {
@@ -448,6 +450,7 @@ Schwarzschild.launch = config => {
 			cmd.value.file, cmd.value.category,
 			cmd.value.title, cmd.value.author, cmd.value.publishAt,
 			cmd.value.overwrite, cmd.value.rename, cmd.value.keep);
+		else if (cmd.name === 'update') Schwarzschild.updateLogTime();
 	})
 	.launch();
 };
@@ -771,6 +774,28 @@ Schwarzschild.appendFile = async (filename, category, title, author, timestamp, 
 		FS.writeFile(granaryFile, JSON.stringify(granaryRecord))
 	]);
 	console.log('记录已更新！');
+};
+Schwarzschild.updateLogTime = async () => {
+	var logFile = Path.join(APIPath, 'sources.json');
+	var logRecord;
+	try {
+		logRecord = await FS.readFile(logFile);
+		logRecord = JSON.parse(logRecord);
+	}
+	catch {
+		logRecord = {
+			update: 0,
+			sources: []
+		};
+	}
+	logRecord.update = Date.now();
+	try {
+		FS.writeFile(logFile, JSON.stringify(logRecord));
+		console.log('数据日志记录更新成功');
+	}
+	catch (err) {
+		console.log('数据日志记录更新失败：' + err.message);
+	}
 };
 
 module.exports = Schwarzschild;

@@ -41,9 +41,7 @@
 }
 .nav-bar > .nav-docker > .nav-container .nav-menu-item a {
 	position: relative;
-	height: 25px;
 	z-index: 2;
-	background-color: rgb(28, 28, 28);
 }
 .nav-bar > .nav-docker > .nav-container .nav-menu-item i.hint {
 	display: none;
