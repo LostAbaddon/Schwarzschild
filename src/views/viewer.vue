@@ -74,6 +74,9 @@ export default {
 				html = '<div class="page_not_found"><div class="frame"></div><div class="title">指定内容不存在，请联系站长。</div></div>';
 			}
 			else if (!!copyright && isMU) {
+				if (!content.match(/(^ *#|\n *#)[ \t].+/)) {
+					content = "# 正文\n\n" + content;
+				}
 				content = content + '\n\n\n' + copyright;
 			}
 
@@ -165,6 +168,9 @@ export default {
 			}
 		},
 		addLikeCoin (likeCoin) {
+			this.showLikeCoin = false;
+			return;
+
 			var available = true;
 			if (!!this.LikeCoin && !!this.LikeCoin.forbidden && this.LikeCoin.forbidden.length > 0) {
 				let host = ('.' + location.hostname + '.').replace(/\.+/g, '.');
@@ -219,9 +225,11 @@ export default {
 			});
 		},
 		onScroll (option) {
-			var limit = Devices.isMobile ? 0 : 25, index = 0, noLeft = true;
-			var delta = option.top / (option.total - option.height);
-			delta = (delta * delta) * option.height;
+			var limit = Devices.isMobile ? 0 : 25, index = 0, noLeft = true, delta = 0;
+			if (option.total > option.height) {
+				delta = option.top / (option.total - option.height);
+				delta = (delta * delta) * option.height;
+			}
 			this.chapList.some((chap, i) => {
 				var top = chap.getBoundingClientRect().top;
 				top -= delta;
