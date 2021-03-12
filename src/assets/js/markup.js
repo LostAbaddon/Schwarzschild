@@ -1,6 +1,6 @@
 window.InitAsimov = async () => {
 	// 如果支持线程，则启用线程来解析MarkUp
-	if (false && !!window.SharedWorker || !!window.Worker && false) {
+	if (!!window.SharedWorker || !!window.Worker) {
 		let TaskPool = new Map();
 		let generateID = () => Math.floor(Math.random() * 100000000);
 

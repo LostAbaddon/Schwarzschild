@@ -246,7 +246,7 @@ article.markup-content blockquote {
 article.markup-content blockquote.quote {
 	padding: 10px 20px;
 	border-left: none;
-	font-family: 楷体,sans-serif;
+	font-family: 楷体;
 }
 article.markup-content blockquote.warning {
 	padding: 10px 20px;
@@ -262,6 +262,10 @@ article.markup-content blockquote.danger {
 	background-color: rgb(96, 40, 30);
 	font-family: 黑体,fantasy;
 	color: rgb(205, 209, 211);
+}
+article.markup-content blockquote.danger span.english,
+article.markup-content blockquote.quote span.english {
+	font-family: sans-serif;
 }
 article.markup-content blockquote.success {
 	border-left: none;
