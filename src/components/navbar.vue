@@ -1,8 +1,8 @@
 <template>
 	<div class="nav-bar">
-		<div class="nav-hint" @click="onClick"><i class="fas fa-angle-right" /></div>
+		<div class="nav-hint" @click="toggleHint"><i class="fas fa-angle-right" /></div>
 		<div class="nav-docker">
-			<router-link to="/">首页</router-link>
+			<a @click="backHome">首页</a>
 			<i class="fas fa-caret-right" />
 			<div class="nav-container">
 				<NavMenuBar :menu="menu" />
@@ -94,9 +94,12 @@ export default {
 		global.SiteMap = generateSiteMap(this.menu);
 	},
 	methods: {
-		onClick () {
+		toggleHint () {
 			if (!Devices.isMobile) return;
 			document.querySelector('.masker').classList.add('show');
+		},
+		backHome () {
+			location.href = '/#'; // 避免URL污染
 		}
 	}
 }

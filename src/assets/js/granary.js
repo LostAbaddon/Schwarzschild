@@ -1,4 +1,5 @@
 const chDataFetched = new BroadcastChannel('fetch-data');
+const chDataUpdated = new BroadcastChannel('source-updated');
 
 const Barn = {
 	server: '',
@@ -29,6 +30,7 @@ const Barn = {
 	}),
 	get (url, notStill=false, timestamp=0) {
 		return new Promise(async res => {
+			var isSource = !!url.match(/(^sources|[\\\/]sources)\.json$/);
 			if (!Barn.ready) {
 				await Barn.waitForReady();
 			}
@@ -48,8 +50,19 @@ const Barn = {
 			if (!!data) data = data.data;
 			if (!!data) {
 				await Barn.DB.set('data', url, {data, update: timestamp || Date.now()});
+				let oldTime = 0;
 				if (!!cache) {
+					oldTime = cache.data.update;
 					chDataFetched.postMessage({ url, data });
+				}
+				if (isSource) {
+					let newTime = data.update || 0;
+					if (newTime > oldTime) {
+						chDataUpdated.postMessage({
+							latest: newTime,
+							last: oldTime
+						});
+					}
 				}
 			}
 			if (!cache) res(data);
@@ -152,7 +165,4 @@ window.Granary = {
 	},
 };
 
-chDataFetched.addEventListener('message', msg => {
-	console.log('DataUpdated: ' + msg.data.url);
-});
 Barn.init();

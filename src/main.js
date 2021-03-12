@@ -63,6 +63,16 @@ else document.body.classList.add('notmobile');
 			router.app = app;
 
 			await LifeCycle.emit.initialized(app);
+
+			if (!!sessionStorage.getItem('sourceUpdated')) {
+				sessionStorage.removeItem('sourceUpdated');
+				notify({
+					title: "网站有新数据",
+					message: "已自动刷新",
+					duration: 3000,
+					type: "success"
+				});
+			}
 		}
 	}
 }) ();

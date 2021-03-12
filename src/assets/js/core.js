@@ -129,3 +129,18 @@ LifeCycle.on.ready(app => {
 LifeCycle.on.initialized((app) => {
 	console.log('Schwarzschild Blackhole System is INITIALIZED!');
 });
+
+var tmrDataUpdated = null;
+const cbDataUpdated = data => {
+	sessionStorage.setItem('sourceUpdated', data.latest);
+	location.reload();
+};
+(new BroadcastChannel('source-updated')).addEventListener('message', ({data}) => {
+	if (!!tmrDataUpdated) {
+		clearTimeout(tmrDataUpdated);
+	}
+	tmrDataUpdated = setTimeout(() => {
+		tmrDataUpdated = null;
+		cbDataUpdated(data);
+	}, 100);
+});
