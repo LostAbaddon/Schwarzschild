@@ -18,7 +18,9 @@ window.loadCSS = (filepath) => new Promise(res => {
 
 window.onVueHyperLinkTriggered = (vue, evt) => {
 	var ele = evt.target;
-	if (!ele || !ele.nodeName || ele.nodeName.toLowerCase() !== 'a') return false;
+	if (!ele || !ele.nodeName) return false;
+	if (ele.nodeName.toLowerCase() === 'span') ele = ele.parentElement;
+	if (ele.nodeName.toLowerCase() !== 'a') return false;
 
 	var path = ele.getAttribute('href');
 	if (!path) return false;

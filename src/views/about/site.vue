@@ -46,8 +46,11 @@ export default {
 	},
 	methods: {
 		async onClick (evt) {
-			if (evt.target.hash !== '#clearAllCache') return;
+			var target = evt.target;
+			if (target.tagName === 'SPAN') target = target.parentElement;
+			if (target.hash !== '#clearAllCache' && target.hash !== '#/clearAllCache') return;
 			evt.preventDefault();
+			evt.stopPropagation();
 
 			await Granary.clearAllCache();
 			console.log('已清空所有缓存');

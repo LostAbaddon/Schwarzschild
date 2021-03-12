@@ -164,6 +164,7 @@ export default {
 		},
 		onClick (evt) {
 			var ele = evt.target;
+			if (ele.tagName.toLowerCase() === 'span') ele = ele.parentElement;
 			if (ele.classList.contains('hint')) {
 				return;
 			}

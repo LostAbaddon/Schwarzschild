@@ -70,8 +70,7 @@ article.markup-content a[href]:hover {
 }
 
 article.markup-content u {
-	padding: 1px;
-	text-decoration: none;
+	text-decoration: underline;
 	text-decoration-thickness: from-font;
 	text-underline-offset: 4px;
 }
@@ -130,20 +129,20 @@ article.markup-content p {
 	line-height: 1.5;
 }
 article.markup-content p.indent.indent-1 {
-	text-indent: 20px;
-}
-article.markup-content p.indent.indent-2 {
-	text-indent: 40px;
-}
-article.markup-content p.indent.indent-3 {
-	text-indent: 60px;
-}
-article.markup-content p.indent.indent-4 {
-	text-indent: 80px;
+	text-indent: 1em;
 }
 article.markup-content p.indent,
+article.markup-content p.indent.indent-2 {
+	text-indent: 2em;
+}
+article.markup-content p.indent.indent-3 {
+	text-indent: 3em;
+}
+article.markup-content p.indent.indent-4 {
+	text-indent: 4em;
+}
 article.markup-content p.indent.indent-5 {
-	text-indent: 100px;
+	text-indent: 5em;
 }
 article.markup-content p.align-left {
 	text-align: left;
@@ -756,6 +755,29 @@ article.markup-content > section > aside.content-table p.content-item span.conte
 }
 article.markup-content > section > aside.content-table p.content-item a {
 	color: rgb(55, 60, 56);
+}
+
+article.markup-content span.english {
+	font-family: serif;
+	margin-left: 0.3em;
+	margin-right: 0.3em;
+}
+article.markup-content * > span.english:first-child {
+	margin-left: 0em;
+}
+article.markup-content * > span.english:last-child {
+	margin-right: 0em;
+}
+article.markup-content strong span.english {
+	font-weight: bolder;
+}
+article.markup-content em span.english {
+	font-style: italic;
+	font-weight: normal;
+}
+article.markup-content em strong span.english, article.markup-content strong em span.english {
+	font-style: italic;
+	font-weight: bolder;
 }
 
 #app #footnoteFrame {
