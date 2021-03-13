@@ -1,6 +1,6 @@
 <template>
 	<Crumb />
-	<div ref="menu" class="floatMenu">
+	<div ref="menu" class="floatMenu" v-if="menuList.length>0">
 		<i class="fas fa-bars"></i>
 		<div class="menuFrame">
 			<div v-for="item in menuList" class="menuItem"
@@ -168,9 +168,6 @@ export default {
 			}
 		},
 		addLikeCoin (likeCoin) {
-			this.showLikeCoin = false;
-			return;
-
 			var available = true;
 			if (!!this.LikeCoin && !!this.LikeCoin.forbidden && this.LikeCoin.forbidden.length > 0) {
 				let host = ('.' + location.hostname + '.').replace(/\.+/g, '.');
