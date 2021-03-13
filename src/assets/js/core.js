@@ -132,7 +132,7 @@ LifeCycle.on.initialized((app) => {
 
 var tmrDataUpdated = null;
 const cbDataUpdated = data => {
-	sessionStorage.setItem('sourceUpdated', data.latest);
+	sessionStorage.setItem('sourceUpdated', data.target);
 	location.reload();
 };
 (new BroadcastChannel('source-updated')).addEventListener('message', ({data}) => {

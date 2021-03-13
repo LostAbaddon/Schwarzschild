@@ -1,4 +1,3 @@
-const chDataFetched = new BroadcastChannel('fetch-data');
 const chDataUpdated = new BroadcastChannel('source-updated');
 
 const Barn = {
@@ -50,19 +49,16 @@ const Barn = {
 			if (!!data) data = data.data;
 			if (!!data) {
 				await Barn.DB.set('data', url, {data, update: timestamp || Date.now()});
-				let oldTime = 0;
-				if (!!cache) {
-					oldTime = cache.data.update;
-					chDataFetched.postMessage({ url, data });
-				}
-				if (isSource) {
-					let newTime = data.update || 0;
-					if (newTime > oldTime) {
-						chDataUpdated.postMessage({
-							latest: newTime,
-							last: oldTime
-						});
-					}
+				let oldTime = !!cache ? (cache.data.update || 0) : 0;
+				let newTime = data.update || 0;
+				if (newTime > oldTime) {
+					let msg = {
+						latest: newTime,
+						last: oldTime
+					};
+					if (isSource) msg.target = 'SOURCE';
+					else msg.target = url;
+					chDataUpdated.postMessage(msg);
 				}
 			}
 			if (!cache) res(data);

@@ -64,11 +64,12 @@ else document.body.classList.add('notmobile');
 
 			await LifeCycle.emit.initialized(app);
 
-			if (!!sessionStorage.getItem('sourceUpdated')) {
+			let updateTarget = sessionStorage.getItem('sourceUpdated');
+			if (!!updateTarget) {
 				sessionStorage.removeItem('sourceUpdated');
 				notify({
 					title: "网站有新数据",
-					message: "已自动刷新",
+					message: "updateTarget" + " 已更新\n刷新可浏览新内容",
 					duration: 3000,
 					type: "success"
 				});

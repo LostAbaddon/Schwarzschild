@@ -64,6 +64,7 @@
 
 .notifaction-frame section {
 	box-sizing: border;
+	min-width: 180px;
 	padding: 5px 8px;
 	margin-top: 5px;
 	margin-bottom: 5px;
