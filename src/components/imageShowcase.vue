@@ -1,8 +1,8 @@
 <template>
-	<div :class="'imageShowcase ' + (show ? 'show' : 'hide')">
+	<div :class="'imageShowcase ' + (show ? 'show' : 'hide')" @click="onClick">
 		<div class="imageFrame">
 			<div class="imagePage" v-for="(image, i) in gallary" :style="{left: ((i - index) * 100) + '%'}">
-				<div class="imageInstance" :style="{backgroundImage: 'url(' + image.image + ')', width: image.width + 'px'}"></div>
+				<div class="imageInstance" :style="{backgroundImage: 'url(' + image.image + ')', width: image.width + 'px'}" :width="image.width" :height="image.height"></div>
 				<div class="imageLegend">{{image.title}}</div>
 			</div>
 		</div>
@@ -109,6 +109,48 @@ export default {
 		});
 	},
 	methods: {
+		onClick (evt) {
+			if (evt.target.classList.contains('fas')) return;
+			if (!!evt.target.querySelector('.fas')) return;
+
+			if (!!evt.target.querySelector('.imageInstance')) {
+				this.show = false;
+				return;
+			}
+			if (!evt.target.classList.contains('imageInstance')) return;
+
+			var width = evt.target.getAttribute('width') * 1 || 0;
+			var height = evt.target.getAttribute('height') * 1 || 0;
+			var w = evt.target.getBoundingClientRect();
+			var h = w.height;
+			w = w.width;
+			var x = evt.offsetX, y = evt.offsetY;
+			var limitX = 0, limitY = 0;
+
+			if (width <= w) {
+				if (height > h) {
+					let ww = width / height * h;
+					limitX = (w - ww) / 2;
+				}
+				else {
+					limitX = (w - width) / 2;
+					limitY = (h - height) / 2;
+				}
+			}
+			else {
+				let ww = w, hh = height / width * w;
+				if (hh > h) {
+					ww = w / hh * h;
+					hh = h;
+				}
+				limitX = (w - ww) / 2;
+				limitY = (h - hh) / 2;
+			}
+
+			if (x > w / 2) x = w - x;
+			if (y > h / 2) y = h - y;
+			if (x < limitX || y < limitY) this.show = false;
+		},
 		showGallary (index, gallary) {
 			this.index = index;
 			this.gallary.splice(0, this.gallary.length);

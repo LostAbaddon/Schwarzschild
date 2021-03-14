@@ -7,6 +7,7 @@ loadjLAssModule('fs');
 loadjLAssModule('commandline');
 
 const RecordPerFile = 500;
+const DirPath = (__dirname.indexOf('node_modules') > 0) ? process.cwd() : __dirname;
 const execSync = require('child_process').execSync;
 const CLP = _('CL.CLP');
 const setStyle = _('CL.SetStyle');
@@ -254,7 +255,7 @@ const realizeGranaryConfig = async (isDemo) => {
 const assemblejLAss = async (isDemo) => {
 	if (!Schwarzschild.config.jLAss) return;
 	Schwarzschild.config.jLAss = ['extends'];
-	var jpath = Path.join(__dirname, 'node_modules/jLAss/src');
+	var jpath = Path.join(DirPath, 'node_modules/jLAss/src');
 
 	// 准备目录
 	var outputPath = Path.join(OutPutPath, 'src/assets/jLAss');
@@ -305,7 +306,7 @@ const assemblejLAss = async (isDemo) => {
 	console.log('jLAss 插件准备完毕');
 
 	// 复制 MarkUp 文件
-	await FS.copyFolder(Path.join(__dirname, 'node_modules/Asimov'), Path.join(OutPutPath, 'public/Asimov'));
+	await FS.copyFolder(Path.join(DirPath, 'node_modules/Asimov'), Path.join(OutPutPath, 'public/Asimov'));
 	console.log('Asimov 线程内模块准备完毕');
 
 	// 添加引用

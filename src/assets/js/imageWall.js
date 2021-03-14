@@ -2,7 +2,7 @@
 
 (() => {
 	const chChangeLoadingHint = new BroadcastChannel('change-loading-hint');
-	const chShowImage = new BroadcastChannel('show-image');
+	// const chShowImage = new BroadcastChannel('show-image');
 
 	const queryAll = (tag, host) => {
 		host = host || document;
