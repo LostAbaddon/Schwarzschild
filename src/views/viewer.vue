@@ -17,6 +17,7 @@
 
 <script>
 const chScroll = new BroadcastChannel('page-scroll');
+const chPageChanged = new BroadcastChannel('page-changed');
 const chChangeLoadingHint = new BroadcastChannel('change-loading-hint');
 const CCLicenses = ['BY', 'SA', 'NC', 'ND'];
 const LicensesContent = {
@@ -37,6 +38,10 @@ chScroll.addEventListener('message', ({data}) => {
 		current.onScroll(data);
 		timer = null;
 	}, 100);
+});
+chPageChanged.addEventListener('message', ({data}) => {
+	if (!current) return;
+	current.update();
 });
 
 export default {

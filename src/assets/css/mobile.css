@@ -218,8 +218,8 @@
 }
 
 .mobile .crumb {
-	margin-top: -10px;
-	margin-left: 50px;
+	margin-top: -10px !important;
+	margin-left: 50px !important;
 }
 
 .mobile .tail-bar {

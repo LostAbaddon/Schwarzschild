@@ -761,15 +761,20 @@ article.markup-content > section > aside.content-table p.content-item a {
 	color: rgb(55, 60, 56);
 }
 
-article.markup-content span.english {
-	font-family: serif;
+article.markup-content span.english,
+article.markup-content span.latex.inline span.MathJax {
 	margin-left: 0.3em;
 	margin-right: 0.3em;
 }
-article.markup-content * > span.english:first-child {
+article.markup-content span.english {
+	font-family: serif;
+}
+article.markup-content * > span.english:first-child,
+article.markup-content span.latex.inline:first-child span.MathJax {
 	margin-left: 0em;
 }
-article.markup-content * > span.english:last-child {
+article.markup-content * > span.english:last-child,
+article.markup-content span.latex.inline:last-child span.MathJax {
 	margin-right: 0em;
 }
 article.markup-content strong span.english {

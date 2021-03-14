@@ -6,7 +6,7 @@ require("jLAss");
 loadjLAssModule('fs');
 loadjLAssModule('commandline');
 
-const RecordPerFile = 100;
+const RecordPerFile = 500;
 const execSync = require('child_process').execSync;
 const CLP = _('CL.CLP');
 const setStyle = _('CL.SetStyle');
