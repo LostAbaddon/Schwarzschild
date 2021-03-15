@@ -12,8 +12,12 @@
 		"type": "git",
 		"url": "https://github.com/LostAbaddon/Schwarzschild"
 	},
+	"scripts": {
+		"rebuildESBuild": "node node_modules/esbuild/install.js"
+	},
 	"dependencies": {
 		"Asimov": "github:LostAbaddon/Asimov",
+		"esbuild": "^0.9.2",
 		"jLAss": "github:LostAbaddon/jLAss",
 		"vue": "^3.0.7",
 		"vue-axios": "^3.2.4",

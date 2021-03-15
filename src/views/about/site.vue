@@ -23,6 +23,10 @@
 	+	free-solid
 	+	free-regular
 	+	free-brands
+-	[ESBuild v0.9.2](https://github.com/evanw/esbuild)
+	超快速代码压缩工具，由 [evanw](https://github.com/evanw) 制作并开源（遵守 [MIT 开源协议](https://github.com/evanw/esbuild/blob/master/LICENSE.md)）。
+	+	**注意：**
+		ESBuild 安装后，在 NPMv7 上可能会存在问题而无法自动编译成功，此时须手动在 package-lock.json 中添加或修改“hasInstallScript”字段，其值为 true，而后运行脚本`npm run rebuildESBuild`。
 -	[jLAss v1.0.3](https://github.com/LostAbaddon/jLAss): 自建 JS 库
 -	[Asimov v1.0.1](https://github.com/LostAbaddon/Asimov): 自建的 MarkDown 解析器，支持更多语法（MarkUp）
 

@@ -1,6 +1,8 @@
 const Path = require('path');
 const FS = require('fs/promises');
+const FSConstants = require('fs').constants;
 const VueService = require('@vue/cli-service');
+const ESBuild = require('esbuild');
 
 require("jLAss");
 loadjLAssModule('fs');
@@ -366,6 +368,30 @@ const updateSingleFile = async (filename, publishPath) => {
 		} catch {}
 	}
 };
+const compressFile = async (filepath) => {
+	console.log('Compressing: ' + filepath);
+	var ext = Path.extname(filepath);
+	var filename = filepath.split('.');
+	filename.pop();
+	filename.join('.');
+	filename = filename + '.min' + ext;
+	var config = {
+		entryPoints: [filepath],
+		outfile: filename,
+		minify: true,
+		target: "esnext"
+	};
+	// if (filepath.match(/\.css$/i)) config.loader2 = 'css';
+	var result = await ESBuild.build(config);
+	!!result.warnings && result.warnings.forEach(warn => console.warn(warn));
+	!!result.errors && result.errors.forEach(error => console.error(error));
+	console.log('Compress Done: ' + filename);
+
+	await FS.deleteFiles([filepath]);
+	await FS.copyFile(filename, filepath);
+	await FS.deleteFiles([filename]);
+	console.log('Update Compress over Origin success: ' + filepath);
+};
 
 global.Schwarzschild = {};
 Schwarzschild.config = {};
@@ -402,10 +428,13 @@ Schwarzschild.launch = config => {
 	.addOption('--clear -r >> 强制清除所有文件')
 	.addOption('--onlyapi -o >> 只复制API文件')
 
+	.add('compress >> 打包Public目录下的JS文件')
+
 	.add('publish >> 打包网站')
 	.setParam('[path] >> 指定发布路径')
 	.addOption('--onlyapi -o >> 只复制API文件')
 	.addOption('--removeMaps -r >> 删除JS-Map')
+	.addOption('--notcompress >> 不压缩Public的JS文件')
 	.addOption('--msg -m [msg] >> Git Commit 信息')
 
 	.add('append >> 添加文章')
@@ -450,12 +479,13 @@ Schwarzschild.launch = config => {
 		else if (cmd.name === 'append') Schwarzschild.appendFile(
 			cmd.value.file, cmd.value.category,
 			cmd.value.title, cmd.value.author, cmd.value.publishAt,
-			cmd.value.overwrite, cmd.value.rename, cmd.value.keep);
+			cmd.value.overwrite, cmd.value.rename, cmd.value.keep, !cmd.value.notcompress);
 		else if (cmd.name === 'update') Schwarzschild.updateLogTime();
+		else if (cmd.name === 'compress') Schwarzschild.compress();
 	})
 	.launch();
 };
-Schwarzschild.prepare = async (force=false, clear=false, onlyapi=false, isDemo=true) => {
+Schwarzschild.prepare = async (force=false, clear=false, onlyapi=false, isDemo=true, compress=false) => {
 	if (clear) await FS.deleteFolders(OutPutPath, true);
 
 	var has = await FS.hasFile(OutPutPath), map, folders;
@@ -518,12 +548,13 @@ Schwarzschild.prepare = async (force=false, clear=false, onlyapi=false, isDemo=t
 		realizeManifest(isDemo),
 	];
 	await Promise.all(tasks);
+	if (compress) await Schwarzschild.compress();
 };
 Schwarzschild.demo = async (force=false, clear=false, onlyapi=false) => {
 	await Schwarzschild.prepare(force, clear, onlyapi, true);
 	await runVUE('serve');
 };
-Schwarzschild.publish = async (publishPath, commitMsg, onlyapi=false, removeMaps=false) => {
+Schwarzschild.publish = async (publishPath, commitMsg, onlyapi=false, removeMaps=false, compress=true) => {
 	publishPath = publishPath || Schwarzschild.config.publish;
 	if (commitMsg === true) commitMsg = 'Update: ' + getTimeString(new Date());
 
@@ -534,7 +565,7 @@ Schwarzschild.publish = async (publishPath, commitMsg, onlyapi=false, removeMaps
 	else {
 		await Promise.all([
 			(async () => {
-				await Schwarzschild.prepare(true, true, onlyapi, false);
+				await Schwarzschild.prepare(true, true, onlyapi, false, compress);
 				await runVUE('build');
 			})(),
 			removeOldPublishFiles(Path.join(publishPath, 'js')),
@@ -797,6 +828,13 @@ Schwarzschild.updateLogTime = async () => {
 	catch (err) {
 		console.log('数据日志记录更新失败：' + err.message);
 	}
+};
+Schwarzschild.compress = async () => {
+	var publicFolder = Path.join(OutPutPath, 'public/');
+	var map = await FS.getFolderMap(publicFolder);
+	map = FS.convertFileMap(map).files.filter(url => !url.match(/(mathjax|\.min\.)/i) && url.match(/\.(js)$/i));
+	map = map.map(filepath => compressFile(filepath));
+	await Promise.all(map);
 };
 
 module.exports = Schwarzschild;
