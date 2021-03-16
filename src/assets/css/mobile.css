@@ -190,6 +190,10 @@
 .mobile .nav-bar > .nav-docker > .nav-container .nav-menu-bar {
 	width: auto;
 }
+.mobile .nav-bar > .nav-docker > .nav-container.right > .nav-menu-bar > .nav-menu-item > .nav-menu-bar {
+	right: -10px;
+	transform-origin: 0% 100%; 
+}
 .mobile .nav-bar > .nav-docker > .nav-container.right > .nav-menu-bar {
 	width: 100%;
 }
@@ -203,9 +207,13 @@
 	box-shadow: 2px 2px 5px rgba(93, 63, 81, 0.8);
 }
 .mobile .nav-bar > .nav-docker > .nav-container > .nav-menu-bar > .nav-menu-item .nav-menu-bar,
-.mobile .nav-bar > .nav-docker > .nav-container > .nav-menu-bar > .nav-menu-item > .nav-menu-bar .nav-menu-item > .nav-menu-bar,
-.mobile .nav-bar > .nav-docker > .nav-container.right > .nav-menu-bar > .nav-menu-item > .nav-menu-bar .nav-menu-item > .nav-menu-bar {
+.mobile .nav-bar > .nav-docker > .nav-container > .nav-menu-bar > .nav-menu-item > .nav-menu-bar .nav-menu-item > .nav-menu-bar {
 	left: auto;
+	transform: translateX(0%);
+}
+.mobile .nav-bar > .nav-docker > .nav-container.right > .nav-menu-bar > .nav-menu-item > .nav-menu-bar .nav-menu-item > .nav-menu-bar {
+	left: 20px;
+	right: auto;
 	transform: translateX(0%);
 }
 .mobile .nav-bar > .nav-docker > .nav-container > .nav-menu-bar > .nav-menu-item:hover .nav-menu-bar,

@@ -1,0 +1,141 @@
+div.KeyManager {
+	position: fixed;
+	left: 0px;
+	right: 0px;
+	top: 25px;
+	bottom: 0px;
+	z-index: 202;
+	background-color: rgba(8, 25, 45, 0.5);
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 300ms ease-in-out;
+}
+div.KeyManager[show="true"] {
+	opacity: 1;
+	pointer-events: all;
+}
+
+div.KeyManager div.keyManagerFrame {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	box-sizing: border-box;
+	width: 500px;
+	max-width: 95%;
+	height: 400px;
+	max-height: 95%;
+	padding: 15px 20px;
+	transform: translate(-50%, -100%) scale(0.2);
+	border-radius: 10px;
+	background-color: rgba(13, 86, 97, 0.95);
+	box-shadow: 5px 5px 15px rgb(20, 30, 27);
+	word-break: break-all;
+	color: rgb(252, 250, 242);
+	overflow: auto;
+	transition: all 300ms ease-in-out;
+}
+div.KeyManager[show="true"] div.keyManagerFrame {
+	transform: translate(-50%, -50%) scale(1);
+}
+
+div.KeyManager div.keyManagerFrame div.title {
+	margin-bottom: 5px;
+	font-size: 30px;
+	font-weight: bolder;
+	text-align: center;
+}
+div.KeyManager div.keyManagerFrame div.desc {
+	margin-bottom: 25px;
+	font-size: 18px;
+	font-style: italic;
+	text-align: center;
+}
+div.KeyManager div.keyManagerFrame div.keyListArea {
+	box-sizing: border-box;
+	height: 200px;
+	padding: 8px;
+	border-radius: 5px;
+	border: 2px solid rgb(20, 30, 27);
+}
+div.KeyManager div.keyManagerFrame div.keyListArea div.keyItem {
+	position: relative;
+	margin-bottom: 5px;
+	padding: 0px 0px 5px 5px;
+	border-bottom: 1px solid rgb(20, 30, 27);
+}
+div.KeyManager div.keyManagerFrame div.keyListArea div.keyItem:last-child {
+	margin-bottom: 0px;
+	padding-bottom: 0px;
+	border-bottom: none;
+}
+div.KeyManager div.keyManagerFrame div.keyListArea div.keyItem div.keyContent {
+	display: inline-block;
+	font-family: sans-serif;
+	font-size: 15px;
+	cursor: pointer;
+}
+div.KeyManager div.keyManagerFrame div.keyListArea div.keyItem div.keyDeleter {
+	position: absolute;
+	right: 5px;
+	display: inline-block;
+	font-size: 20px;
+	font-weight: bolder;
+	cursor: pointer;
+}
+div.KeyManager div.keyManagerFrame div.keyListArea div.keyItem[current="true"] div.keyContent {
+	color: rgb(239, 52, 115);
+}
+
+div.KeyManager div.keyManagerFrame div.controlBox {
+	box-sizing: border-box;
+	margin-top: 10px;
+	text-align: center;
+}
+div.KeyManager div.keyManagerFrame div.controlBox input {
+	display: block;
+	width: 250px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 10px;
+	padding: 2px 5px;
+	outline: none;
+	border: none;
+	border-bottom: 1px solid rgb(252, 250, 242);
+	background-color: transparent;
+	color: rgb(252, 250, 242);
+}
+div.KeyManager div.keyManagerFrame div.controlBox button {
+	display: block;
+	width: 80px;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 5px 10px;
+	outline: none;
+	border-radius: 5px;
+	border: 1px solid rgb(252, 250, 242);
+	background-color: transparent;
+	color: rgb(252, 250, 242);
+	font-weight: bolder;
+	cursor: pointer;
+}
+
+div.KeyManager div.keyManagerFrame div.keyListArea::-webkit-scrollbar,
+div.KeyManager div.keyManagerFrame::-webkit-scrollbar {
+	width: 10px;
+	background-color: transparent;
+	cursor: pointer;
+}
+div.KeyManager div.keyManagerFrame div.keyListArea::-webkit-scrollbar-thumb,
+div.KeyManager div.keyManagerFrame::-webkit-scrollbar-thumb {
+	border-radius: 5px;
+	background-color: rgb(75, 75, 75);
+	box-shadow: inset 2px 2px 3px rgba(255, 255, 255, 0.5);
+	cursor: pointer;
+}
+div.KeyManager div.keyManagerFrame div.keyListArea::-webkit-scrollbar-track,
+div.KeyManager div.keyManagerFrame::-webkit-scrollbar-track {
+	border-radius: 5px;
+	background-color: rgba(225, 225, 225, 0.1);
+	box-shadow: inset 2px 2px 3px rgba(53, 53, 53, 0.2);
+	cursor: pointer;
+}

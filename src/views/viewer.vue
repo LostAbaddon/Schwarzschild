@@ -13,6 +13,11 @@
 	<div class="likeCoinArea" v-if="showLikeCoin">
 		<iframe v-if="!!likecoin" :src="likecoin"></iframe>
 	</div>
+	<div class="passwordInputter" :show="showPassword">
+		<div class="title">请输入 IV 码：</div>
+		<input ref="ivinputter" @keydown="onEnter">
+		<button @click="submitIV">确定</button>
+	</div>
 </template>
 
 <script>
@@ -27,7 +32,7 @@ const LicensesContent = {
 	ND: "禁止演绎"
 };
 
-var current = null, timer;
+var current = null, timer, lastIVRequest;
 chScroll.addEventListener('message', ({data}) => {
 	if (!current) return;
 	if (!!timer) {
@@ -52,7 +57,8 @@ export default {
 			showLikeCoin: false,
 			menuList: [],
 			chapList: [],
-			chapMap: {}
+			chapMap: {},
+			showPassword: false
 		}
 	},
 	methods: {
@@ -62,16 +68,34 @@ export default {
 				action: 'show'
 			});
 
-			var article = this.$route.query.f, timestamp = this.$route.query.t * 1;
+			var article = this.$route.query.f, timestamp = (this.$route.query.t * 1) || 0;
 			if (!article) {
 				this.$router.push({path: '/'});
 				return;
 			}
-			var isMU = !!article.match(/\.mu$/i);
-			timestamp = timestamp || 0;
+			var isMU = !!article.match(/\.e?mu$/i);
+			var isEncrypt = !!article.match(/\.em[ud]$/i);
+			if (isEncrypt && (!window.crypto || !window.crypto.getRandomValues
+				|| !window.crypto.subtle || !window.crypto.subtle.encrypt || !window.crypto.subtle.decrypt)) {
+				this.showLikeCoin = false;
+				this.menuList.clear();
+				this.$refs.article.innerText = '<article class="markup-content"><section><p>您的浏览器不支持<span class="english">WebCrypto</span>模块功能，请换用现代浏览器！</p></section></article>';
+				chChangeLoadingHint.postMessage({
+					action: 'hide'
+				});
+				return;
+			}
+
 			var tasks = [Granary.getArticle(article, timestamp)];
 			if (isMU) tasks.push(Granary.getContent('/api/copyright.md'));
 			var [content, copyright] = await Promise.all(tasks);
+
+			if (isEncrypt) {
+				content = await this.decrypt(content);
+				if (!content && !!lastIVRequest) {
+					return;
+				}
+			}
 
 			var html = '', title = '', hasContent = true;
 			if (!content) {
@@ -256,6 +280,133 @@ export default {
 			var top = chap.getBoundingClientRect().top - (Devices.isMobile ? 5 : 30);
 			app.scrollBy({top, behavior: 'smooth'});
 			this.$refs.article.focus();
+		},
+		requestIVWord () {
+			return new Promise(res => {
+				var lastRes = lastIVRequest;
+				lastIVRequest = res;
+				if (!!lastRes) {
+					lastRes(null);
+				}
+				this.showPassword = true;
+			});
+		},
+		onEnter (evt) {
+			if (evt.keyCode === 13) this.submitIV();
+		},
+		submitIV () {
+			var iv = this.$refs.ivinputter.value;
+			if (!iv) {
+				notify({
+					type: "warn",
+					title: "IV 码不能为空"
+				});
+				return;
+			}
+			var code;
+			try {
+				code = base64tobuffer(iv);
+			}
+			catch {
+				notify({
+					type: "error",
+					duration: 2000,
+					title: "无效IV码"
+				});
+			}
+
+			var res = lastIVRequest;
+			lastIVRequest = null;
+			this.showPassword = false;
+			res([code, iv]);
+		},
+		async decrypt (content) {
+			var key = localStorage.getItem('CurrentKey');
+			if (!key) {
+				notify({
+					type: "error",
+					duration: 2000,
+					title: "密钥丢失",
+					message: '请在“设置/密钥管理”中选择或添加密钥'
+				});
+				return '';
+			}
+			try {
+				key = base64tobuffer(key);
+				key = await window.crypto.subtle.importKey("raw", key, "AES-GCM", true, ["encrypt", "decrypt"]);
+			}
+			catch {
+				notify({
+					type: "error",
+					duration: 2000,
+					title: "密钥损坏",
+					message: '解码密钥失败，请在“设置/密钥管理”中选择或添加可用密钥'
+				});
+				return '';
+			}
+
+			var keyMap = localStorage.getItem('EncryptedContentKeys');
+			if (!!keyMap) {
+				try {
+					keyMap = JSON.parse(keyMap);
+				}
+				catch {
+					keyMap = {};
+				}
+			}
+			else {
+				keyMap = {};
+			}
+			var iv, code;
+			code = keyMap[this.$route.query.f];
+			if (!!code) {
+				iv = base64tobuffer(code);
+			}
+			else {
+				[iv, code] = await this.requestIVWord();
+				if (iv === null) {
+					return '';
+				}
+			}
+
+			content = base64tobuffer(content);
+			if (!content) {
+				notify({
+					title: "BASE64 内容解码失败！",
+					duration: 2000,
+					type: "error"
+				});
+				return '';
+			}
+			try {
+				content = await window.crypto.subtle.decrypt({ name: "AES-GCM", iv}, key, content);
+			}
+			catch (err) {
+				notify({
+					type: "error",
+					duration: 2000,
+					title: "密钥或IV码错误",
+					message: '请在“设置/密钥管理”中选择或添加正确的密钥，或换一个IV码重试。'
+				});
+				return "";
+			}
+			try {
+				content = (new TextDecoder()).decode(content);
+			}
+			catch (err) {
+				notify({
+					title: "内容解码失败！",
+					duration: 2000,
+					type: "error"
+				});
+				return "";
+			}
+
+			// 记录已成功使用的密钥与IV码
+			keyMap[this.$route.query.f] = code;
+			localStorage.setItem('EncryptedContentKeys', JSON.stringify(keyMap));
+
+			return content;
 		}
 	},
 	async mounted () {

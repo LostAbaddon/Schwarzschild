@@ -3,6 +3,7 @@
 	<loading />
 	<Notification hAlign="right" vAlign="top" />
 	<ImageShowcase />
+	<KeyManager />
 	<div id="container">
 		<router-view/>
 	</div>

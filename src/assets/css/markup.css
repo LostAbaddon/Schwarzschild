@@ -769,12 +769,20 @@ article.markup-content span.latex.inline span.MathJax {
 article.markup-content span.english {
 	font-family: serif;
 }
-article.markup-content * > span.english:first-child,
-article.markup-content span.latex.inline:first-child span.MathJax {
+article.markup-content p > span.english:first-child,
+article.markup-content li > span.english:first-child,
+article.markup-content td > span.english:first-child,
+article.markup-content blockquote > span.english:first-child,
+article.markup-content caption > span.english:first-child,
+article.markup-content figcaption > span.english:first-child {
 	margin-left: 0em;
 }
-article.markup-content * > span.english:last-child,
-article.markup-content span.latex.inline:last-child span.MathJax {
+article.markup-content p > span.english:last-child,
+article.markup-content li > span.english:last-child,
+article.markup-content td > span.english:last-child,
+article.markup-content blockquote > span.english:last-child,
+article.markup-content caption > span.english:last-child,
+article.markup-content figcaption > span.english:last-child {
 	margin-right: 0em;
 }
 article.markup-content strong span.english {

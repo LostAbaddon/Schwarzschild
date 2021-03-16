@@ -16,6 +16,32 @@ window.loadCSS = (filepath) => new Promise(res => {
 	document.body.appendChild(css);
 });
 
+window.utf8tobase64 = str => window.btoa(window.unescape(window.encodeURIComponent(str)));
+window.base64toutf8 = str => window.decodeURIComponent(window.escape(window.atob(str)));
+window.base64tobuffer = str => {
+	var dec = window.escape(window.atob(str)), len = dec.length, result = [];
+	for (let i = 0; i < len; i ++) {
+		let s = dec.substr(i, 1);
+		if (s === '%') {
+			s = dec.substr(i + 1, 2);
+			try {
+				s = parseInt(s, 16);
+			}
+			catch (err) {
+				console.error("输入 base64 字符串格式错误：", err);
+				return null;
+			}
+			result.push(s);
+			i += 2;
+		}
+		else {
+			result.push(s.charCodeAt(0));
+		}
+	}
+	result = new Uint8Array(result);
+	return result;
+};
+
 window.onVueHyperLinkTriggered = (vue, evt) => {
 	var ele = evt.target;
 	if (!ele || !ele.nodeName) return false;

@@ -1,6 +1,6 @@
 # Schwarzschild
 
--	Version: 0.1.1
+-	Version: 0.1.2
 -	Author: [LostAbaddon](lostabaddon@gmail.com)
 
 静态网站构建器，可用于 GitHub Pages 等处。
@@ -45,6 +45,10 @@ Schwarzschild.launch(require('./config.json'));
 -	publish<br>
 	使用 vue-cli 来生成页面，并导出到指定目录<br>
 	可设置 commit message 信息来自动 commit 更改信息
+-	compress<br>
+	将output的public目录中的所有js文件都压缩
+-	update<br>
+	强制更新sources.json中的时间戳
 -	append<br>
 	添加文件并更新目录
 	+	file：	必选，mu/md文件路径
@@ -55,6 +59,8 @@ Schwarzschild.launch(require('./config.json'));
 	+	overwrite：	可选，是否覆盖原有mu/md文件
 	+	rename：	可选，如制定目录和文件名的文件已存在则将新文件自动重命名
 	+	keep：	可选，决定是否保留原有文件
+	+	encrypt: 可选，后跟true表示使用config.json中指定的密钥文件，或跟特定密钥文件路径
+	+	password： 可选，当使用encrypt参数后可用该参数指定iv码，否则将自动生成随机iv码并输出到CLI
 
 ### MarkUp 用法
 
@@ -131,7 +137,8 @@ Schwarzschild 会自动将页面中带有 markup 类名的容器中的内容解�
 	"likeCoin": {
 		"id": "LikeCoin上的账户ID",
 		"forbidden": ["禁用LikeCoin的域名列表"]
-	}
+	},
+	"key": "加密文件（用于加密阅读）路径"
 }
 ```
 

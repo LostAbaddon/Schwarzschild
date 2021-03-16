@@ -7,7 +7,6 @@
 </template>
 
 <script>
-const channel = new BroadcastChannel('page-changed');
 export default {
 	name: 'NavMenuItem',
 	props: {
@@ -33,6 +32,9 @@ export default {
 				if (action[0] === 'color') {
 					changeThemeColor(action[1]);
 				}
+				else if (action[0] === 'keyManager') {
+					(new BroadcastChannel('setting')).postMessage({ action: 'KeyManager' });
+				}
 				return;
 			}
 			else {
@@ -47,7 +49,7 @@ export default {
 			}
 			if (can_go) {
 				this.$router.push(target);
-				if (same_page) channel.postMessage(target);
+				if (same_page) (new BroadcastChannel('page-changed')).postMessage(target);
 			}
 		}
 	}

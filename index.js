@@ -1,6 +1,6 @@
 const Path = require('path');
 const FS = require('fs/promises');
-const FSConstants = require('fs').constants;
+const Crypto = require('crypto').webcrypto.subtle;
 const VueService = require('@vue/cli-service');
 const ESBuild = require('esbuild');
 
@@ -21,6 +21,7 @@ const OutPutPath = Path.join(process.cwd(), 'output');
 const BuildPath = Path.join(OutPutPath, 'dist');
 const APIPath = Path.join(process.cwd(), 'api');
 const getTimeString = _('Utils').getTimeString;
+const getRandomValues = require('crypto').webcrypto.getRandomValues;
 
 const vueServer = new VueService(OutPutPath);
 const runVUE = async cmd => {
@@ -254,6 +255,36 @@ const realizeGranaryConfig = async (isDemo) => {
 		console.error(err);
 	}
 };
+const realizeKeyManager = async (isDemo) => {
+	var key = Schwarzschild.config.key;
+	if (!!key) {
+		try {
+			key = await FS.readFile(key, 'utf-8');
+		} catch {
+			console.error('指定的Key文件（' + Schwarzschild.config.key + '）不存在或已损坏，将使用自带默认秘钥。');
+			key = null;
+		}
+	}
+	if (!key) {
+		try {
+			key = await FS.readFile(Path(__dirname, 'default.key'), 'utf-8');
+		} catch {
+			console.error('自带默认秘钥文件丢失或损坏，请重新生成 AES-256-GCM 秘钥文件！');
+			return;
+		}
+	}
+
+	var cfg;
+	try {
+		cfg = await FS.readFile(Path.join(__dirname, "/src/components/keyManager.vue"));
+		cfg = cfg.toString();
+		cfg = cfg.replace("[:DEFAULT-AES-KEY:]", key);
+		await FS.writeFile(Path.join(OutPutPath, "/src/components/keyManager.vue"), cfg, 'utf-8');
+		console.log('KeyManager 文件配置成功');
+	} catch (err) {
+		console.error(err);
+	}
+};
 const assemblejLAss = async (isDemo) => {
 	if (!Schwarzschild.config.jLAss) return;
 	Schwarzschild.config.jLAss = ['extends'];
@@ -446,8 +477,13 @@ Schwarzschild.launch = config => {
 	.addOption('--overwrite -o >> 可强制覆盖文件')
 	.addOption('--rename -r >> 对同名文件自动重命名')
 	.addOption('--keep -k >> 保留文件')
+	.addOption('--encrypt [encrypt] >> 加密文件')
+	.addOption('--password <password> >> 用作初始向量的自定义密码')
 
 	.add('update >> 更新记录时间')
+
+	.add('generateKey >> 生成 AES-256-GCM Key文件')
+	.setParam('<keyFile> >> Key文件保存路径')
 
 	.on('command', (param, command) => {
 		var cfg = param.config;
@@ -475,13 +511,15 @@ Schwarzschild.launch = config => {
 
 		if (cmd.name === 'build') Schwarzschild.prepare(cmd.value.force, cmd.value.clear, cmd.value.onlyapi);
 		else if (cmd.name === 'demo') Schwarzschild.demo(cmd.value.force, cmd.value.clear, cmd.value.onlyapi);
-		else if (cmd.name === 'publish') Schwarzschild.publish(cmd.value.path, cmd.value.msg, cmd.value.onlyapi, cmd.value.removeMaps);
+		else if (cmd.name === 'publish') Schwarzschild.publish(cmd.value.path, cmd.value.msg, cmd.value.onlyapi, cmd.value.removeMaps, !cmd.value.notcompress);
 		else if (cmd.name === 'append') Schwarzschild.appendFile(
 			cmd.value.file, cmd.value.category,
 			cmd.value.title, cmd.value.author, cmd.value.publishAt,
-			cmd.value.overwrite, cmd.value.rename, cmd.value.keep, !cmd.value.notcompress);
+			cmd.value.overwrite, cmd.value.rename, cmd.value.keep,
+			cmd.value.encrypt, cmd.value.password);
 		else if (cmd.name === 'update') Schwarzschild.updateLogTime();
 		else if (cmd.name === 'compress') Schwarzschild.compress();
+		else if (cmd.name === 'generateKey') Schwarzschild.generateKeyFile(cmd.value.keyFile);
 	})
 	.launch();
 };
@@ -546,6 +584,7 @@ Schwarzschild.prepare = async (force=false, clear=false, onlyapi=false, isDemo=t
 		realizeAboutSite(isDemo),
 		realizeTailBar(isDemo),
 		realizeManifest(isDemo),
+		realizeKeyManager(isDemo),
 	];
 	await Promise.all(tasks);
 	if (compress) await Schwarzschild.compress();
@@ -581,7 +620,15 @@ Schwarzschild.publish = async (publishPath, commitMsg, onlyapi=false, removeMaps
 	}
 	if (String.is(commitMsg)) gitAddAndCommit(publishPath, commitMsg);
 };
-Schwarzschild.appendFile = async (filename, category, title, author, timestamp, overwrite=false, rename=false, keep=false) => {
+Schwarzschild.generateKeyFile = async (filename) => {
+	var key = await Crypto.generateKey({
+		name: "AES-GCM",
+		length: 256
+	}, true, ["encrypt", "decrypt"]);
+	key = await Crypto.exportKey("raw", key);
+	await FS.writeFile(filename, Buffer.from(key).toString('base64'), 'utf-8');
+};
+Schwarzschild.appendFile = async (filename, category, title, author, timestamp, overwrite=false, rename=false, keep=false, encrypt=false, password) => {
 	if (!filename) {
 		console.error('缺少文章路径！');
 		return;
@@ -592,9 +639,21 @@ Schwarzschild.appendFile = async (filename, category, title, author, timestamp, 
 	}
 
 	// 准备目标路径
+	var useEncrypt = !!encrypt;
 	var categoryPath = Path.join(APIPath, Schwarzschild.config.database);
 	category = category.split(/[\\\/]+/).filter(c => c.length > 0);
 	var target = Path.basename(filename);
+	if (useEncrypt) {
+		if (target.match(/\.md$/i)) {
+			target = target.replace(/\.md$/i, '.emd');
+		}
+		else if (target.match(/\.mu$/i)) {
+			target = target.replace(/\.mu$/i, '.emu');
+		}
+		else {
+			target = target + '.emd';
+		}
+	}
 	var fullFolderPath = Path.join(categoryPath, ...category);
 	var fullFilePath = Path.join(fullFolderPath, target);
 
@@ -602,7 +661,7 @@ Schwarzschild.appendFile = async (filename, category, title, author, timestamp, 
 	var exists = await FS.hasFile(fullFilePath);
 	if (exists && !overwrite) {
 		if (rename) {
-			let ext = Path.extname(filename);
+			let ext = Path.extname(target);
 			let bar = target.substr(0, target.length - ext.length);
 			let i = 0;
 			while (true) {
@@ -714,6 +773,61 @@ Schwarzschild.appendFile = async (filename, category, title, author, timestamp, 
 	}
 	author = author || Schwarzschild.config.owner;
 	timestamp = timestamp || new Date();
+
+	// 加密文件
+	if (useEncrypt) {
+		let key;
+		if (String.is(encrypt)) {
+			try {
+				key = await FS.readFile(encrypt, 'utf-8');
+				key = Buffer.from(key, 'base64');
+			} catch {
+				console.error('指定的秘钥文件（' + encrypt + '）不存在或已损坏，将使用自带默认秘钥。');
+			}
+		}
+		else {
+			try {
+				key = await FS.readFile(Schwarzschild.config.key, 'utf-8');
+				key = Buffer.from(key, 'base64');
+			} catch {
+				console.error('指定的秘钥文件（' + Schwarzschild.config.key + '）不存在或已损坏，将使用自带默认秘钥。');
+			}
+		}
+		if (!key) {
+			try {
+				key = await FS.readFile(Path.join(__dirname, './default.key'), 'utf-8');
+				key = Buffer.from(key, 'base64');
+			} catch {
+				console.error('自带默认秘钥文件丢失或损坏，请重新生成 AES-256-GCM 秘钥文件！');
+				return;
+			}
+		}
+		key = await Crypto.importKey("raw", key, "AES-GCM", true, ["encrypt", "decrypt"]);
+		let content = await FS.readFile(filename, 'utf-8');
+		let enc = new TextEncoder(), iv;
+		if (!!password) {
+			iv = enc.encode(password);
+		}
+		else {
+			iv = getRandomValues(new Uint8Array(32));
+			console.log('请记住 iv 密码（HEX 格式）：' + (Buffer.from(iv)).toString('base64'));
+		}
+		content = await Crypto.encrypt({ name: "AES-GCM", iv }, key, enc.encode(content));
+		content = Buffer.from(content).toString('base64');
+		let ecryptedFilename;
+		if (filename.match(/\.md$/i)) {
+			ecryptedFilename = filename.replace(/\.md$/i, '.emd');
+		}
+		else if (filename.match(/\.mu$/i)) {
+			ecryptedFilename = filename.replace(/\.mu$/i, '.emu');
+		}
+		else {
+			ecryptedFilename = filename + '.emd';
+		}
+		await FS.writeFile(ecryptedFilename, content, 'utf-8');
+		if (!keep) await FS.deleteFiles([filename]);
+		filename = ecryptedFilename;
+	}
 
 	// 复制文件
 	try {

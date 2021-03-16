@@ -60,6 +60,11 @@
 	pointer-events: none;
 	transition: opacity 300ms ease-in-out, transform 300ms ease-in;
 }
+.nav-bar > .nav-docker > .nav-container.right > .nav-menu-bar > .nav-menu-item > .nav-menu-bar {
+	left: auto;
+	right: 20px;
+	transform-origin: 100% 0%; 
+}
 .nav-bar > .nav-docker > .nav-container > .nav-menu-bar > .nav-menu-item:hover .nav-menu-bar {
 	pointer-events: all;
 }

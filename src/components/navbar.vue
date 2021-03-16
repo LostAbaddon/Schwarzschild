@@ -65,27 +65,39 @@ export default {
 					subs: ["theme-list"]
 				},
 				{
-					name: '本站',
+					name: '设置',
 					type: 'page',
-					category: 'about'
+					category: '',
+					subs: [
+						{
+							name: '秘钥管理',
+							type: 'action',
+							category: 'keyManager',
+						},
+						{
+							name: '本站',
+							type: 'page',
+							category: 'about'
+						},
+					]
 				},
 			];
 			if (!!this.aboutMe) {
-				menu[1] = {
+				menu[1].subs[1] = {
 					name: '关于',
 					type: 'page',
 					category: '',
-					subs: [menu[1]]
+					subs: [menu[1].subs[1]]
 				};
-				menu[1].subs.unshift({
+				menu[1].subs[1].subs.unshift({
 					name: '本站',
 					type: 'page',
 					category: this.aboutMe
 				});
-				menu[1].subs[1].name = '系统';
+				menu[1].subs[1].subs[1].name = '系统';
 			}
 			else {
-				menu[1].name = '关于';
+				menu[1].subs[1].name = '关于';
 			}
 			return menu;
 		}

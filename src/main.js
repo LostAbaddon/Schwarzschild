@@ -19,6 +19,7 @@ import NavBar from '@/components/navbar.vue';
 import NavMenuBar from '@/components/navmenubar.vue';
 import NavMenuItem from '@/components/navmenuitem.vue';
 import TailBar from '@/components/tail.vue';
+import KeyManager from '@/components/keyManager.vue';
 import ImageShowcase from '@/components/imageShowcase.vue';
 import Crumb from '@/components/crumb.vue';
 import Column from '@/components/column.vue';
@@ -31,6 +32,7 @@ require('./assets/css/navbar.css');
 require('./assets/css/tail.css');
 require('./assets/css/crumb.css');
 require('./assets/css/column.css');
+require('./assets/css/keyManager.css');
 require('./assets/css/markup.css');
 require('./assets/css/article.css');
 
@@ -54,6 +56,7 @@ else document.body.classList.add('notmobile');
 		app.component('NavMenuBar', NavMenuBar);
 		app.component('NavMenuItem', NavMenuItem);
 		app.component('TailBar', TailBar);
+		app.component('KeyManager', KeyManager);
 		app.component('ImageShowcase', ImageShowcase);
 		app.component('Crumb', Crumb);
 		app.component('Column', Column);
@@ -69,7 +72,7 @@ else document.body.classList.add('notmobile');
 				sessionStorage.removeItem('sourceUpdated');
 				notify({
 					title: "网站有新数据",
-					message: "updateTarget" + " 已更新\n刷新可浏览新内容",
+					message: updateTarget + " 已更新\n刷新可浏览新内容",
 					duration: 3000,
 					type: "success"
 				});
