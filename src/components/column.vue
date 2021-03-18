@@ -194,7 +194,7 @@ export default {
 				}
 			}
 			else if (!!filename) {
-				this.$router.push({path: '/view', query: {f: filename, t: timestamp}});
+				this.$router.push({path: '/view', query: {f: filename}});
 			}
 		}
 	},
