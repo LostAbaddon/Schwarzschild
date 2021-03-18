@@ -168,8 +168,8 @@ article.markup-content code {
 article.markup-content pre {
 	padding-top: 5px;
 	padding-bottom: 5px;
-	padding-left: 20px;
-	border-radius: 5px;
+	padding-left: 40px;
+	border-radius: 8px;
 	background-color: black;
 	font-family: Consolas,Monaco,"Andale Mono","Ubuntu Mono",monospace;
 	font-size: 14px;
@@ -209,6 +209,49 @@ article.markup-content pre code {
 	word-wrap: normal;
 	background-color: transparent;
 	box-shadow: none;
+	list-style: decimal;
+}
+article.markup-content pre code p {
+	display: list-item;
+	margin: 0px;
+	padding: 0px;
+	font-family: cursive;
+	font-size: 14px;
+	line-height: 18px;
+	color: rgb(226, 225, 228);
+}
+article.markup-content pre[lang="plaintext"] code p {
+	font-family: fangsong;
+	font-size: 16px;
+	line-height: 20px;
+	color: rgb(250, 214, 137);
+}
+article.markup-content pre code p::marker {
+	font-size: 12px;
+	font-family: monospace;
+	unicode-bidi: isolate;
+	font-variant-numeric: tabular-nums;
+	color: rgb(102, 169, 201);
+}
+article.markup-content pre code p span.operatorword {
+	color: rgb(166, 27, 41);
+}
+article.markup-content pre code p span.flowword {
+	color: rgb(194, 31, 48);
+	font-family: sans-serif;
+}
+article.markup-content pre code p span.keyword {
+	font-family: 'MathJax_Math-italic';
+	color: rgb(27, 167, 132);
+	font-style: italic;
+}
+article.markup-content pre code p span.constsword {
+	color: rgb(228, 191, 17);
+	font-size: 12px;
+	font-family: math;
+}
+article.markup-content pre code p span.objectword {
+	color: rgb(46, 169, 223);
 }
 
 article.markup-content table {
