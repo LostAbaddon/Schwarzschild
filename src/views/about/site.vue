@@ -21,6 +21,7 @@
 	+	free-solid
 	+	free-regular
 	+	free-brands
+-	[MathJax v2.5.0](https://www.mathjax.org/mathjax-v2-5-now-available/)
 -	[ESBuild v0.9.2](https://github.com/evanw/esbuild)
 	超快速代码压缩工具，由[evanw](https://github.com/evanw)制作并开源（遵守[MIT开源协议](https://github.com/evanw/esbuild/blob/master/LICENSE.md)）。
 	+	**注意：**

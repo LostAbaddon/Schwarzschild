@@ -163,8 +163,9 @@ export default {
 			chChangeLoadingHint.postMessage({action: 'hide'});
 		},
 		onClick (evt) {
-			var ele = evt.target;
-			if (ele.tagName.toLowerCase() === 'span') ele = ele.parentElement;
+			var ele = findContentWrapper(evt.target);
+			if (!ele) return;
+
 			if (ele.classList.contains('hint')) {
 				return;
 			}

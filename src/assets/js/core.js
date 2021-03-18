@@ -42,11 +42,17 @@ window.base64tobuffer = str => {
 	return result;
 };
 
+window.findContentWrapper = ele => {
+	if (!ele) return ele;
+	while (true) {
+		let tag = (ele.nodeName || '').toLowerCase();
+		if (['span', 'font', 'sup', 'sub', 'i', 'u', 'b', 'del', 'em', 'strong', 'code'].includes(tag)) ele = ele.parentElement;
+		else return ele;
+	}
+};
 window.onVueHyperLinkTriggered = (vue, evt) => {
-	var ele = evt.target;
-	if (!ele || !ele.nodeName) return false;
-	if (ele.nodeName.toLowerCase() === 'span') ele = ele.parentElement;
-	if (ele.nodeName.toLowerCase() !== 'a') return false;
+	var ele = findContentWrapper(evt.target);
+	if ((ele.nodeName || '').toLowerCase() !== 'a') return false;
 
 	var path = ele.getAttribute('href');
 	if (!path) return false;
