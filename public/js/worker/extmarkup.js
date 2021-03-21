@@ -2,13 +2,13 @@
 MarkUp.addExtension({
 	name: 'CC&Like',
 	parse: (line, doc, caches) => {
-		var match = line.match(/^ *copyright: *(.*?) *$/i);
+		var match = line.match(/^[ 　\t]*COPYRIGHT:[ 　\t]*(.*?)[ 　\t]*$/);
 		if (!!match) {
 			doc.metas.others = doc.metas.others || {};
 			doc.metas.others.CopyRight = match[1];
 			return ["", true];
 		}
-		match = line.match(/^ *likecoin: *(.*?) *$/i);
+		match = line.match(/^[ 　\t]*LIKECOIN:[ 　\t]*(.*?)[ 　\t]*$/);
 		if (!!match) {
 			doc.metas.others = doc.metas.others || {};
 			doc.metas.others.LikeCoin = match[1];
@@ -17,6 +17,67 @@ MarkUp.addExtension({
 		return [line, false];
 	},
 }, 0, -1);
+
+// 引用与转发
+MarkUp.addExtension({
+	name: 'Cite&Repost',
+	parse: (line, doc, caches) => {
+		var match = line.match(/^[ 　\t]*CITE:[ 　\t]*(.*?)[ 　\t]*$/);
+		if (!!match) {
+			doc.metas.others = doc.metas.others || {};
+			doc.metas.others.Cites = doc.metas.others.Cites || [];
+			doc.metas.others.Cites.push(match[1]);
+			return ["", true];
+		}
+		match = line.match(/^[ 　\t]*REPOST:[ 　\t]*(.*?)[ 　\t]*$/);
+		if (!!match) {
+			doc.metas.others = doc.metas.others || {};
+			doc.metas.others.Reposts = doc.metas.others.Reposts || [];
+			doc.metas.others.Reposts.push(match[1]);
+			return ["", true];
+		}
+		return [line, false];
+	},
+}, 0, -1);
+MarkUp.addExtension({
+	name: 'Cite&Repost',
+	parse: (text, doc) => {
+		var content = [], hasCites = false, hasReposts = false;
+		if (!!doc.metas.others) {
+			if (!!doc.metas.others.Cites && doc.metas.others.Cites.length > 0) {
+				hasCites = true;
+				content.push('<section><h1><a name="CITE-LIST">引用文献</a></h1><ul>');
+				doc.metas.others.Cites.forEach(cite => {
+					content.push('<li><a href="' + cite + '" target="_blank">' + cite + '</a></li>');
+				});
+				content.push("</ul></section>");
+			}
+			if (!!doc.metas.others.Reposts && doc.metas.others.Reposts.length > 0) {
+				hasReposts = true;
+				content.push('<section><h1><a name="REPOST-LIST">转载平台</a></h1><ul>');
+				doc.metas.others.Reposts.forEach(repost => {
+					content.push('<li><a href="' + repost + '" target="_blank">' + repost + '</a></li>');
+				});
+				content.push("</ul></section>");
+			}
+		}
+		text = text.replace(/<\/article>[ 　\t\n\r]*$/, content.join('') + "</article>");
+		if (content.length > 0) {
+			content = [];
+			if (hasCites) {
+				content.push('<p class="content-item level-1"><span class="content-indent"></span><a class="content-link" href="#CITE-LIST">引用文献</a></p>');
+			}
+			if (hasReposts) {
+				content.push('<p class="content-item level-1"><span class="content-indent"></span><a class="content-link" href="#REPOST-LIST">转载平台</a></p>');
+			}
+			text = text.replace(/(<aside class="content-table">)([\w\W]*?)(<\/aside>)/g, (match, pre, list, post) => {
+				return pre + list + content.join('') + post;
+			});
+		}
+		return text;
+	},
+}, 2, -1);
+
 
 // 将原始ASCII字符都分离出来
 MarkUp.addExtension({
