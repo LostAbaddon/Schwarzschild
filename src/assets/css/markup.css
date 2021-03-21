@@ -182,7 +182,6 @@ article.markup-content pre {
 	hyphens: none;
 	counter-reset: linenumber;
 	overflow: auto;
-	max-height: 600px;
 }
 article.markup-content pre::-webkit-scrollbar {
 	width: 12px;
