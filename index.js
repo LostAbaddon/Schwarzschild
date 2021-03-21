@@ -376,7 +376,7 @@ const removeOldPublishFiles = async (targetPath) => {
 	map = FS.convertFileMap(map).files;
 	map = map.filter(f => {
 		var name = Path.basename(f);
-		if (!name.match(/^(\w+\-\w+|index)\.\w+\.(js|css|js\.map)$/i)) return;
+		if (!name.match(/^\w+([\-\.]\w+)+\.(js|css|js\.map)$/i)) return;
 		return true;
 	});
 	await FS.deleteFiles(map);
@@ -386,7 +386,7 @@ const removeJSMapFiles = async (targetPath) => {
 	map = FS.convertFileMap(map).files;
 	map = map.filter(f => {
 		var name = Path.basename(f);
-		if (!name.match(/^(\w+\-\w+|index)\.\w+\.js\.map$/i)) return;
+		if (!name.match(/^(\w+([\-\.]\w+)+|index)\.js\.map$/i)) return;
 		return true;
 	});
 	await FS.deleteFiles(map);
