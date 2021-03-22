@@ -803,6 +803,18 @@ article.markup-content > section > aside.content-table p.content-item a {
 	color: rgb(55, 60, 56);
 }
 
+article.markup-content > section.cite-list > p {
+	padding-left: 50px;
+	text-indent: -62px;
+	font-size: 14px;
+}
+article.markup-content > section.cite-list > p > a.cite-marker {
+	display: inline-block;
+	width: 50px;
+	text-align: right;
+	font-weight: bolder;
+}
+
 article.markup-content span.english,
 article.markup-content span.latex.inline span.MathJax {
 	margin-left: 0.3em;

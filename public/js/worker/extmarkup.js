@@ -57,16 +57,16 @@ MarkUp.addExtension({
 		if (!!doc.metas.others) {
 			if (!!doc.metas.others.Cites && doc.metas.others.Cites.length > 0) {
 				hasCites = true;
-				content.push('<section><h1><a name="CITE-LIST">引用文献</a></h1>');
+				content.push('<section class="cite-list"><h1><a name="CITE-LIST">引用文献</a></h1>');
 				doc.metas.others.Cites.forEach((cite, index) => {
 					if (!cite) return;
-					content.push('<p><a name="CITE-' + index + '">[' + index + ']</a>：' + MarkUp.parseLine(cite, doc) + '</p>');
+					content.push('<p><a class="cite-marker" name="CITE-' + index + '">[' + index + ']</a>: ' + MarkUp.parseLine(cite, doc) + '</p>');
 				});
 				content.push("</section>");
 			}
 			if (!!doc.metas.others.Reposts && doc.metas.others.Reposts.length > 0) {
 				hasReposts = true;
-				content.push('<section><h1><a name="REPOST-LIST">转载平台</a></h1><ul>');
+				content.push('<section class="repost-list"><h1><a name="REPOST-LIST">转载平台</a></h1><ul>');
 				doc.metas.others.Reposts.forEach(repost => {
 					content.push('<li><a href="' + repost + '" target="_blank">' + repost + '</a></li>');
 				});
