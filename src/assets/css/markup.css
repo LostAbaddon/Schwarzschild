@@ -36,7 +36,6 @@ article.markup-content a[target] {
 	text-decoration: underline;
 	text-decoration-style: dotted;
 	text-decoration-thickness: from-font;
-	text-underline-offset: 4px;
 }
 article.markup-content a[target]:after {
 	position: relative;
@@ -64,6 +63,7 @@ article.markup-content h6 {
 }
 article.markup-content a[href], article.markup-content a[href]:hover, article.markup-content a[href]:visited {
 	color: rgb(21, 85, 154);
+	text-underline-offset: 4px;
 }
 article.markup-content a[href]:hover {
 	text-decoration: underline;
@@ -671,13 +671,11 @@ article.markup-content h13 {
 	line-height: 24px;
 }
 
-article.markup-content a.notemark, article.markup-content a.terminology {
-	color: rgb(22, 97, 171);
+article.markup-content a.notemark, article.markup-content a.terminology,
+article.markup-content a.notemark:visited, article.markup-content a.terminology:visited {
+	color: inherit !important;
 	cursor: pointer;
 	transition: color 200ms ease-in-out;
-}
-article.markup-content a.notemark:visited, article.markup-content a.terminology:visited {
-	color: rgb(106, 76, 156);
 }
 article.markup-content a.notemark:hover, article.markup-content a.terminology:hover {
 	color: rgb(21, 85, 154);
