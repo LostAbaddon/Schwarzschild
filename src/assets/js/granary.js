@@ -1,4 +1,9 @@
 const chDataUpdated = new BroadcastChannel('source-updated');
+window.totalDecodeURI = uri => {
+	var next = decodeURIComponent(uri);
+	if (next === uri) return next;
+	else return totalDecodeURI(next);
+};
 
 const Barn = {
 	server: '',
@@ -73,6 +78,7 @@ const Barn = {
 // 资源管理
 window.Granary = {
 	async getSource (source, limit) {
+		source = totalDecodeURI(source);
 		var result = { articles: [], comments: [] };
 		await Promise.all(Array.generate(limit + 1).map(async index => {
 			var url = Barn.API + '/' + source + '-' + index + '.json';
@@ -86,6 +92,7 @@ window.Granary = {
 		return result;
 	},
 	async getCategory (category) {
+		category = totalDecodeURI(category);
 		var sources = await Barn.get(Barn.API + '/sources.json', false);
 		var data = [];
 		if (!sources || !sources.sources) return data;
@@ -98,6 +105,7 @@ window.Granary = {
 		return data;
 	},
 	async getColumnHeader (category) {
+		category = totalDecodeURI(category);
 		var sources = await Barn.get(Barn.API + '/sources.json', false);
 		sources = sources || {};
 		sources.update = sources.update || 0;
@@ -117,6 +125,7 @@ window.Granary = {
 		return data;
 	},
 	async getArticle (filepath, timestamp=0) {
+		filepath = totalDecodeURI(filepath);
 		if (timestamp <= 0) {
 			var sources = await Barn.get(Barn.API + '/sources.json', false);
 			sources = sources || {};
@@ -135,6 +144,7 @@ window.Granary = {
 		return content;
 	},
 	async getContent (filepath, notStill=true) {
+		filepath = totalDecodeURI(filepath);
 		if (notStill) {
 			var sources = await Barn.get(Barn.API + '/sources.json', false);
 			sources = sources || {};

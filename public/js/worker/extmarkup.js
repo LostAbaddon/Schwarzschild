@@ -117,7 +117,7 @@ MarkUp.addExtension({
 		contents.forEach(part => {
 			if (part[0]) return;
 			var ctx = part[1].replace(/[\w \-\+\.,:;\?!\*`@#$%^&\(\)\[\]\{\}=_'"\\\/<>\|]+/g, (match) => {
-				if (!match.match(/[a-zA-Z]/)) return match;
+				if (!match.match(/[a-zA-Z0-9]/)) return match;
 				return '</span><span class="english">' + match.trim() + '</span><span class="normal">'
 			});
 			ctx = '<span class="normal">' + ctx + '</span>';
