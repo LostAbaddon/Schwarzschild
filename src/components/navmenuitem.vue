@@ -28,6 +28,10 @@ export default {
 				target.path = '/category';
 				target.query = {c: action.join(',')};
 			}
+			else if (type === 'article') {
+				target.path = '/view';
+				target.query = {f: action.last};
+			}
 			else if (type === 'action') {
 				if (action[0] === 'color') {
 					changeThemeColor(action[1]);
@@ -41,10 +45,11 @@ export default {
 				return;
 			}
 			var can_go = true, same_page = false;
+			console.log(target);
 			if (this.$route.path === target.path) {
 				same_page = true;
-				let c1 = !!this.$route.query ? (this.$route.query.c || '') : '';
-				let c2 = !!target.query ? (target.query.c || '') : '';
+				let c1 = !!this.$route.query ? (this.$route.query.c || this.$route.query.f || '') : '';
+				let c2 = !!target.query ? (target.query.c || target.query.f || '') : '';
 				if (c1 === c2) can_go = false;
 			}
 			if (can_go) {
