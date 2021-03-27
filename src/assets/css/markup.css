@@ -277,6 +277,20 @@ article.markup-content table tbody td {
 	border: 1px solid rgb(66, 80, 102);
 	vertical-align: middle;
 }
+article.markup-content table thead th[sortable="true"] {
+	cursor: pointer;
+}
+article.markup-content table thead th[sortable="true"]:after {
+	content: '\f0dc';
+	font-family: "Font Awesome 5 Solid";
+	font-size: 10px;
+}
+article.markup-content table thead th[sortable="true"][sortdir="down"]:after {
+	content: '\f107';
+}
+article.markup-content table thead th[sortable="true"][sortdir="up"]:after {
+	content: '\f106';
+}
 
 article.markup-content blockquote {
 	margin: 10px 0px;

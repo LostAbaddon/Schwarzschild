@@ -170,4 +170,89 @@
 		deactiveUI(UI, 'a.notemark');
 		deactiveUI(UI, 'a.terminology');
 	};
+
+	// 表格排序
+	const findTableCol = (target) => {
+		var table, col, notdone = true;
+		if ((target.tagName + '').match(/th/i)) {
+			if (target.getAttribute('sortable') === 'true') {
+				col = target;
+			}
+			else {
+				return [null, null];
+			}
+		}
+		else {
+			col = target;
+			while (notdone) {
+				col = col.parentNode;
+				if (!col) return [null, null];
+				if ((col.tagName + '').match(/th/i)) {
+					if (col.getAttribute('sortable') === 'true') {
+						notdone = false;
+						break;
+					}
+					else {
+						return [null, null];
+					}
+				}
+			}
+		}
+		table = col.parentNode;
+		if (table.tagName.match(/table/i)) {
+			return [table, col];
+		}
+		notdone = true;
+		while (notdone) {
+			table = table.parentNode;
+			if (!table) return [null, null];
+			if (table.tagName.match(/table/i)) {
+				notdone = false;
+				return [table, col];
+			}
+		}
+		return [null, null];
+	}
+	document.body.addEventListener('click', (evt) => {
+		var [table, col] = findTableCol(evt.target);
+		if (!table || !col) return;
+
+		var index = -1;
+		[].some.call(col.parentNode.children, (ele, i) => {
+			if (ele === col) {
+				index = i;
+				return true;
+			}
+		});
+		if (index < 0) return;
+
+		var dir = col.getAttribute('sortdir');
+		if (dir !== 'down') dir = 'down';
+		else dir = 'up';
+
+		[].forEach.call(col.parentNode.querySelectorAll('th'), item => {
+			if (item !== col) {
+				item.removeAttribute('sortdir');
+			}
+			else {
+				item.setAttribute('sortdir', dir);
+			}
+		});
+
+		var rows = [].map.call(table.querySelectorAll('tbody > tr'), ele => ele);
+		rows = rows.map((row, i) => {
+			var td = ([].map.call(row.querySelectorAll('td'), ele => ele))[index];
+			var value = td.innerText * 1;
+			if (isNaN(value)) value = 0;
+			return [i, value, row];
+		});
+		rows.sort((ra, rb) => {
+			if (dir === 'up') return rb[1] - ra[1];
+			else return ra[1] - rb[1];
+		});
+		rows.forEach(([i, value, row]) => {
+			var parent = row.parentNode;
+			parent.appendChild(row);
+		});
+	});
 }) ();
