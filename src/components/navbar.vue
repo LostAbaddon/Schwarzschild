@@ -102,8 +102,8 @@ export default {
 				},
 				{
 					name: '配色',
-					type: 'page',
-					category: '',
+					type: 'action',
+					category: 'color',
 					subs: ["theme-list"]
 				},
 				{
