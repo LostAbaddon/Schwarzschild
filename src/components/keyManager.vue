@@ -54,14 +54,8 @@ export default {
 				editable: false,
 				current: currentKey === DefaultKey
 			});
-			var list = localStorage.getItem('keyList');
-			if (!list) return;
-			try {
-				list = JSON.parse(list);
-			} 
-			catch {
-				return;
-			}
+			var list = localStorage.get('keyList', []);
+			if (list.length === 0) return;
 			this.keyList.push(...(list.map(l => {
 				return {
 					key: l,
@@ -106,7 +100,7 @@ export default {
 
 			var list = this.keyList.map(item => item.key);
 			list.splice(0, 1); // 去掉默认密钥
-			localStorage.setItem('keyList', JSON.stringify(list));
+			localStorage.set('keyList', list);
 		},
 		appendKey () {
 			var key = this.$refs.keyInputter.value;
@@ -128,7 +122,7 @@ export default {
 
 			var list = this.keyList.map(item => item.key);
 			list.splice(0, 1); // 去掉默认密钥
-			localStorage.setItem('keyList', JSON.stringify(list));
+			localStorage.set('keyList', list);
 		},
 		onEnter (evt) {
 			if (evt.keyCode === 13) {

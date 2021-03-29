@@ -1,3 +1,19 @@
+localStorage.__proto__.get = (key, def={}) => {
+	var item = localStorage.getItem(key);
+	if (!item) return def;
+	try {
+		item = JSON.parse(item);
+	}
+	catch {
+		return def;
+	}
+	return item;
+};
+localStorage.__proto__.set = (key, value) => {
+	value = JSON.stringify(value);
+	localStorage.setItem(key, value);
+};
+
 window.loadJS = (filepath) => new Promise(res => {
 	var js = document.createElement('script');
 	js.type = 'text/javascript';

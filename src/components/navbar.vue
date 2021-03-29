@@ -46,22 +46,64 @@ global.getPathNameList = (path, needHome=true) => {
 	if (needHome) result.unshift({ name: "首页", path: '/' });
 	return result;
 };
+var current;
+(new BroadcastChannel('route-updated')).addEventListener('message', ({data}) => {
+	if (!!current) current.disableFavoriteAction();
+});
+(new BroadcastChannel('memory-updated')).addEventListener('message', ({data}) => {
+	var name, append = true;
+	if (data.type === 'history') {
+		name = 'memory/history';
+	}
+	else if (data.type === 'favorite') {
+		name = 'memory/favorite';
+	}
+	else if (data.type === 'unfavorite') {
+		name = 'memory/favorite';
+		append = false;
+	}
+	else {
+		return;
+	}
+
+	var list = localStorage.get(name, []);
+	var index = -1;
+	list.some((item, i) => {
+		if (item[1] !== data.url) return;
+		index = i;
+		return true;
+	});
+	if (index >= 0) {
+		list.splice(index, 1);
+	}
+	if (append) {
+		list.unshift([data.title, data.url]);
+		if (list.length > 10) {
+			list.splice(10, list.length - 10);
+		}
+	}
+	localStorage.set(name, list);
+
+	if (!!current) current.updateMemory();
+});
 
 export default {
 	name: 'NavBar',
 	data () {
 		return {
 			menu: ["site-menu"],
-			aboutMe: "[:site-about-me:]"
-		}
-	},
-	computed: {
-		aboutMenu () {
-			var menu = [
+			aboutMe: "[:site-about-me:]",
+			aboutMenu: [
+				{
+					name: '收藏',
+					type: 'action',
+					category: 'addFavorite',
+					disabled: true
+				},
 				{
 					name: '配色',
-					type: 'action',
-					category: 'color',
+					type: 'page',
+					category: '',
 					subs: ["theme-list"]
 				},
 				{
@@ -81,28 +123,52 @@ export default {
 						},
 					]
 				},
-			];
-			if (!!this.aboutMe) {
-				menu[1].subs[1] = {
-					name: '关于',
-					type: 'page',
-					category: '',
-					subs: [menu[1].subs[1]]
-				};
-				menu[1].subs[1].subs.unshift({
-					name: '本站',
-					type: 'page',
-					category: this.aboutMe
-				});
-				menu[1].subs[1].subs[1].name = '系统';
-			}
-			else {
-				menu[1].subs[1].name = '关于';
-			}
-			return menu;
+			],
+			memoryMenu: {
+				name: '记忆宫殿',
+				type: 'page',
+				category: '',
+				subs: [
+					{
+						name: '收藏夹',
+						type: 'page',
+						category: '',
+						subs: []
+					},
+					{
+						name: '浏览历史',
+						type: 'page',
+						category: '',
+						subs: []
+					}
+				]
+			},
 		}
 	},
 	mounted () {
+		current = this;
+
+		if (!!this.aboutMe) {
+			this.aboutMenu[2].subs[1] = {
+				name: '关于',
+				type: 'page',
+				category: '',
+				subs: [this.aboutMenu[2].subs[1]]
+			};
+			this.aboutMenu[2].subs[1].subs.unshift({
+				name: '本站',
+				type: 'page',
+				category: this.aboutMe
+			});
+			this.aboutMenu[2].subs[1].subs[1].name = '系统';
+		}
+		else {
+			this.aboutMenu[2].subs[1].name = '关于';
+		}
+		this.menu.push(this.memoryMenu);
+
+		this.updateMemory();
+
 		global.SiteMap = generateSiteMap(this.menu);
 	},
 	methods: {
@@ -112,6 +178,72 @@ export default {
 		},
 		backHome () {
 			location.href = '/#'; // 避免URL污染
+		},
+		updateMemory () {
+			this.aboutMenu[0].disabled = false;
+
+			var history = localStorage.get('memory/history', []);
+			var favorite = localStorage.get('memory/favorite', []);
+
+			if (history.length === 0 && favorite.length === 0) {
+				this.memoryMenu.disabled = true;
+				this.aboutMenu[0].name = '添加收藏';
+				this.aboutMenu[0].category = 'addFavorite';
+			}
+			else {
+				this.memoryMenu.disabled = false;
+				if (history.length === 0) {
+					this.memoryMenu.subs[1].disabled = true;
+				}
+				else {
+					let historyList = this.memoryMenu.subs[1];
+					historyList.disabled = false;
+					if (historyList.subs.length > history.length) {
+						historyList.subs.splice(history.length, historyList.subs.length - history.length);
+					}
+					history.forEach((item, i) => {
+						historyList.subs[i] = {
+							name: item[0],
+							type: 'article',
+							category: item[1]
+						};
+					});
+				}
+				if (favorite.length === 0) {
+					this.memoryMenu.subs[0].disabled = true;
+					this.aboutMenu[0].name = '添加收藏';
+					this.aboutMenu[0].category = 'addFavorite';
+				}
+				else {
+					this.memoryMenu.subs[0].disabled = false;
+					let favoriteList = this.memoryMenu.subs[0];
+					favoriteList.disabled = false;
+					if (favoriteList.subs.length > favorite.length) {
+						favoriteList.subs.splice(favorite.length, favoriteList.subs.length - favorite.length);
+					}
+					let favorited = false;
+					favorite.forEach((item, i) => {
+						favoriteList.subs[i] = {
+							name: item[0],
+							type: 'article',
+							category: item[1]
+						};
+						if (item[1] === (window.PageInfo || '').url) favorited = true;
+					});
+					if (favorited) {
+						this.aboutMenu[0].name = '取消收藏';
+						this.aboutMenu[0].category = 'removeFavorite';
+					}
+					else {
+						this.aboutMenu[0].name = '添加收藏';
+
+						this.aboutMenu[0].category = 'addFavorite';
+					}
+				}
+			}
+		},
+		disableFavoriteAction () {
+			this.aboutMenu[0].disabled = true;
 		}
 	}
 }

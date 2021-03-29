@@ -24,6 +24,7 @@
 const chScroll = new BroadcastChannel('page-scroll');
 const chPageChanged = new BroadcastChannel('page-changed');
 const chChangeLoadingHint = new BroadcastChannel('change-loading-hint');
+const chUpdateHistory = new BroadcastChannel('memory-updated');
 const CCLicenses = ['BY', 'SA', 'NC', 'ND'];
 const LicensesContent = {
 	BY: "署名",
@@ -146,6 +147,15 @@ export default {
 				this.refreshMenu();
 			}
 			document.title = title + ' (' + this.SiteName + ')';
+
+			window.PageInfo = window.PageInfo || {};
+			window.PageInfo.title = title;
+			window.PageInfo.url = this.$route.query.f;
+			chUpdateHistory.postMessage({
+				type: 'history',
+				title,
+				url: this.$route.query.f
+			});
 
 			chChangeLoadingHint.postMessage({
 				action: 'hide'
@@ -345,18 +355,7 @@ export default {
 				return '';
 			}
 
-			var keyMap = localStorage.getItem('EncryptedContentKeys');
-			if (!!keyMap) {
-				try {
-					keyMap = JSON.parse(keyMap);
-				}
-				catch {
-					keyMap = {};
-				}
-			}
-			else {
-				keyMap = {};
-			}
+			var keyMap = localStorage.get('EncryptedContentKeys', {});
 			var iv, code;
 			code = keyMap[this.$route.query.f];
 			if (!!code) {
@@ -404,7 +403,7 @@ export default {
 
 			// 记录已成功使用的密钥与IV码
 			keyMap[this.$route.query.f] = code;
-			localStorage.setItem('EncryptedContentKeys', JSON.stringify(keyMap));
+			localStorage.set('EncryptedContentKeys', keyMap);
 
 			return content;
 		}

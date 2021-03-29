@@ -3,6 +3,7 @@ import Home from '../views/Home.vue';
 import Category from '../views/Category.vue';
 import Viewer from '../views/viewer.vue';
 
+const channel = new BroadcastChannel('route-updated');
 const routes = [
 	{
 		path: '/',
@@ -42,7 +43,6 @@ const routes = [
 		}
 	}
 ];
-
 const router = createRouter({
 	history: createWebHashHistory(),
 	routes
@@ -60,7 +60,13 @@ router.afterEach((to, from) => {
 	else {
 		document.title = router.app.config.globalProperties.SiteName;
 	}
-	document.querySelector('#app').scrollTo(0, 0);
+	channel.postMessage({
+		from: from.fullPath,
+		to: to.fullPath
+	});
+
+	var app = document.querySelector('#app');
+	app.scrollTo(0, 0);
 });
 
 export default router;

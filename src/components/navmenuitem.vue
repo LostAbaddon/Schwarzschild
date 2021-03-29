@@ -1,5 +1,5 @@
 <template>
-	<div class="nav-menu-item">
+	<div class="nav-menu-item" v-if="!disabled">
 		<a @click="click(type, action)">{{title}}<i class="fas fa-caret-down" v-if="!!subs" /></a>
 		<i class="hint fas fa-caret-right" v-if="!!subs" />
 		<NavMenuBar v-if="!!subs" :menu="subs" :supers="action" />
@@ -13,7 +13,8 @@ export default {
 		title: String,
 		type: String,
 		action: String,
-		subs: Array
+		subs: Array,
+		disabled: Boolean
 	},
 	methods: {
 		click (type, action) {
@@ -39,13 +40,26 @@ export default {
 				else if (action[0] === 'keyManager') {
 					(new BroadcastChannel('setting')).postMessage({ action: 'KeyManager' });
 				}
+				else if (action[0] === 'addFavorite') {
+					(new BroadcastChannel('memory-updated')).postMessage({
+						type: 'favorite',
+						title: window.PageInfo.title,
+						url: window.PageInfo.url
+					});
+				}
+				else if (action[0] === 'removeFavorite') {
+					(new BroadcastChannel('memory-updated')).postMessage({
+						type: 'unfavorite',
+						title: window.PageInfo.title,
+						url: window.PageInfo.url
+					});
+				}
 				return;
 			}
 			else {
 				return;
 			}
 			var can_go = true, same_page = false;
-			console.log(target);
 			if (this.$route.path === target.path) {
 				same_page = true;
 				let c1 = !!this.$route.query ? (this.$route.query.c || this.$route.query.f || '') : '';
