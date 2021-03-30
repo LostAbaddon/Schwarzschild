@@ -134,6 +134,7 @@ Schwarzschild 会自动将页面中带有 markup 类名的容器中的内容解�
 	],
 	"lifecycle": "与生命周期相关的自定义函数所在 JS 文件路径",
 	"aboutMe": "项目目录中AboutMe的vue文件相对site/src的路径",
+	"memory": 3, // 记忆模式（1: 只有历史记录；2: 只有收藏夹；3: 都有）
 	"likeCoin": "LikeCoin上的账户ID",
 	"likeCoin": {
 		"id": "LikeCoin上的账户ID",

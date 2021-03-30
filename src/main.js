@@ -37,6 +37,7 @@ require('./assets/css/markup.css');
 require('./assets/css/article.css');
 
 global.axios = axios;
+global.memoryMode = "[:MemoryMode:]";
 
 if (Devices.isMobile) document.body.classList.add('mobile');
 else document.body.classList.add('notmobile');

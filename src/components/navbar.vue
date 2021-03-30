@@ -165,6 +165,12 @@ export default {
 		else {
 			this.aboutMenu[2].subs[1].name = '关于';
 		}
+		if (memoryMode === 1) {
+			this.memoryMenu.name = '浏览历史';
+		}
+		else if (memoryMode === 2) {
+			this.memoryMenu.name = '收藏夹';
+		}
 		this.menu.push(this.memoryMenu);
 
 		this.updateMemory();
@@ -180,23 +186,44 @@ export default {
 			location.href = '/#'; // 避免URL污染
 		},
 		updateMemory () {
-			this.aboutMenu[0].disabled = false;
+			if (memoryMode < 1) {
+				this.aboutMenu[0].disabled = true;
+				this.memoryMenu.disabled = true;
+				return;
+			}
+			if (memoryMode === 1) this.aboutMenu[0].disabled = true;
+			else this.aboutMenu[0].disabled = false;
 
-			var history = localStorage.get('memory/history', []);
-			var favorite = localStorage.get('memory/favorite', []);
+			var history = [], favorite = [];
+			if (memoryMode !== 2) history = localStorage.get('memory/history', history);
+			if (memoryMode !== 1) favorite = localStorage.get('memory/favorite', favorite);
 
 			if (history.length === 0 && favorite.length === 0) {
 				this.memoryMenu.disabled = true;
-				this.aboutMenu[0].name = '添加收藏';
-				this.aboutMenu[0].category = 'addFavorite';
+				if (memoryMode > 1) {
+					this.aboutMenu[0].name = '添加收藏';
+					this.aboutMenu[0].category = 'addFavorite';
+				}
 			}
 			else {
 				this.memoryMenu.disabled = false;
+
 				if (history.length === 0) {
-					this.memoryMenu.subs[1].disabled = true;
+					if (this.memoryMode === 1) {
+						this.memoryMenu.disabled = true;
+					}
+					else if (this.memoryMode > 2) {
+						this.memoryMenu.subs[1].disabled = true;
+					}
 				}
 				else {
-					let historyList = this.memoryMenu.subs[1];
+					let historyList;
+					if (memoryMode === 1) {
+						historyList = this.memoryMenu;
+					}
+					else if (memoryMode > 2) {
+						historyList = this.memoryMenu.subs[1];
+					}
 					historyList.disabled = false;
 					if (historyList.subs.length > history.length) {
 						historyList.subs.splice(history.length, historyList.subs.length - history.length);
@@ -209,14 +236,28 @@ export default {
 						};
 					});
 				}
+
 				if (favorite.length === 0) {
-					this.memoryMenu.subs[0].disabled = true;
-					this.aboutMenu[0].name = '添加收藏';
-					this.aboutMenu[0].category = 'addFavorite';
+					if (this.memoryMode === 2) {
+						this.memoryMenu.disabled = true;
+						this.aboutMenu[0].name = '添加收藏';
+						this.aboutMenu[0].category = 'addFavorite';
+					}
+					else if (this.memoryMode > 2) {
+						this.memoryMenu.subs[0].disabled = true;
+						this.aboutMenu[0].name = '添加收藏';
+						this.aboutMenu[0].category = 'addFavorite';
+					}
 				}
 				else {
 					this.memoryMenu.subs[0].disabled = false;
-					let favoriteList = this.memoryMenu.subs[0];
+					let favoriteList;
+					if (memoryMode === 2) {
+						favoriteList = this.memoryMenu;
+					}
+					else if (memoryMode > 2) {
+						favoriteList = this.memoryMenu.subs[0];
+					}
 					favoriteList.disabled = false;
 					if (favoriteList.subs.length > favorite.length) {
 						favoriteList.subs.splice(favorite.length, favoriteList.subs.length - favorite.length);

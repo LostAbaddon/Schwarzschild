@@ -346,6 +346,7 @@ const assemblejLAss = async (isDemo) => {
 	var content = await FS.readFile(Path.join(__dirname, 'src/main.js'));
 	content = content.toString().replace(/":TITLE:"/gi, JSON.stringify(Schwarzschild.config.title + (isDemo ? ' (demo)' : '')));
 	content = content.replace(/":OWNER:"/gi, JSON.stringify(Schwarzschild.config.owner || Schwarzschild.pkg.author.name));
+	content = content.replace(/"\[:MemoryMode:\]"/gi, Number.is(Schwarzschild.config.memory) ? Schwarzschild.config.memory : 3);
 	if (!!Schwarzschild.config.likeCoin) {
 		content = content.replace(/":LIKECOIN:"/gi, JSON.stringify(Schwarzschild.config.likeCoin));
 	}
