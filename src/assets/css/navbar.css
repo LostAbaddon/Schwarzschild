@@ -86,12 +86,12 @@
 	left: 100%;
 	opacity: 0;
 	transform-origin: 0px 0px;
-	transform: translateX(-100%) scaleY(0);
+	transform: translateX(-100%);
 }
 .nav-bar > .nav-docker > .nav-container.right > .nav-menu-bar > .nav-menu-item > .nav-menu-bar .nav-menu-item > .nav-menu-bar {
 	left: auto;
 	right: 100%;
-	transform: translateX(100%) scaleY(1);
+	transform: translateX(100%);
 }
 .nav-bar > .nav-docker > .nav-container > .nav-menu-bar > .nav-menu-item > .nav-menu-bar .nav-menu-item:hover > .nav-menu-bar {
 	opacity: 1;
