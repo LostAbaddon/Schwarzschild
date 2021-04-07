@@ -64,7 +64,7 @@ const copyFile = async (source, target) => {
 	}
 	return false;
 };
-const realizeHomePage = async (isDemo) => {
+const realizeHomePage = async (imports, isDemo) => {
 	var html;
 	try {
 		html = await FS.readFile(Path.join(__dirname, "/public/index.html"));
@@ -80,15 +80,14 @@ const realizeHomePage = async (isDemo) => {
 			if (has) {
 				let filename = Path.basename(Schwarzschild.config.lifecycle);
 				let target = Path.join(OutPutPath, 'public/js', filename);
+				imports.push('<script type="text/javascript" src="<%= BASE_URL %>js/' + filename + '"></script>');
 				try {
 					await FS.copyFile(filepath, target);
-					html = html.replace(
-						/<script type="text\/javascript" src="<%= BASE_URL %>js\/patch\.js"><\/script>/i,
-						'<script type="text/javascript" src="<%= BASE_URL %>js/patch.js"></script><script type="text/javascript" src="<%= BASE_URL %>js/' + filename + '"></script>'
-					);
 				} catch {}
 			}
 		}
+		imports.unshift('<script type="text/javascript" src="<%= BASE_URL %>js/patch.js"></script>');
+		html = html.replace(/<script type="text\/javascript" src="<%= BASE_URL %>js\/patch\.js"><\/script>/i, imports.join(''));
 
 		await FS.writeFile(Path.join(OutPutPath, "/public/index.html"), html, 'utf-8');
 		console.log('Index页配置成功');
@@ -291,8 +290,8 @@ const assemblejLAss = async (isDemo) => {
 	var jpath = Path.join(DirPath, 'node_modules/jLAss/src');
 
 	// 准备目录
-	var outputPath = Path.join(OutPutPath, 'src/assets/jLAss');
-	var sourcePath = Path.join(OutPutPath, 'src');
+	var outputPath = Path.join(OutPutPath, 'public/jLAss');
+	var publicPath = Path.join(OutPutPath, 'public/');
 	if (!(await FS.hasFile(outputPath))) await FS.createFolders([outputPath]);
 	var files = [
 		[Path.join(jpath, 'index.js'), Path.join(outputPath, 'index.js')],
@@ -321,7 +320,7 @@ const assemblejLAss = async (isDemo) => {
 		var index = imports.length;
 		imports[index] = '';
 		if (!(await FS.doesSourceFileNewerThanTargetFile(f[0], f[1]))) {
-			imports[index] = 'import "' + f[1].replace(sourcePath, '.').replace(/\\/g, '/') + '"';
+			imports[index] = '<script type="text/javascript" src="<%= BASE_URL %>' + f[1].replace(publicPath, '').replace(/\\/g, '/') + '"></script>';
 			return;
 		}
 		var content = await FS.readFile(f[0]);
@@ -329,7 +328,7 @@ const assemblejLAss = async (isDemo) => {
 		content = content.replace(/require\(.+\)/g, '{};');
 		try {
 			await FS.writeFile(f[1], content, 'utf-8');
-			imports[index] = 'import "' + f[1].replace(sourcePath, '.').replace(/\\/g, '/') + '"';
+			imports[index] = '<script type="text/javascript" src="<%= BASE_URL %>' + f[1].replace(publicPath, '').replace(/\\/g, '/') + '"></script>';
 			console.log('复制jLAss文件: ' + f[0]);
 		}
 		catch (err) {
@@ -343,18 +342,22 @@ const assemblejLAss = async (isDemo) => {
 	console.log('Asimov 线程内模块准备完毕');
 
 	// 添加引用
-	var content = await FS.readFile(Path.join(__dirname, 'src/main.js'));
-	content = content.toString().replace(/":TITLE:"/gi, JSON.stringify(Schwarzschild.config.title + (isDemo ? ' (demo)' : '')));
-	content = content.replace(/":OWNER:"/gi, JSON.stringify(Schwarzschild.config.owner || Schwarzschild.pkg.author.name));
-	content = content.replace(/"\[:MemoryMode:\]"/gi, Number.is(Schwarzschild.config.memory) ? Schwarzschild.config.memory : 3);
-	if (!!Schwarzschild.config.likeCoin) {
-		content = content.replace(/":LIKECOIN:"/gi, JSON.stringify(Schwarzschild.config.likeCoin));
-	}
-	else {
-		content = content.replace(/":LIKECOIN:"/gi, 'null');
-	}
-	content = imports.join('\n') + '\n\n' + content;
-	await FS.writeFile(Path.join(OutPutPath, 'src/main.js'), content, 'utf-8');
+	await Promise.all([
+		(async () => {
+			var content = await FS.readFile(Path.join(__dirname, 'src/main.js'));
+			content = content.toString().replace(/":TITLE:"/gi, JSON.stringify(Schwarzschild.config.title + (isDemo ? ' (demo)' : '')));
+			content = content.replace(/":OWNER:"/gi, JSON.stringify(Schwarzschild.config.owner || Schwarzschild.pkg.author.name));
+			content = content.replace(/"\[:MemoryMode:\]"/gi, Number.is(Schwarzschild.config.memory) ? Schwarzschild.config.memory : 3);
+			if (!!Schwarzschild.config.likeCoin) {
+				content = content.replace(/":LIKECOIN:"/gi, JSON.stringify(Schwarzschild.config.likeCoin));
+			}
+			else {
+				content = content.replace(/":LIKECOIN:"/gi, 'null');
+			}
+			await FS.writeFile(Path.join(OutPutPath, 'src/main.js'), content, 'utf-8');
+		}) (),
+		realizeHomePage(imports, isDemo)
+	]);
 };
 const assembleAPI = async (isDemo, publishPath) => {
 	var source = Path.join(process.cwd(), 'api');
@@ -576,7 +579,6 @@ Schwarzschild.prepare = async (force=false, clear=false, onlyapi=false, isDemo=t
 		assemblejLAss(isDemo),
 		assembleAPI(isDemo),
 		assembleImages(isDemo),
-		realizeHomePage(isDemo),
 		realizeGranaryConfig(isDemo),
 		realizeCustomPages(isDemo),
 		realizeMiddleGround(isDemo),

@@ -51,6 +51,7 @@ self.addEventListener('fetch', evt => {
 			});
 			return res;
 		}).catch(e => {
+			console.error('Fetch Failed: ' + evt.request.url);
 			console.error(e);
 		});
 
