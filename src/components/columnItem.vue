@@ -1,5 +1,5 @@
 <template>
-	<section class="column-item" :filename="categoryPath+'/'+filename" :timestamp="timestamp">
+	<section class="column-item" :filename="!!filename?categoryPath+'/'+filename:''" :timestamp="timestamp" :redirect="redirect">
 		<header>
 			<div class="title">{{title}}</div>
 			<div class="category" :path="categoryPath">{{categoryName}}</div>
@@ -24,7 +24,8 @@ export default {
 		timestamp: Number,
 		categoryName: String,
 		categoryPath: String,
-		filename: String
+		filename: String,
+		redirect: String
 	}
 }
 </script>

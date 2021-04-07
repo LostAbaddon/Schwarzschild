@@ -22,6 +22,7 @@
 			:categoryName="article.category"
 			:categoryPath="article.sort"
 			:filename="article.filename"
+			:redirect="article.target"
 		/>
 	</section>
 </template>
@@ -178,10 +179,17 @@ export default {
 			else if (ele.nodeName.toLowerCase() === 'a') {
 				if (onVueHyperLinkTriggered(this, evt)) return;
 			}
-			var filename = undefined, category = undefined, timestamp = undefined;
+			var filename = undefined, category = undefined, timestamp = undefined, type = "article";
 			if (!ele) return;
 			while (!filename && !category) {
-				filename = ele.getAttribute('filename');
+				filename = ele.getAttribute('redirect');
+				if (!!filename) {
+					type = 'redirect';
+				}
+				else {
+					filename = ele.getAttribute('filename');
+					type = "article";
+				}
 				category = ele.getAttribute('path');
 				timestamp = ele.getAttribute('timestamp') * 1;
 				ele = ele.parentNode;

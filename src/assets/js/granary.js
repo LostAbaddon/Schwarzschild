@@ -101,6 +101,20 @@ window.Granary = {
 			d = d.articles.filter(art => art.sort.indexOf(category) === 0);
 			data.push(...d);
 		}));
+		var articleList = {};
+		data.forEach(art => {
+			var id = null;
+			if (art.type === 'article') {
+				id = art.sort + '/' + art.filename
+			}
+			else if (art.type === 'redirect') {
+				id = art.target;
+			}
+			else return;
+			var old = articleList[id];
+			if (!old || art.publish > old.publish) articleList[id] = art;
+		});
+		data = Object.values(articleList);
 		data.sort((a, b) => b.publish - a.publish);
 		return data;
 	},

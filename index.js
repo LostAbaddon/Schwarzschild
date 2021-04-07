@@ -484,6 +484,10 @@ Schwarzschild.launch = config => {
 	.addOption('--encrypt [encrypt] >> 加密文件')
 	.addOption('--password <password> >> 用作初始向量的自定义密码')
 
+	.add('addred >> 添加跳转文章')
+	.addOption('--origin -o <origin> >> 原文章目录')
+	.addOption('--category -c <category> >> 目标文章目录')
+
 	.add('update >> 更新记录时间')
 
 	.add('generateKey >> 生成 AES-256-GCM Key文件')
@@ -521,6 +525,7 @@ Schwarzschild.launch = config => {
 			cmd.value.title, cmd.value.author, cmd.value.publishAt,
 			cmd.value.overwrite, cmd.value.rename, cmd.value.keep,
 			cmd.value.encrypt, cmd.value.password);
+		else if (cmd.name === 'addred') Schwarzschild.appendRedirect(cmd.value.origin, cmd.value.category);
 		else if (cmd.name === 'update') Schwarzschild.updateLogTime();
 		else if (cmd.name === 'compress') Schwarzschild.compress();
 		else if (cmd.name === 'generateKey') Schwarzschild.generateKeyFile(cmd.value.keyFile);
@@ -879,6 +884,7 @@ Schwarzschild.appendFile = async (filename, category, title, author, timestamp, 
 		granaryRecord.sources.push(myRecord);
 	}
 	myRecord.pages = myRecord.pages || 0;
+	myRecord.update = now;
 	granaryRecord.update = now;
 
 	// 更新分记录
@@ -904,8 +910,12 @@ Schwarzschild.appendFile = async (filename, category, title, author, timestamp, 
 	records.update = now;
 	var articlesList = {};
 	records.articles.forEach(item => {
-		var path = item.sort + '/' + item.filename;
-		articlesList[path] = item;
+		var path;
+		if (item.type === 'article') path = item.sort + '/' + item.filename;
+		else if (item.type === 'redirect') path = item.sort + '=>' + item.target;
+		else return;
+		var old = articlesList[path];
+		if (!old || item.publish > old.publish) articlesList[path] = item;
 	});
 	articlesList[category.join('/') + '/' + target] = {
 		"type": "article",
@@ -916,6 +926,119 @@ Schwarzschild.appendFile = async (filename, category, title, author, timestamp, 
 	};
 	records.articles = Object.values(articlesList);
 	records.articles.sort((itemA, itemB) => itemB.publish - itemA.publish);
+
+	// 保存
+	await Promise.all([
+		FS.writeFile(recordFile, JSON.stringify(records)),
+		FS.writeFile(granaryFile, JSON.stringify(granaryRecord))
+	]);
+	console.log('记录已更新！');
+};
+Schwarzschild.appendRedirect = async (origin, category) => {
+	if (!origin) {
+		console.error('缺少原始文章分类！');
+		return;
+	}
+	if (!category) {
+		console.error('缺少目标文章分类！');
+		return;
+	}
+	category = category.split(/[\\\/]+/).filter(c => c.length > 0).join('/');
+
+	// 读取原始记录
+	var granaryFile = Path.join(APIPath, 'sources.json'), granaryRecord;
+	try {
+		granaryRecord = await FS.readFile(granaryFile);
+		granaryRecord = JSON.parse(granaryRecord);
+	}
+	catch {
+		console.error('无目标记录！');
+		return;
+	}
+	if (!granaryRecord.sources || granaryRecord.sources.length === 0) {
+		console.error('无目标记录！');
+		return;
+	}
+	var myRecord = null;
+	granaryRecord.sources.some(conf => {
+		if (conf.owner === Schwarzschild.config.owner) {
+			myRecord = conf;
+			return true;
+		}
+	});
+	if (!myRecord) {
+		console.error('无目标记录！');
+		return;
+	}
+
+	var recordFile, records, originInfo = null;
+	for (let i = 0; i <= myRecord.pages; i ++) {
+		recordFile = Path.join(APIPath, Schwarzschild.config.owner + '-' + myRecord.pages + '.json');
+		try {
+			records = await FS.readFile(recordFile);
+			records = JSON.parse(records);
+		}
+		catch {
+			continue;
+		}
+		if (!records.articles || records.articles.length === 0) continue;
+		records.articles.some(article => {
+			if (article.type !== 'article') return;
+			if (article.sort + '/' + article.filename !== origin) return;
+			originInfo = article;
+		});
+	}
+	if (!originInfo) {
+		console.error('无目标记录！');
+		return;
+	}
+
+	var now = Date.now();
+
+	// 更新分记录
+	while (true) {
+		recordFile = Path.join(APIPath, Schwarzschild.config.owner + '-' + myRecord.pages + '.json');
+		try {
+			records = await FS.readFile(recordFile);
+			records = JSON.parse(records);
+		}
+		catch {
+			records = {
+				update: 0,
+				articles: [],
+				comments: []
+			};
+		}
+		if (records.articles.length < RecordPerFile && records.comments.length < RecordPerFile) {
+			break;
+		}
+		myRecord.pages ++;
+	}
+	records.update = now;
+	var articlesList = {};
+	records.articles.forEach(item => {
+		var path;
+		if (item.type === 'article') path = item.sort + '/' + item.filename;
+		else if (item.type === 'redirect') path = item.sort + '=>' + item.target;
+		else return;
+		var old = articlesList[path];
+		if (!old || item.publish > old.publish) articlesList[path] = item;
+	});
+	articlesList[category + '=>' + origin] = {
+		"type": "redirect",
+		"sort": category,
+		title: originInfo.title,
+		author: originInfo.author,
+		description: originInfo.description,
+		"publish": now,
+		"target": origin
+	};
+	records.articles = Object.values(articlesList);
+	records.articles.sort((itemA, itemB) => itemB.publish - itemA.publish);
+
+	// 更新总记录
+	myRecord.update = now;
+	granaryRecord.update = now;
 
 	// 保存
 	await Promise.all([
