@@ -196,9 +196,10 @@ export default {
 				if (!ele || ele === document.body) break;
 			}
 			if (!!category) {
-				let path = '/category?c=' + category.split('/').join(',');
-				if (this.$route.fullPath !== path) {
-					this.$router.push({path});
+				this.$router.push({path: '/category', query: {c: category.split(/[\\\/]+/).join(',')}});
+				if (this.$route.name === 'Category') {
+					let channel = new BroadcastChannel('page-changed');
+					channel.postMessage(category);
 				}
 			}
 			else if (!!filename) {
