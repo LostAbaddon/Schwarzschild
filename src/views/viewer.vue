@@ -104,7 +104,7 @@ export default {
 				html = '<div class="page_not_found"><div class="frame"></div><div class="title">指定内容不存在，请联系站长。</div></div>';
 			}
 			else if (!!copyright && isMU) {
-				if (!content.match(/(^ *#|\n *#)[ \t].+/)) {
+				if (!content.match(/(^ *#|\n *#)[ 　\t]*.+/)) {
 					content = "# 正文\n\n" + content;
 				}
 				content = content + '\n\n\n' + copyright;

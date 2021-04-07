@@ -859,6 +859,8 @@ article.markup-content span.english {
 	font-family: serif;
 }
 article.markup-content p > span.english:first-child,
+article.markup-content sup > span.english:first-child,
+article.markup-content sub > span.english:first-child,
 article.markup-content li > span.english:first-child,
 article.markup-content td > span.english:first-child,
 article.markup-content blockquote > span.english:first-child,
@@ -867,6 +869,8 @@ article.markup-content figcaption > span.english:first-child {
 	margin-left: 0em;
 }
 article.markup-content p > span.english:last-child,
+article.markup-content sub > span.english:last-child,
+article.markup-content sup > span.english:last-child,
 article.markup-content li > span.english:last-child,
 article.markup-content td > span.english:last-child,
 article.markup-content blockquote > span.english:last-child,
