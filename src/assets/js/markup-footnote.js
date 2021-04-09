@@ -255,4 +255,137 @@
 			parent.appendChild(row);
 		});
 	});
+
+	// 动态图示
+	var BarHeight = 25;
+	var BarSpan = 5;
+	var BarRightMargin = 50;
+	var BarColorList = [
+		'rgb(222, 28, 49)',
+		'rgb(152, 54, 128)',
+		'rgb(15, 89, 164)',
+		'rgb(18, 161, 130)',
+		'rgb(254, 215, 26)'
+	];
+	const animateChart = (chart) => {
+		if (chart._index >= chart._limit) {
+			return;
+		}
+
+		var data = chart._data[chart._index].copy();
+		var hint = data.splice(0, 1)[0];
+		if (!!chart._hint) {
+			chart._titleHint.innerText = '(' + chart._hint + ': ' + hint + ')';
+		}
+		else {
+			chart._titleHint.innerText = '(' + hint + ')';
+		}
+
+		var head = [], tail = [];
+		data.forEach((d, i) => {
+			if (Number.is(d)) head.push([i + 1, d]);
+			else tail.push([i + 1, d]);
+		});
+		head.sort((a, b) => b[1] - a[1]);
+		if (head.length > chart._count) {
+			tail.unshift(...(head.splice(chart._count, head.length)));
+		}
+		var max = 0;
+		head.forEach(item => {
+			var v = item[1];
+			if (v > max) max = v;
+		});
+		head.forEach((item, i) => {
+			var ele = chart._bars[item[0]], value = Math.max(0, item[1]), color = BarColorList[i];
+			if (!color) color = BarColorList.last;
+			ele.style.top = (i * (BarHeight + BarSpan) + BarSpan) + 'px';
+			ele.style.width = Math.round(chart._panelWidth * value / max) + 'px';
+			ele.style.backgroundColor = color;
+			ele._value.innerText = item[1];
+		});
+		tail.forEach(item => {
+			var ele = chart._bars[item[0]], value = Math.max(0, item[1]);
+			ele.style.top = (chart._count * (BarHeight + BarSpan) + BarSpan * 2) + 'px';
+			ele.style.width = Math.round(chart._panelWidth * value / max) + 'px';
+			ele.style.backgroundColor = BarColorList.last;
+			ele._value.innerText = item[1];
+		});
+
+		chart._index ++;
+		if (chart._index < chart._limit) {
+			setTimeout(animateChart, chart._duration, chart);
+		}
+		else {
+			if (!!chart._replay) {
+				chart._replay.style.opacity = 1;
+				chart._replay.style.pointerEvents = 'auto';
+			}
+			else if (chart._repeat > 0) {
+				chart._index = 0;
+				setTimeout(animateChart, chart._repeat, chart);
+			}
+		}
+	};
+	window.initTableAnimationChart = () => {
+		[].forEach.call(document.querySelectorAll('div.animate-chart'), chart => {
+			chart._duration = chart.getAttribute('duration') * 1;
+			if (isNaN(chart._duration)) chart._duration = 1000;
+			chart._repeat = chart.getAttribute('repeatwait') * 1;
+			if (isNaN(chart._repeat)) chart._repeat = -1;
+			chart._count = chart.getAttribute('barcount') * 1;
+			if (isNaN(chart._count)) chart._count = 3;
+			chart._hint = (chart.getAttribute('hint') || '').trim();
+
+			chart._data = chart.querySelector('.animate-chart-data');
+			if (!chart._data) {
+				chart.parentNode.removeChild(chart);
+				return;
+			}
+			chart._data = chart._data.innerText;
+			if (!chart._data) {
+				chart.parentNode.removeChild(chart);
+				return;
+			}
+			try {
+				chart._data = JSON.parse(chart._data);
+			}
+			catch {
+				chart.parentNode.removeChild(chart);
+				return;
+			}
+
+			var marginLeft = 0;
+			chart._titleHint = chart.querySelector('.animate-chart-title-hint');
+			chart._panel = chart.querySelector('.animate-chart-panel');
+			chart._bars = [].map.call(chart._panel.querySelectorAll('.animate-chart-bar'), bar => {
+				bar._value = bar.querySelector('.animate-chart-bar-value');
+				var title = bar.querySelector('.animate-chart-bar-title');
+				if (!!title) {
+					let w = Math.ceil(title.getBoundingClientRect().width) + 10;
+					if (w > marginLeft) marginLeft = w;
+				}
+				return bar;
+			});
+			chart._bars.unshift(null);
+			chart._replay = chart.querySelector('.animate-chart-replay');
+			if (!!chart._replay) {
+				chart._replay.addEventListener('click', () => {
+					chart._replay.style.opacity = 0;
+					chart._replay.style.pointerEvents = 'none';
+					chart._index = 0;
+					animateChart(chart);
+				});
+			}
+
+			chart._panel.style.height = Math.max(0, chart._count * (BarHeight + BarSpan) + BarSpan) + 'px';
+			chart._panelWidth = chart._panel.getBoundingClientRect().width - marginLeft - BarRightMargin;
+			chart._bars.forEach(bar => {
+				if (!bar) return;
+				bar.style.left = marginLeft + 'px';
+			});
+			chart._index = 0;
+			chart._limit = chart._data.length;
+			animateChart(chart);
+		});
+	};
 }) ();

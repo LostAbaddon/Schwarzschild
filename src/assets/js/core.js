@@ -125,6 +125,7 @@ LifeCycle.on.ready(app => {
 
 	var FootNoteUnInited = true;
 	app.config.globalProperties.afterMarkUp = async () => {
+		// 初始化脚注尾注显示板
 		InitNotes(document.body.querySelector('#container'));
 		if (FootNoteUnInited) {
 			FootNoteUnInited = false;
@@ -143,6 +144,11 @@ LifeCycle.on.ready(app => {
 		else {
 			MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 		}
+
+		// 初始化动画图示
+		initTableAnimationChart();
+
+		// 初始化图片墙
 		await ImageWall.init();
 	};
 	const mutationObserver = new MutationObserver(async mutations => {

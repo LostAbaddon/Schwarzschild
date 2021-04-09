@@ -890,6 +890,72 @@ article.markup-content em strong span.english, article.markup-content strong em 
 	font-weight: bolder;
 }
 
+article.markup-content div.animate-chart {
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+article.markup-content div.animate-chart div.animate-chart-title {
+	margin-bottom: 10px;
+	font-size: 1.6rem;
+	font-weight: bolder;
+	text-align: center;
+}
+article.markup-content div.animate-chart div.animate-chart-title .animate-chart-title-hint {
+	margin-left: 30px;
+	font-size: 12px;
+	font-weight: normal;
+}
+article.markup-content div.animate-chart div.animate-chart-title .animate-chart-title-hint:empty {
+	display: none;
+}
+article.markup-content div.animate-chart div.animate-chart-panel {
+	position: relative;
+	box-sizing: border-box;
+	width: 100%;
+	background-color: rgb(167, 168, 189);
+	overflow: hidden;
+}
+article.markup-content div.animate-chart div.animate-chart-panel div.animate-chart-bar {
+	box-sizing: border-box;
+	position: absolute;
+	height: 25px;
+	background-color: rgb(46, 49, 124);
+	border: 1px solid black;
+	transition: all 300ms ease-in-out;
+}
+article.markup-content div.animate-chart div.animate-chart-panel div.animate-chart-bar .animate-chart-bar-title,
+article.markup-content div.animate-chart div.animate-chart-panel div.animate-chart-bar .animate-chart-bar-value {
+	position: absolute;
+	display: block;
+	top: 3px;
+	font-size: 14px;
+	color: black;
+	word-break: keep-all;
+	white-space: nowrap;
+}
+article.markup-content div.animate-chart div.animate-chart-panel div.animate-chart-bar .animate-chart-bar-title {
+	left: -5px;
+	transform: translateX(-100%);
+}
+article.markup-content div.animate-chart div.animate-chart-panel div.animate-chart-bar .animate-chart-bar-value {
+	right: -5px;
+	transform: translateX(100%);
+}
+article.markup-content div.animate-chart div.animate-chart-replay {
+	position: absolute;
+	bottom: 5px;
+	right: 5px;
+	cursor: pointer;
+	pointer-events: none;
+	opacity: 0;
+	transition: opacity 300ms ease-in-out;
+}
+article.markup-content div.animate-chart div.animate-chart-replay:before {
+	content: "\f01e";
+	font-family: "Font Awesome 5 Solid";
+	font-size: 20px;
+}
+
 #app #footnoteFrame {
 	position: fixed;
 	display: none;
