@@ -33,6 +33,10 @@ export default {
 				target.path = '/view';
 				target.query = {f: action.last};
 			}
+			else if (type === 'url') {
+				location.href = location.origin + action.last;
+				return;
+			}
 			else if (type === 'action') {
 				if (action[0] === 'color') {
 					changeThemeColor(action[1]);
