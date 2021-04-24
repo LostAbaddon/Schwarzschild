@@ -15,6 +15,7 @@ import router from './router';
 
 import Loading from '@/components/loading.vue';
 import Notification from '@/components/notification.vue';
+import InfoBox from '@/components/infobox.vue';
 import NavBar from '@/components/navbar.vue';
 import NavMenuBar from '@/components/navmenubar.vue';
 import NavMenuItem from '@/components/navmenuitem.vue';
@@ -52,6 +53,7 @@ else document.body.classList.add('notmobile');
 		app.config.globalProperties.LikeCoin = ":LIKECOIN:";
 
 		app.use(Notification);
+		app.use(InfoBox);
 		app.component('Loading', Loading);
 		app.component('NavBar', NavBar);
 		app.component('NavMenuBar', NavMenuBar);

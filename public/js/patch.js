@@ -63,8 +63,10 @@
 	// UI 辅助工具
 	root.newEle = (tag, classList) => {
 		var div = document.createElement(tag || 'div');
-		if (!(classList instanceof Array)) classList = classList.split(' ');
-		classList.forEach(c => div.classList.add(c));
+		if (!!classList) {
+			if (!(classList instanceof Array)) classList = classList.split(' ');
+			classList.forEach(c => div.classList.add(c));
+		}
 		return div;
 	};
 

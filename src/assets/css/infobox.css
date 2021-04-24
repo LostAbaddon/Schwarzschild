@@ -1,0 +1,101 @@
+.infobox-mask {
+	position: fixed;
+	box-sizing: border-box;
+	top: 0%;
+	left: 0%;
+	right: 0%;
+	z-index: 200;
+	height: 0%;
+	background-color: rgba(15, 37, 64, 0.65);
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 300ms ease-in-out, height 300ms ease-in-out;
+}
+.infobox-mask[show="true"] {
+	height: 100%;
+	opacity: 1;
+	pointer-events: auto;
+}
+
+.infobox-frame {
+	position: fixed;
+	box-sizing: border-box;
+	width: 500px;
+	max-width: 95%;
+	height: max-content;
+	top: 0%;
+	left: 50%;
+	z-index: 200;
+	transform: translate(-50%, -50%);
+	border-radius: 3px;
+	background-color: rgba(15, 37, 64, 0.95);
+	box-shadow: 3px 3px 5px rgba(67, 67, 67, 0.6);
+	border: 1px solid rgba(252, 250, 242, 0.2);
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 300ms ease-in-out, top 300ms ease-in-out;
+}
+.infobox-frame[show="true"] {
+	top: 50%;
+	opacity: 1;
+	pointer-events: auto;
+}
+
+.infobox-frame .title {
+	padding: 5px 10px;
+	border-bottom: 1px solid rgb(252, 250, 242);
+	color: rgb(252, 250, 242);
+	font-size: 20px;
+	font-weight: bolder;
+}
+.infobox-frame .title:empty {
+	display: none;
+}
+
+.infobox-frame .content {
+	padding: 10px 15px;
+	color: rgb(252, 250, 242);
+	font-size: 16px;
+}
+.infobox-frame .content:empty {
+	display: none;
+}
+
+.infobox-frame .controller {
+	text-align: center;
+}
+
+.infobox-frame .controller div.btn {
+	box-sizing: border-box;
+	display: inline-block;
+	padding: 5px 20px;
+	margin: 10px;
+	border: 1px solid rgb(89, 44, 99);
+	background-color: rgba(15, 37, 64, 0);
+	cursor: pointer;
+	transition: background-color 300ms ease-in-out;
+}
+.infobox-frame .controller div.btn:hover {
+	background-color: rgba(17, 50, 133, 0.9);
+}
+.infobox-frame .controller div.btn[hidden] {
+	display: none;
+}
+
+.infobox-frame .inputter {
+	padding: 10px 15px;
+}
+.infobox-frame .inputter input {
+	width: 100%;
+}
+
+.infobox-frame input {
+	box-sizing: border-box;
+	padding: 2px 5px;
+	outline: none;
+	border: none;
+	border-bottom: 1px solid rgb(252, 250, 242);
+	background-color: transparent;
+	color: rgb(252, 250, 242);
+	caret-color: rgb(252, 250, 242);
+}

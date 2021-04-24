@@ -2,6 +2,7 @@
 	<NavBar/>
 	<loading />
 	<Notification hAlign="right" vAlign="top" />
+	<InfoBox />
 	<ImageShowcase />
 	<KeyManager />
 	<div id="container">
