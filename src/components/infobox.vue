@@ -3,7 +3,7 @@
 	<div class="infobox-frame scroller" :show="show">
 		<div class="title">{{title}}</div>
 		<div ref="content" class="content"></div>
-		<div class="inputter" v-if="showInput"><input ref="inputter" type="text"></div>
+		<div class="inputter" v-if="showInput"><input ref="inputter" type="text" @keydown.esc="onClick('ok')" @keydown.enter="onClick('cancel')"></div>
 		<div class="controller">
 			<div class="btn" action="yes" :hidden="!actYes" @click="onClick('yes')">是</div>
 			<div class="btn" action="no" :hidden="!actNo" @click="onClick('no')">否</div>
@@ -81,7 +81,13 @@ export default {
 			})
 		},
 		onClick (result) {
-			var value = this.$refs.inputter.value;
+			if (result === 'yes' && !this.actYes) return;
+			if (result === 'no' && !this.actNo) return;
+			if (result === 'ok' && !this.actOk) return;
+			if (result === 'cancel' && !this.actCancel) return;
+
+			var value = null;
+			if (!!this.$refs.inputter) value = this.$refs.inputter.value;
 			if (!!responsor) {
 				responsor(result, value || null, this);
 			}

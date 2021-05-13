@@ -7,7 +7,7 @@ import './assets/js/markup.js';
 import './assets/js/markup-footnote.js';
 import './assets/js/imageWall.js';
 
-import { createApp, inject } from 'vue'
+import { createApp, inject } from 'vue';
 import axios from 'axios';
 
 import App from './App.vue';

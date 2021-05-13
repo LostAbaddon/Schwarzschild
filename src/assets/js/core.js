@@ -120,37 +120,48 @@ window.onVueHyperLinkTriggered = (vue, evt) => {
 	return true;
 };
 
+window.afterMarkUp = async (target) => {
+	if (!target) {
+		target = document.body.querySelector('article.markup-content');
+		if (!target) target = document.body.querySelector('#container');
+	}
+	// 初始化脚注尾注显示板
+	InitNotes(document.body.querySelector('#container'));
+	if (afterMarkUp.FootNoteUnInited) {
+		afterMarkUp.FootNoteUnInited = false;
+		MathJax.Hub.Config({
+			extensions: ["tex2jax.js"],
+			TeX: {
+				extensions: ["AMSmath.js", "AMSsymbols.js"]
+			},
+			jax: ["input/TeX", "output/HTML-CSS"],
+			tex2jax: {
+				inlineMath: [["$","$"]],
+				displayMath: [['$$', '$$']],
+			},
+			"HTML-CSS": {
+				availableFonts: ["STIX","TeX"], //可选字体
+				showMathMenu: false //关闭右击菜单显示
+			}
+		});
+		MathJax.Hub.Queue(["Typeset", MathJax.Hub, target]);
+	}
+	else {
+		MathJax.Hub.Queue(["Typeset", MathJax.Hub, target]);
+	}
+
+	// 初始化动画图示
+	initTableAnimationChart();
+
+	// 初始化图片墙
+	await ImageWall.init();
+};
+afterMarkUp.FootNoteUnInited = true;
+
 LifeCycle.on.ready(app => {
 	console.log('Schwarzschild Blackhole System is READY!');
 
-	var FootNoteUnInited = true;
-	app.config.globalProperties.afterMarkUp = async () => {
-		// 初始化脚注尾注显示板
-		InitNotes(document.body.querySelector('#container'));
-		if (FootNoteUnInited) {
-			FootNoteUnInited = false;
-			MathJax.Hub.Config({
-				extensions: ["tex2jax.js"],
-				TeX: {
-					extensions: ["AMSmath.js", "AMSsymbols.js"]
-				},
-				jax: ["input/TeX", "output/HTML-CSS"],
-				tex2jax: {
-					inlineMath: [["$","$"]]}
-				}
-			);
-			MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-		}
-		else {
-			MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-		}
-
-		// 初始化动画图示
-		initTableAnimationChart();
-
-		// 初始化图片墙
-		await ImageWall.init();
-	};
+	app.config.globalProperties.afterMarkUp = window.afterMarkUp;
 	const mutationObserver = new MutationObserver(async mutations => {
 		var markups = document.querySelectorAll('.markup');
 		await Promise.all([].map.call(markups, async mu => {

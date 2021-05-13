@@ -130,3 +130,17 @@ MarkUp.addExtension({
 		return [line, changed];
 	},
 }, 0, 999);
+
+// 行号
+MarkUp.addExtension({
+	name: 'LineNumber',
+	parse: (text, doc) => {
+		text = text.replace(/\%LINENUMBER\-(\d+)\%/gi, (match, linenum) => {
+			return '<span class="linenumbermarker" linenumber="' + linenum + '"></span>';
+		});
+		text = text.replace(/\%<span class="english">LINENUMBER\-(\d+)<\/span>\%/gi, (match, linenum) => {
+			return '<span class="linenumbermarker" linenumber="' + linenum + '"></span>';
+		});
+		return text;
+	},
+}, 2, 1);
