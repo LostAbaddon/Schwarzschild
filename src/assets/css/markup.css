@@ -850,6 +850,10 @@ article.markup-content > section.cite-list > p > a.cite-marker {
 	font-weight: bolder;
 }
 
+article.markup-content p.block.latex {
+	overflow-x: auto;
+}
+
 article.markup-content span.english,
 article.markup-content span.latex.inline span.MathJax {
 	margin-left: 0.3em;
