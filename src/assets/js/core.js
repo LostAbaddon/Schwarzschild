@@ -120,35 +120,37 @@ window.onVueHyperLinkTriggered = (vue, evt) => {
 	return true;
 };
 
-window.afterMarkUp = async (target) => {
+window.initMathJax = () => {
+	if (initMathJax.initialized) return;
+	initMathJax.initialized = true;
+	MathJax.Hub.Config({
+		extensions: ["tex2jax.js"],
+		TeX: {
+			extensions: ["AMSmath.js", "AMSsymbols.js"]
+		},
+		jax: ["input/TeX", "output/HTML-CSS"],
+		tex2jax: {
+			inlineMath: [["$","$"]],
+			displayMath: [['$$', '$$']],
+		},
+		"HTML-CSS": {
+			availableFonts: ["STIX","TeX"], //可选字体
+			showMathMenu: false //关闭右击菜单显示
+		}
+	});
+};
+window.afterMarkUp = async (target, mathHook) => {
 	if (!target) {
 		target = document.body.querySelector('article.markup-content');
 		if (!target) target = document.body.querySelector('#container');
 	}
 	// 初始化脚注尾注显示板
 	InitNotes(document.body.querySelector('#container'));
-	if (afterMarkUp.FootNoteUnInited) {
-		afterMarkUp.FootNoteUnInited = false;
-		MathJax.Hub.Config({
-			extensions: ["tex2jax.js"],
-			TeX: {
-				extensions: ["AMSmath.js", "AMSsymbols.js"]
-			},
-			jax: ["input/TeX", "output/HTML-CSS"],
-			tex2jax: {
-				inlineMath: [["$","$"]],
-				displayMath: [['$$', '$$']],
-			},
-			"HTML-CSS": {
-				availableFonts: ["STIX","TeX"], //可选字体
-				showMathMenu: false //关闭右击菜单显示
-			}
-		});
-		MathJax.Hub.Queue(["Typeset", MathJax.Hub, target]);
-	}
-	else {
-		MathJax.Hub.Queue(["Typeset", MathJax.Hub, target]);
-	}
+
+	// MathHub的相关处理
+	initMathJax();
+	if (Function.is(mathHook)) mathHook();
+	else MathJax.Hub.Queue(["Typeset", MathJax.Hub, target]);
 
 	// 初始化动画图示
 	initTableAnimationChart();
@@ -156,7 +158,76 @@ window.afterMarkUp = async (target) => {
 	// 初始化图片墙
 	await ImageWall.init();
 };
-afterMarkUp.FootNoteUnInited = true;
+
+window.EventEmitter = class EventEmitter {
+	constructor () {
+		this._events = new Map();
+		this._onces = new Map();
+	}
+	on (event, callback) {
+		var callbacks = this._events.get(event);
+		if (!callbacks) {
+			callbacks = new WeakSet();
+			this._events.set(event, callbacks);
+		}
+		callbacks.add(callback);
+	}
+	once (event, callback) {
+		var callbacks = this._events.get(event);
+		if (!callbacks) {
+			callbacks = new WeakSet();
+			this._events.set(event, callbacks);
+		}
+		callbacks.add(callback);
+		var onces = this._onces.get(event);
+		if (!onces) {
+			onces = new WeakSet();
+			this._onces.set(event, onces);
+		}
+		onces.add(callback);
+	}
+	off (event, callback) {
+		var callbacks = this._events.get(event);
+		if (!!callbacks) callbacks.delete(callback);
+		var onces = this._onces.get(event);
+		if (!!onces) onces.delete(callback);
+	}
+	clear (event) {
+		var callbacks = this._events.get(event);
+		if (!!callbacks) {
+			callbacks.clear();
+			this._events.delete(event);
+		}
+		var onces = this._onces.get(event);
+		if (!onces) {
+			onces.clear();
+			this._onces.delete(event);
+		}
+	}
+	clearAll () {
+		for (let [_, callbacks] of this._events) {
+			callbacks.clear();
+		}
+		this._events.clear();
+		for (let [_, callbacks] of this._onces) {
+			callbacks.clear();
+		}
+		this._onces.clear();
+	}
+	emit (event, ...data) {
+		var callbacks = this._events.get(event);
+		if (!callbacks) return;
+		var onces = this._onces.get(event);
+		for (let callback of callbacks) {
+			let needBreak = callback(...data);
+			if (!!onces && onces.has(callback)) {
+				callbacks.delete(callback);
+				onces.delete(callback);
+			}
+			if (!!needBreak) break;
+		}
+	}
+}
 
 LifeCycle.on.ready(app => {
 	console.log('Schwarzschild Blackhole System is READY!');
