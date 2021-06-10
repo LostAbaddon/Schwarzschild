@@ -67,6 +67,16 @@ router.afterEach((to, from) => {
 
 	var app = document.querySelector('#app');
 	app.scrollTo(0, 0);
+
+	app = document.querySelector('#container');
+	app.focus();
+	var selection = document.getSelection();
+	selection.setPosition(app);
+	var range = document.createRange();
+	range.setStart(app, 0);
+	range.setEnd(app, 0);
+	selection.removeAllRanges();
+	selection.addRange(range);
 });
 
 export default router;
