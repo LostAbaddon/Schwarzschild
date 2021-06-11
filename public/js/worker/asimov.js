@@ -16,9 +16,21 @@ if (isSharedWorker) {
 				return;
 			}
 
-			var markup = MarkUp.fullParse(data.content, data.config);
-			console.log('Asimov Done: ' + data.content.length + ' / ' + markup.content.length);
-			port.postMessage({id: data.id, markup});
+			var result = '', len = 0;
+			if (data.action === 'parse') {
+				result = MarkUp.fullParse(data.content, data.config);
+				len = result.content.length;
+			}
+			else if (data.action === 'reverse') {
+				result = MarkUp.plaintextReverse(data.content, data.config);
+				len = result.length;
+			}
+			else {
+				result = "未知任务类型！";
+			}
+
+			console.log('Asimov Done: ' + data.content.length + ' / ' + len);
+			port.postMessage({id: data.id, result});
 		};
 	};
 	console.log('Shared-Worker Asimov is READY!');
@@ -30,9 +42,21 @@ else {
 			return;
 		}
 
-		var markup = MarkUp.fullParse(data.content, data.config);
-		console.log('Asimov Done: ' + data.content.length + ' / ' + markup.content.length);
-		self.postMessage({id: data.id, markup});
+		var result = '', len = 0;
+		if (data.action === 'parse') {
+			result = MarkUp.fullParse(data.content, data.config);
+			len = result.content.length;
+		}
+		else if (data.action === 'reverse') {
+			result = MarkUp.plaintextReverse(data.content);
+			len = result.length;
+		}
+		else {
+			result = "未知任务类型！";
+		}
+
+		console.log('Asimov Done: ' + data.content.length + ' / ' + len);
+		self.postMessage({id: data.id, result});
 	};
 	console.log('Dedicated-Worker Asimov is READY!');
 }

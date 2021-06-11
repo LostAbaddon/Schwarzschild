@@ -20,15 +20,15 @@ window.InitAsimov = async () => {
 			var res = TaskPool.get(data.id);
 			TaskPool.delete(data.id);
 			if (!res) return;
-			res(data.markup);
+			res(data.result);
 		};
 
 		window.MarkUp = window.MarkUp || {};
 		window.MarkUp.fullParse = (text, config) => new Promise(res => {
 			var id = generateID();
 			TaskPool.set(id, res);
-			console.log(workerName + ' started task-' + id);
-			workerPort.postMessage({id, content: text, config});
+			console.log(workerName + ' started parse-task: ' + id);
+			workerPort.postMessage({id, action: 'parse', content: text, config});
 		});
 		window.MarkUp.parse = async (text, config) => {
 			var result;
@@ -36,6 +36,13 @@ window.InitAsimov = async () => {
 			if (!result) return '';
 			return result.content;
 		};
+		// 由于Worker中不能操纵Node和Fragment，所以这里使用一个阉割版。这倒是意料之外的BUG。
+		window.MarkUp.reverse = (content) => new Promise(res => {
+			var id = generateID();
+			TaskPool.set(id, res);
+			console.log(workerName + ' started reverse-task: ' + id);
+			workerPort.postMessage({id, action: 'reverse', content});
+		});
 
 		window.onbeforeunload = () => {
 			workerPort.postMessage('suicide');
