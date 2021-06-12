@@ -1,3 +1,74 @@
+window.EventEmitter = class EventEmitter {
+	constructor () {
+		this._events = new Map();
+		this._onces = new Map();
+	}
+	on (event, callback) {
+		var callbacks = this._events.get(event);
+		if (!callbacks) {
+			callbacks = new Set();
+			this._events.set(event, callbacks);
+		}
+		callbacks.add(callback);
+	}
+	once (event, callback) {
+		var callbacks = this._events.get(event);
+		if (!callbacks) {
+			callbacks = new Set();
+			this._events.set(event, callbacks);
+		}
+		callbacks.add(callback);
+		var onces = this._onces.get(event);
+		if (!onces) {
+			onces = new Set();
+			this._onces.set(event, onces);
+		}
+		onces.add(callback);
+	}
+	off (event, callback) {
+		var callbacks = this._events.get(event);
+		if (!!callbacks) callbacks.delete(callback);
+		var onces = this._onces.get(event);
+		if (!!onces) onces.delete(callback);
+	}
+	clear (event) {
+		var callbacks = this._events.get(event);
+		if (!!callbacks) {
+			callbacks.clear();
+			this._events.delete(event);
+		}
+		var onces = this._onces.get(event);
+		if (!onces) {
+			onces.clear();
+			this._onces.delete(event);
+		}
+	}
+	clearAll () {
+		for (let [_, callbacks] of this._events) {
+			callbacks.clear();
+		}
+		this._events.clear();
+		for (let [_, callbacks] of this._onces) {
+			callbacks.clear();
+		}
+		this._onces.clear();
+	}
+	emit (event, ...data) {
+		var callbacks = this._events.get(event);
+		if (!callbacks) return;
+		var onces = this._onces.get(event);
+		for (let callback of callbacks) {
+			let needBreak = callback(...data);
+			if (!!onces && onces.has(callback)) {
+				callbacks.delete(callback);
+				onces.delete(callback);
+			}
+			if (!!needBreak) break;
+		}
+	}
+}
+window.PageBroadcast = new EventEmitter();
+
 localStorage.__proto__.get = (key, def={}) => {
 	var item = localStorage.getItem(key);
 	if (!item) return def;
@@ -113,8 +184,7 @@ window.onVueHyperLinkTriggered = (vue, evt) => {
 	var originPath = location.hash.replace(/^#+/, '').split('?')[0];
 	vue.$router.push(path);
 	if (path.path === originPath) {
-		let channel = new BroadcastChannel('page-changed');
-		channel.postMessage(path);
+		PageBroadcast.emit('page-changed', path);
 	}
 
 	return true;
@@ -159,76 +229,6 @@ window.afterMarkUp = async (target, mathHook) => {
 	await ImageWall.init();
 };
 
-window.EventEmitter = class EventEmitter {
-	constructor () {
-		this._events = new Map();
-		this._onces = new Map();
-	}
-	on (event, callback) {
-		var callbacks = this._events.get(event);
-		if (!callbacks) {
-			callbacks = new WeakSet();
-			this._events.set(event, callbacks);
-		}
-		callbacks.add(callback);
-	}
-	once (event, callback) {
-		var callbacks = this._events.get(event);
-		if (!callbacks) {
-			callbacks = new WeakSet();
-			this._events.set(event, callbacks);
-		}
-		callbacks.add(callback);
-		var onces = this._onces.get(event);
-		if (!onces) {
-			onces = new WeakSet();
-			this._onces.set(event, onces);
-		}
-		onces.add(callback);
-	}
-	off (event, callback) {
-		var callbacks = this._events.get(event);
-		if (!!callbacks) callbacks.delete(callback);
-		var onces = this._onces.get(event);
-		if (!!onces) onces.delete(callback);
-	}
-	clear (event) {
-		var callbacks = this._events.get(event);
-		if (!!callbacks) {
-			callbacks.clear();
-			this._events.delete(event);
-		}
-		var onces = this._onces.get(event);
-		if (!onces) {
-			onces.clear();
-			this._onces.delete(event);
-		}
-	}
-	clearAll () {
-		for (let [_, callbacks] of this._events) {
-			callbacks.clear();
-		}
-		this._events.clear();
-		for (let [_, callbacks] of this._onces) {
-			callbacks.clear();
-		}
-		this._onces.clear();
-	}
-	emit (event, ...data) {
-		var callbacks = this._events.get(event);
-		if (!callbacks) return;
-		var onces = this._onces.get(event);
-		for (let callback of callbacks) {
-			let needBreak = callback(...data);
-			if (!!onces && onces.has(callback)) {
-				callbacks.delete(callback);
-				onces.delete(callback);
-			}
-			if (!!needBreak) break;
-		}
-	}
-}
-
 LifeCycle.on.ready(app => {
 	console.log('Schwarzschild Blackhole System is READY!');
 
@@ -271,7 +271,7 @@ const cbDataUpdated = data => {
 	sessionStorage.setItem('sourceUpdated', data.target);
 	location.reload();
 };
-(new BroadcastChannel('source-updated')).addEventListener('message', ({data}) => {
+PageBroadcast.on('source-updated', (data) => {
 	if (!!tmrDataUpdated) {
 		clearTimeout(tmrDataUpdated);
 	}

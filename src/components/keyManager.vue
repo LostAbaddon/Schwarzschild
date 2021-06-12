@@ -22,7 +22,7 @@ const DefaultKey = "[:DEFAULT-AES-KEY:]";
 if (!localStorage.CurrentKey) localStorage.CurrentKey = DefaultKey;
 
 var current = null;
-(new BroadcastChannel('setting')).addEventListener('message', ({data}) => {
+PageBroadcast.on('setting', (data) => {
 	if (!current) return;
 	if (data.action !== 'KeyManager') return;
 	current.update();

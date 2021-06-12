@@ -21,10 +21,6 @@
 </template>
 
 <script>
-const chScroll = new BroadcastChannel('page-scroll');
-const chPageChanged = new BroadcastChannel('page-changed');
-const chChangeLoadingHint = new BroadcastChannel('change-loading-hint');
-const chUpdateHistory = new BroadcastChannel('memory-updated');
 const CCLicenses = ['BY', 'SA', 'NC', 'ND'];
 const LicensesContent = {
 	BY: "署名",
@@ -34,7 +30,7 @@ const LicensesContent = {
 };
 
 var current = null, timer, lastIVRequest;
-chScroll.addEventListener('message', ({data}) => {
+PageBroadcast.on('page-scroll', (data) => {
 	if (!current) return;
 	if (!!timer) {
 		clearTimeout(timer);
@@ -45,7 +41,7 @@ chScroll.addEventListener('message', ({data}) => {
 		timer = null;
 	}, 100);
 });
-chPageChanged.addEventListener('message', ({data}) => {
+PageBroadcast.on('page-changed', () => {
 	if (!current) return;
 	current.update();
 });
@@ -64,7 +60,7 @@ export default {
 	},
 	methods: {
 		async update () {
-			chChangeLoadingHint.postMessage({
+			PageBroadcast.emit('change-loading-hint', {
 				name: '加载中……',
 				action: 'show'
 			});
@@ -81,7 +77,7 @@ export default {
 				this.showLikeCoin = false;
 				this.menuList.clear();
 				this.$refs.article.innerText = '<article class="markup-content"><section><p>您的浏览器不支持<span class="english">WebCrypto</span>模块功能，请换用现代浏览器！</p></section></article>';
-				chChangeLoadingHint.postMessage({
+				PageBroadcast.emit('change-loading-hint', {
 					action: 'hide'
 				});
 				return;
@@ -151,13 +147,13 @@ export default {
 			window.PageInfo = window.PageInfo || {};
 			window.PageInfo.title = title;
 			window.PageInfo.url = this.$route.query.f;
-			chUpdateHistory.postMessage({
+			PageBroadcast.emit('memory-updated', {
 				type: 'history',
 				title,
 				url: this.$route.query.f
 			});
 
-			chChangeLoadingHint.postMessage({
+			PageBroadcast.emit('change-loading-hint', {
 				action: 'hide'
 			});
 		},

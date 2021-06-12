@@ -32,12 +32,10 @@ import ColumnItem from '@/components/columnItem.vue';
 
 const getTimeString = _('Utils').getTimeString;
 var currColumn = null;
-const chPageChanged = new BroadcastChannel('page-changed');
-chPageChanged.addEventListener('message', msg => {
+PageBroadcast.on('page-changed', () => {
 	if (!currColumn) return;
 	currColumn.update();
 });
-const chChangeLoadingHint = new BroadcastChannel('change-loading-hint');
 
 const nameMap = new Map();
 const getName = path => {
@@ -101,7 +99,7 @@ export default {
 			});
 		},
 		async update () {
-			chChangeLoadingHint.postMessage({
+			PageBroadcast.emit('change-loading-hint', {
 				name: '加载中……',
 				action: 'show'
 			});
@@ -121,12 +119,12 @@ export default {
 					category = '/' + this.$route.query.c.split(',').filter(c => c.length > 0).join('/');
 				}
 				else {
-					chChangeLoadingHint.postMessage({action: 'hide'});
+					PageBroadcast.emit('change-loading-hint', {action: 'hide'});
 					return;
 				}
 			}
 			else {
-				chChangeLoadingHint.postMessage({action: 'hide'});
+				PageBroadcast.emit('change-loading-hint', {action: 'hide'});
 				return;
 			}
 			category = category.replace(/^[\/\\]+/, '');
@@ -161,7 +159,7 @@ export default {
 				this.showList = false;
 			}
 
-			chChangeLoadingHint.postMessage({action: 'hide'});
+			PageBroadcast.emit('change-loading-hint', {action: 'hide'});
 		},
 		onClick (evt) {
 			var ele = findContentWrapper(evt.target);
@@ -198,8 +196,7 @@ export default {
 			if (!!category) {
 				this.$router.push({path: '/category', query: {c: category.split(/[\\\/]+/).join(',')}});
 				if (this.$route.name === 'Category') {
-					let channel = new BroadcastChannel('page-changed');
-					channel.postMessage(category);
+					PageBroadcast.emit('page-changed', category);
 				}
 			}
 			else if (!!filename) {

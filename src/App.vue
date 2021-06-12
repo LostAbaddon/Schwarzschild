@@ -15,7 +15,6 @@
 </template>
 
 <script>
-const chScroll = new BroadcastChannel('page-scroll');
 export default {
 	name: 'App',
 	data () {
@@ -34,7 +33,7 @@ export default {
 			else {
 				if (this.overscroll) this.overscroll = false;
 			}
-			chScroll.postMessage({top: app.scrollTop, total: app.scrollHeight, height: app.offsetHeight});
+			PageBroadcast.emit('page-scroll', {top: app.scrollTop, total: app.scrollHeight, height: app.offsetHeight});
 		},
 		onClick () {
 			this.$refs.masker.classList.remove('show');

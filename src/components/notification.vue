@@ -4,10 +4,9 @@
 
 <script>
 var current;
-const chMessage = new BroadcastChannel('show-notification');
-chMessage.addEventListener('message', evt => {
+PageBroadcast.on('show-notification', data => {
 	if (!current) return;
-	current.showMessage(evt.data);
+	current.showMessage(data);
 });
 window.notify = msg => {
 	if (!current) return;

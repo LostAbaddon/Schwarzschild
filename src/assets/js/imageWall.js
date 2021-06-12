@@ -1,9 +1,6 @@
 // 音频视频图片的拓展插件
 
 (() => {
-	const chChangeLoadingHint = new BroadcastChannel('change-loading-hint');
-	// const chShowImage = new BroadcastChannel('show-image');
-
 	const queryAll = (tag, host) => {
 		host = host || document;
 		var eles = host.querySelectorAll(tag);
@@ -108,7 +105,7 @@
 				var img = div.querySelector('img'), fig = div.querySelector('figure');
 				if (!img) {
 					imageLoaded ++;
-					chChangeLoadingHint.postMessage({title: '载入图片: ' + imageLoaded + ' / ' + imageCount});
+					PageBroadcast.emit('change-loading-hint', {title: '载入图片: ' + imageLoaded + ' / ' + imageCount});
 					return res();
 				}
 				var inside = div.classList.contains('inside');
@@ -146,7 +143,7 @@
 					}
 
 					imageLoaded ++;
-					chChangeLoadingHint.postMessage({title: '载入图片: ' + imageLoaded + ' / ' + imageCount});
+					PageBroadcast.emit('change-loading-hint', {title: '载入图片: ' + imageLoaded + ' / ' + imageCount});
 					res();
 				};
 				img.onerror = () => {
@@ -154,7 +151,7 @@
 					div.classList.add('failed');
 
 					imageLoaded ++;
-					chChangeLoadingHint.postMessage({title: '载入图片: ' + imageLoaded + ' / ' + imageCount});
+					PageBroadcast.emit('change-loading-hint', {title: '载入图片: ' + imageLoaded + ' / ' + imageCount});
 					res();
 				};
 			})));

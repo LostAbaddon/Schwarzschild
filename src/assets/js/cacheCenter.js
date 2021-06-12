@@ -1,11 +1,6 @@
 (async () => {
 	if (!navigator.serviceWorker) return;
 
-	const channel = new BroadcastChannel('service-messages');
-	channel.addEventListener('message', msg => {
-		console.log('CacheUpdated: ' + msg.data.url + ' (' + msg.data.timestamp + ')');
-	});
-
 	if (!!window.caches) {
 		let keys = await caches.keys();
 		if (keys.length > 0) {

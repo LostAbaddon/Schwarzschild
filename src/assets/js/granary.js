@@ -1,4 +1,3 @@
-const chDataUpdated = new BroadcastChannel('source-updated');
 window.totalDecodeURI = uri => {
 	var next = decodeURIComponent(uri);
 	if (next === uri) return next;
@@ -63,7 +62,7 @@ const Barn = {
 					};
 					if (isSource) msg.target = 'SOURCE';
 					else msg.target = url;
-					chDataUpdated.postMessage(msg);
+					PageBroadcast.emit('source-updated', msg);
 				}
 			}
 			if (!cache) res(data);

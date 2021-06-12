@@ -3,7 +3,6 @@ import Home from '../views/Home.vue';
 import Category from '../views/Category.vue';
 import Viewer from '../views/viewer.vue';
 
-const channel = new BroadcastChannel('route-updated');
 const routes = [
 	{
 		path: '/',
@@ -60,7 +59,7 @@ router.afterEach((to, from) => {
 	else {
 		document.title = router.app.config.globalProperties.SiteName;
 	}
-	channel.postMessage({
+	PageBroadcast.emit('route-updated', {
 		from: from.fullPath,
 		to: to.fullPath
 	});

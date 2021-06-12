@@ -6,7 +6,6 @@ const CacheUrl = [
 	'/favicon.ico',
 	'/webapp.json',
 ];
-const channel = new BroadcastChannel('service-messages');
 
 const cacheResource = async (req, res) => {
 	var cache = await caches.open(CacheName);
@@ -43,11 +42,7 @@ self.addEventListener('fetch', evt => {
 		// 如果没有缓存，则问后台要
 		var remote = fetch(evt.request).then(res => {
 			cacheResource(evt.request, res.clone()).then(() => {
-				channel.postMessage({
-					event: 'cacheUpdated',
-					url: evt.request.url,
-					timestamp: Date.now(),
-				});
+				console.log('CacheUpaded: ' + evt.request.url);
 			});
 			return res;
 		}).catch(e => {

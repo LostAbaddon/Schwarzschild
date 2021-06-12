@@ -16,10 +16,8 @@
 </template>
 
 <script>
-const channel = new BroadcastChannel('change-loading-hint');
 global.callPageLoaded = () => {
-	var ch = new BroadcastChannel('change-loading-hint');
-	ch.postMessage({action: 'hide'});
+	PageBroadcast.emit('change-loading-hint', {action: 'hide'});
 };
 var quiter = null;
 
@@ -34,10 +32,9 @@ export default {
 		}
 	},
 	created () {
-		channel.addEventListener('message', msg => {
-			var data = msg.data;
-			if (data.action === 'show') {
-				data.title = data.title || '载入中……';
+		PageBroadcast.on('change-loading-hint', msg => {
+			if (msg.action === 'show') {
+				msg.title = msg.title || '载入中……';
 				this.forcequit = false;
 				if (!!quiter) {
 					clearTimeout(quiter);
@@ -48,8 +45,8 @@ export default {
 				}, 5000);
 				this.show = true;
 			}
-			else if (data.action === 'hide') {
-				data.title = data.title || '载入中……';
+			else if (msg.action === 'hide') {
+				msg.title = msg.title || '载入中……';
 				this.forcequit = false;
 				if (!!quiter) {
 					clearTimeout(quiter);
@@ -57,8 +54,8 @@ export default {
 				}
 				this.show = false;
 			}
-			if (String.is(data.title)) this.title = data.title;
-			if (['spin', 'pulse'].indexOf(data.type) >= 0) this.type = data.type;
+			if (String.is(msg.title)) this.title = msg.title;
+			if (['spin', 'pulse'].indexOf(msg.type) >= 0) this.type = msg.type;
 		});
 	},
 	methods: {

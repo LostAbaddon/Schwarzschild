@@ -42,17 +42,17 @@ export default {
 					changeThemeColor(action[1]);
 				}
 				else if (action[0] === 'keyManager') {
-					(new BroadcastChannel('setting')).postMessage({ action: 'KeyManager' });
+					PageBroadcast.emit('setting', { action: 'KeyManager' });
 				}
 				else if (action[0] === 'addFavorite') {
-					(new BroadcastChannel('memory-updated')).postMessage({
+					PageBroadcast.emit('memory-updated', {
 						type: 'favorite',
 						title: window.PageInfo.title,
 						url: window.PageInfo.url
 					});
 				}
 				else if (action[0] === 'removeFavorite') {
-					(new BroadcastChannel('memory-updated')).postMessage({
+					PageBroadcast.emit('memory-updated', {
 						type: 'unfavorite',
 						title: window.PageInfo.title,
 						url: window.PageInfo.url
@@ -72,7 +72,7 @@ export default {
 			}
 			if (can_go) {
 				this.$router.push(target);
-				if (same_page) (new BroadcastChannel('page-changed')).postMessage(target);
+				if (same_page) PageBroadcast.emit('page-changed', target);
 			}
 		}
 	}

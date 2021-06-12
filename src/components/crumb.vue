@@ -9,8 +9,7 @@
 
 <script>
 var currCrumb = null;
-const channel = new BroadcastChannel('page-changed');
-channel.addEventListener('message', msg => {
+PageBroadcast.on('page-changed', () => {
 	if (!currCrumb) return;
 	currCrumb.update();
 });
@@ -31,7 +30,7 @@ export default {
 			query = Proxy.toObject(query);
 			var target = {path, query};
 			this.$router.push(target);
-			if (path === this.$route.path) channel.postMessage(target);
+			if (path === this.$route.path) PageBroadcast.emit('page-changed', target);
 		},
 		update () {
 			var path = null, type = '';

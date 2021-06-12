@@ -47,10 +47,10 @@ global.getPathNameList = (path, needHome=true) => {
 	return result;
 };
 var current;
-(new BroadcastChannel('route-updated')).addEventListener('message', ({data}) => {
+PageBroadcast.on('route-updated', (data) => {
 	if (!!current) current.disableFavoriteAction();
 });
-(new BroadcastChannel('memory-updated')).addEventListener('message', ({data}) => {
+PageBroadcast.on('memory-updated', (data) => {
 	var name, append = true;
 	if (data.type === 'history') {
 		name = 'memory/history';
