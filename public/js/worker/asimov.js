@@ -4,9 +4,7 @@ importScripts('../../Asimov/markup.js');
 importScripts('../../Asimov/extensions.js');
 importScripts('./extmarkup.js');
 
-const isSharedWorker = !self.Worker;
-
-if (isSharedWorker) {
+if (self.onconnect !== undefined) {
 	self.onconnect = ({ports}) => {
 		var port = ports[0];
 		console.log('Shared-Worker Connected!');

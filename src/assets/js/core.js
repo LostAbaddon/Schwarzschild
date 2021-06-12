@@ -219,8 +219,12 @@ window.afterMarkUp = async (target, mathHook) => {
 
 	// MathHub的相关处理
 	initMathJax();
-	if (Function.is(mathHook)) mathHook();
-	else MathJax.Hub.Queue(["Typeset", MathJax.Hub, target]);
+	if (Function.is(mathHook)) {
+		mathHook();
+	}
+	else {
+		MathJax.Hub.Queue(["Typeset", MathJax.Hub, target]);
+	}
 
 	// 初始化动画图示
 	initTableAnimationChart();
