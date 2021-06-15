@@ -349,7 +349,7 @@
 			try {
 				chart._data = JSON.parse(chart._data);
 			}
-			catch {
+			catch (err) {
 				chart.parentNode.removeChild(chart);
 				return;
 			}

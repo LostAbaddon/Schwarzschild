@@ -132,7 +132,7 @@ window.Granary = {
 			data = await Barn.get(info, true, sources.update);
 			data = !!data ? data : '';
 		}
-		catch {
+		catch (err) {
 			data = '';
 		}
 		return data;
@@ -151,7 +151,7 @@ window.Granary = {
 			content = await Barn.get(filepath, true, timestamp);
 			content = !!content ? content : '';
 		}
-		catch {
+		catch (err) {
 			content = '你所寻找的文件不存在！';
 		}
 		return content;
@@ -176,10 +176,8 @@ window.Granary = {
 	},
 	async clearAllCache () {
 		sessionStorage.clear();
-		var tasks = [
-			caches.delete('schwarzschild'),
-			Barn.clearAllCache()
-		];
+		var tasks = [ Barn.clearAllCache() ];
+		if (!!window.caches) tasks.push(caches.delete('schwarzschild'));
 		await Promise.all(tasks);
 	},
 };

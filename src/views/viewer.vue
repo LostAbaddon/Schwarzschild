@@ -313,7 +313,7 @@ export default {
 			try {
 				code = base64tobuffer(iv);
 			}
-			catch {
+			catch (err) {
 				notify({
 					type: "error",
 					duration: 2000,
@@ -341,7 +341,7 @@ export default {
 				key = base64tobuffer(key);
 				key = await window.crypto.subtle.importKey("raw", key, "AES-GCM", true, ["encrypt", "decrypt"]);
 			}
-			catch {
+			catch (err) {
 				notify({
 					type: "error",
 					duration: 2000,

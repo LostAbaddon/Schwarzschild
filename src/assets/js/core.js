@@ -75,7 +75,7 @@ localStorage.__proto__.get = (key, def={}) => {
 	try {
 		item = JSON.parse(item);
 	}
-	catch {
+	catch (err) {
 		return def;
 	}
 	return item;
