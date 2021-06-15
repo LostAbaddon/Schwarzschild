@@ -80,7 +80,7 @@ const realizeHomePage = async (imports, isDemo) => {
 			if (has) {
 				let filename = Path.basename(Schwarzschild.config.lifecycle);
 				let target = Path.join(OutPutPath, 'public/js', filename);
-				imports.push('<script type="text/javascript" src="<%= BASE_URL %>js/' + filename + '"></script>');
+				imports.unshift('<script type="text/javascript" src="<%= BASE_URL %>js/' + filename + '"></script>');
 				try {
 					await FS.copyFile(filepath, target);
 				} catch {}
