@@ -32,7 +32,8 @@ import ColumnItem from '@/components/columnItem.vue';
 
 const getTimeString = _('Utils').getTimeString;
 var currColumn = null;
-PageBroadcast.on('page-changed', () => {
+PageBroadcast.on('page-changed', async () => {
+	await wait();
 	if (!currColumn) return;
 	currColumn.update();
 });

@@ -63,6 +63,19 @@ window.EventEmitter = class EventEmitter {
 				callbacks.delete(callback);
 				onces.delete(callback);
 			}
+			if (!!needBreak && !(needBreak instanceof Promise)) break;
+		}
+	}
+	async emitPipely (event, ...data) {
+		var callbacks = this._events.get(event);
+		if (!callbacks) return;
+		var onces = this._onces.get(event);
+		for (let callback of callbacks) {
+			let needBreak = await callback(...data);
+			if (!!onces && onces.has(callback)) {
+				callbacks.delete(callback);
+				onces.delete(callback);
+			}
 			if (!!needBreak) break;
 		}
 	}

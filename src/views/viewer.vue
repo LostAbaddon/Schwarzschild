@@ -41,7 +41,8 @@ PageBroadcast.on('page-scroll', (data) => {
 		timer = null;
 	}, 100);
 });
-PageBroadcast.on('page-changed', () => {
+PageBroadcast.on('page-changed', async () => {
+	await wait();
 	if (!current) return;
 	current.update();
 });
