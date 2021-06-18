@@ -76,12 +76,12 @@ const Barn = {
 
 // 资源管理
 window.Granary = {
-	async getSource (source, limit) {
+	async getSource (source, limit, timestamp) {
 		source = totalDecodeURI(source);
 		var result = { articles: [], comments: [] };
 		await Promise.all(Array.generate(limit + 1).map(async index => {
 			var url = Barn.API + '/' + source + '-' + index + '.json';
-			var d = await Barn.get(url, limit !== index);
+			var d = await Barn.get(url, true, timestamp);
 			if (String.is(d)) return;
 			result.articles.push(...d.articles);
 			result.comments.push(...d.comments);
@@ -90,13 +90,14 @@ window.Granary = {
 		result.comments.sort((a, b) => b.publish - a.publish);
 		return result;
 	},
-	async getCategory (category) {
+	async getCategory (category, page=0, count=10) {
 		category = totalDecodeURI(category);
 		var sources = await Barn.get(Barn.API + '/sources.json', false);
 		var data = [];
 		if (!sources || !sources.sources) return data;
+		var timestamp = sources.update || 0;
 		await Promise.all(sources.sources.map(async source => {
-			var d = await Granary.getSource(source.owner, source.pages);
+			var d = await Granary.getSource(source.owner, source.pages, timestamp);
 			d = d.articles.filter(art => art.sort.indexOf(category) === 0);
 			data.push(...d);
 		}));
@@ -115,6 +116,7 @@ window.Granary = {
 		});
 		data = Object.values(articleList);
 		data.sort((a, b) => b.publish - a.publish);
+		data = data.splice(page * count, count);
 		return data;
 	},
 	async getColumnHeader (category) {

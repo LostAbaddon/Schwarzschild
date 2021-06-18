@@ -265,3 +265,16 @@
 	display: inline;
 	margin-right: 15px;
 }
+
+.column-loading {
+	height: 50px;
+	line-height: 50px;
+	text-align: center;
+	font-weight: bolder;
+	pointer-events: none;
+	transition: all 300ms ease-in-out;
+}
+.column-loading.hidden {
+	opacity: 0;
+	height: 0px;
+}

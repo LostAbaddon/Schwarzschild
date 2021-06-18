@@ -1,5 +1,5 @@
 <template>
-	<section class="column container" @click="onClick">
+	<section ref="main" class="column container" @click="onClick" @mousewheel="onScroll">
 		<header ref="header"></header>
 		<caption v-if="showList">
 			<span>文章列表</span>
@@ -25,6 +25,7 @@
 			:redirect="article.target"
 		/>
 	</section>
+	<div ref="loadingHint" class="column-loading hidden">加载中……</div>
 </template>
 
 <script>
@@ -36,6 +37,10 @@ PageBroadcast.on('page-changed', async () => {
 	await wait();
 	if (!currColumn) return;
 	currColumn.update();
+});
+PageBroadcast.on('page-scroll', () => {
+	if (!currColumn) return;
+	currColumn.onScroll();
 });
 
 const nameMap = new Map();
@@ -66,6 +71,10 @@ export default {
 			itemPerPage: 20,
 			list: [],
 			showList: true,
+			currentCategory: '',
+			currentPage: 0,
+			countPerPage: 10,
+			noMoreItem: false,
 		}
 	},
 	methods: {
@@ -88,8 +97,9 @@ export default {
 			}
 		},
 		async getArticleList (category) {
-			var articles = await Granary.getCategory(category);
-			this.list.splice(0, this.list.length);
+			this.$refs.loadingHint.classList.remove('hidden');
+			this.list.splice(this.currentPage * this.countPerPage, this.list.length);
+			var articles = await Granary.getCategory(category, this.currentPage);
 			articles.forEach((art) => {
 				art.category = getName(art.sort);
 				art.placehoding = false;
@@ -98,6 +108,8 @@ export default {
 				art.description = art.description || '暂无';
 				this.list.push(art);
 			});
+			this.noMoreItem = articles.length < this.countPerPage;
+			this.$refs.loadingHint.classList.add('hidden');
 		},
 		async update () {
 			PageBroadcast.emit('change-loading-hint', {
@@ -106,7 +118,7 @@ export default {
 			});
 
 			var style = localStorage.getItem('columnStyle') || 'lines';
-			this.$el.setAttribute('columnStyle', style);
+			this.$refs.main.setAttribute('columnStyle', style);
 
 			this.list.splice(0, this.list.length);
 			this.header = '';
@@ -153,6 +165,8 @@ export default {
 				await this.getHeaderInfo(category);
 			}
 			else if (cateType === 'viewer') {
+				this.currentCategory = category;
+				this.currentPage = 0;
 				this.showList = true;
 				await Promise.all([this.getHeaderInfo(category), this.getArticleList(category)]);
 			}
@@ -171,7 +185,7 @@ export default {
 			}
 			else if (ele.classList.contains('styleItem')) {
 				let name = ele.getAttribute('name');
-				this.$el.setAttribute('columnStyle', name);
+				this.$refs.main.setAttribute('columnStyle', name);
 				localStorage.setItem('columnStyle', name);
 				return;
 			}
@@ -203,6 +217,26 @@ export default {
 			else if (!!filename) {
 				this.$router.push({path: '/view', query: {f: filename}});
 			}
+		},
+		onScroll (evt) {
+			if (!!this.tmrScroll) {
+				clearTimeout(this.tmrScroll);
+				this.tmrScroll = null;
+			}
+			this.tmrScroll = setTimeout(() => this.doScroll(), 100);
+		},
+		doScroll () {
+			if (!!this.tmrScroll) {
+				clearTimeout(this.tmrScroll);
+				this.tmrScroll = null;
+			}
+			if (this.noMoreItem) return;
+			var ele = this.$refs.loadingHint;
+			var top = ele.getBoundingClientRect().top;
+			var limit = document.body.getBoundingClientRect().height + 250;
+			if (top > limit) return;
+			this.currentPage ++;
+			this.getArticleList(this.currentCategory);
 		}
 	},
 	mounted () {
