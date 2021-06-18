@@ -27,45 +27,62 @@ const Barn = {
 		cbs.forEach(res => res());
 	},
 	waiters: [],
+	quests: new Map(),
 	waitForReady: () => new Promise(res => {
 		if (Barn.ready) return res();
 		Barn.waiters.push(res);
 	}),
 	get (url, notStill=false, timestamp=0) {
 		return new Promise(async res => {
-			var isSource = !!url.match(/(^sources|[\\\/]sources)\.json$/);
+			var isSource = !!url.match(/(^sources|[\\\/]sources)\.json$/i);
 			if (!Barn.ready) {
 				await Barn.waitForReady();
 			}
+
 			var cache = await Barn.DB.get('data', url);
 			if (!!cache) {
 				res(cache.data);
 				if (!!notStill && timestamp <= cache.update) return;
 			}
-			var data;
-			try {
-				data = await axios.get(Barn.server + url);
+
+			var req = this.quests.get(url);
+			if (!!req) {
+				let data = await req();
+				if (!cache) res(data);
 			}
-			catch (err) {
-				data = null;
-				console.error(err);
+			else {
+				new Promise(async r => {
+					this.quests.set(url, r);
+					var data;
+					try {
+						data = await axios.get(Barn.server + url);
+					}
+					catch (err) {
+						data = null;
+						console.error(err);
+					}
+
+					if (!!data) data = data.data;
+					if (!!data) {
+						await Barn.DB.set('data', url, {data, update: timestamp || Date.now()});
+						let oldTime = !!cache ? (cache.data.update || 0) : 0;
+						let newTime = data.update || 0;
+						if (newTime > oldTime) {
+							let msg = {
+								latest: newTime,
+								last: oldTime
+							};
+							if (isSource) msg.target = 'SOURCE';
+							else msg.target = url;
+							PageBroadcast.emit('source-updated', msg);
+						}
+					}
+
+					this.quests.delete(url);
+					if (!cache) res(data);
+					r(data);
+				})
 			}
-			if (!!data) data = data.data;
-			if (!!data) {
-				await Barn.DB.set('data', url, {data, update: timestamp || Date.now()});
-				let oldTime = !!cache ? (cache.data.update || 0) : 0;
-				let newTime = data.update || 0;
-				if (newTime > oldTime) {
-					let msg = {
-						latest: newTime,
-						last: oldTime
-					};
-					if (isSource) msg.target = 'SOURCE';
-					else msg.target = url;
-					PageBroadcast.emit('source-updated', msg);
-				}
-			}
-			if (!cache) res(data);
 		});
 	},
 	async clearAllCache () {
