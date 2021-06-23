@@ -1,11 +1,12 @@
+import '/public/js/lrucache.js';
+import '/public/js/cachedDB.js';
 import './assets/js/core.js';
 import './assets/js/cacheCenter.js';
-import './assets/js/lrucache.js';
-import './assets/js/cacheDB.js';
 import './assets/js/granary.js';
 import './assets/js/markup.js';
 import './assets/js/markup-footnote.js';
 import './assets/js/imageWall.js';
+import './assets/js/bookshelf.js';
 
 import { createApp, inject } from 'vue';
 import axios from 'axios';
@@ -45,7 +46,10 @@ else document.body.classList.add('notmobile');
 
 (async () => {
 	if (await LifeCycle.emit.loaded()) {
-		await InitAsimov();
+		await Promise.all([
+			InitAsimov(),
+			BookShelf.init()
+		]);
 
 		const app = createApp(App);
 		app.config.globalProperties.SiteName = ":TITLE:";

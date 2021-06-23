@@ -9,6 +9,8 @@
 			this.cbUpdates = [];
 			this.cbConnects = [];
 			this.caches = {};
+			this.ready = false;
+			this.available = false;
 		}
 		connect () {
 			return new Promise((res, rej) => {
@@ -18,11 +20,15 @@
 					this.cbUpdates.forEach(cb => cb(this));
 				};
 				this.conn.onsuccess = evt => {
+					this.ready = true;
+					this.available = true;
 					this.db = this.conn.result;
 					this.cbConnects.forEach(cb => cb(this));
 					res(this);
 				};
 				this.conn.onerror = err => {
+					this.ready = true;
+					this.available = false;
 					rej(err);
 				};
 			});
@@ -162,5 +168,5 @@
 		}
 	}
 
-	window.CachedDB = CachedDB;
+	self.CachedDB = CachedDB;
 }) ();

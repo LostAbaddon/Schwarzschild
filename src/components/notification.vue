@@ -4,12 +4,15 @@
 
 <script>
 var current;
+var pending = new Set();
 PageBroadcast.on('show-notification', data => {
-	if (!current) return;
-	current.showMessage(data);
+	notify(data);
 });
 window.notify = msg => {
-	if (!current) return;
+	if (!current) {
+		pending.add(msg);
+		return;
+	}
 	current.showMessage(msg);
 };
 
@@ -23,11 +26,19 @@ export default {
 		require('../assets/css/notification.css');
 		app.component('Notification', this);
 	},
-	mounted () {
+	async mounted () {
 		current = this;
+		if (!pending) return;
+		for (let msg of pending) {
+			await wait();
+			this.showMessage(msg);
+		}
+		pending.clear();
+		pending = null;
 	},
 	methods: {
 		async showMessage (msg) {
+			if (String.is(msg)) msg = {message: msg};
 			var duration = msg.duration || 3000;
 			var key = Math.floor(10000000000 * Math.random());
 			msg.key = key;
@@ -45,7 +56,7 @@ export default {
 				delete msg.ele;
 			};
 			this.$el.appendChild(msg.ele);
-			await wait();
+			await wait(100);
 			msg.ele.classList.add('show');
 
 			msg.timer = setTimeout(msg.ele.exit, duration);

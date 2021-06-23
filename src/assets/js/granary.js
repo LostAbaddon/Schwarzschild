@@ -3,43 +3,75 @@ window.totalDecodeURI = uri => {
 	if (next === uri) return next;
 	else return totalDecodeURI(next);
 };
+window.useSharedWorker = !!window.SharedWorker;
+
+// 只在有共享线程的情况下使用，否则切换到页面线程再切换回来还不如直接页面内调用数据库
+if (useSharedWorker) {
+	let TaskPool = new Map();
+	let generateID = () => Math.floor(Math.random() * 100000000);
+
+	let workerName = 'Shared-Worker DataCenter';
+	let dataWorker = new SharedWorker('/js/worker/dataCenter.js');
+	let workerPort = dataWorker.port;
+	workerPort.onmessage = ({data}) => {
+		console.log(workerName + ' finished task-' + data.tid);
+		var res = TaskPool.get(data.tid);
+		TaskPool.delete(data.tid);
+		if (!res) return;
+		res(data.result);
+	};
+	let sendRequest = req => {
+		workerPort.postMessage(req);
+	};
+	window.DataCenter = {
+		get: (dbName, store, key) => new Promise(res => {
+			var tid = generateID();
+			TaskPool.set(tid, res);
+			console.log(workerName + ' start task-' + tid + ': get');
+			sendRequest({tid, action: 'get', dbName, store, key});
+		}),
+		set: (dbName, store, key, value) => new Promise(res => {
+			var tid = generateID();
+			TaskPool.set(tid, res);
+			console.log(workerName + ' start task-' + tid + ': set');
+			sendRequest({tid, action: 'set', dbName, store, key, value});
+		}),
+		all: (dbName, store) => new Promise(res => {
+			var tid = generateID();
+			TaskPool.set(tid, res);
+			console.log(workerName + ' start task-' + tid + ': all');
+			sendRequest({tid, action: 'all', dbName, store});
+		}),
+		del: (dbName, store, key) => new Promise(res => {
+			var tid = generateID();
+			TaskPool.set(tid, res);
+			console.log(workerName + ' start task-' + tid + ': del');
+			sendRequest({tid, action: 'del', dbName, store, key});
+		}),
+		clear: (dbName, store) => new Promise(res => {
+			var tid = generateID();
+			TaskPool.set(tid, res);
+			console.log(workerName + ' start task-' + tid + ': clear');
+			sendRequest({tid, action: 'clear', dbName, store});
+		}),
+	};
+}
 
 const Barn = {
 	server: '',
-	DB: null,
-	ready: false,
 	API: '/api',
 	DataGranary: '/api/granary',
+	dbName: 'APIData',
 	async init () {
-		Barn.DB = new CachedDB("APIData", 1);
-		Barn.DB.onUpdate(() => {
-			Barn.DB.open('data', 'url', 10);
-			console.log('Barn::CacheStorage::APIData Updated');
-		});
-		Barn.DB.onConnect(() => {
-			console.log('Barn::CacheStorage::APIData Connected');
-		});
-		await Barn.DB.connect();
-		Barn.ready = true;
-
-		var cbs = [...Barn.waiters];
-		Barn.waiters = [];
-		cbs.forEach(res => res());
+		if (!useSharedWorker) {
+			await loadJS('./js/worker/dataCenter.js');
+		}
+		return;
 	},
-	waiters: [],
 	quests: new Map(),
-	waitForReady: () => new Promise(res => {
-		if (Barn.ready) return res();
-		Barn.waiters.push(res);
-	}),
 	get (url, notStill=false, timestamp=0) {
 		return new Promise(async res => {
-			var isSource = !!url.match(/(^sources|[\\\/]sources)\.json$/i);
-			if (!Barn.ready) {
-				await Barn.waitForReady();
-			}
-
-			var cache = await Barn.DB.get('data', url);
+			var cache = await DataCenter.get(Barn.dbName, 'data', url);
 			if (!!cache) {
 				res(cache.data);
 				if (!!notStill && timestamp <= cache.update) return;
@@ -64,7 +96,7 @@ const Barn = {
 
 					if (!!data) data = data.data;
 					if (!!data) {
-						await Barn.DB.set('data', url, {data, update: timestamp || Date.now()});
+						await DataCenter.set(Barn.dbName, 'data', url, {data, update: timestamp || Date.now()});
 						let oldTime = !!cache ? (cache.data.update || 0) : 0;
 						let newTime = data.update || 0;
 						if (newTime > oldTime) {
@@ -72,6 +104,7 @@ const Barn = {
 								latest: newTime,
 								last: oldTime
 							};
+							let isSource = !!url.match(/(^sources|[\\\/]sources)\.json$/i);
 							if (isSource) msg.target = 'SOURCE';
 							else msg.target = url;
 							PageBroadcast.emit('source-updated', msg);
@@ -86,8 +119,7 @@ const Barn = {
 		});
 	},
 	async clearAllCache () {
-		Barn.DB.clearCache('data');
-		await Barn.DB.clear('data');
+		await DataCenter.clear(Barn.dbName, 'data');
 	},
 };
 

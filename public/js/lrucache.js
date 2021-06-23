@@ -60,5 +60,5 @@
 		}
 	}
 
-	window.LRUCache = LRUCache;
+	self.LRUCache = LRUCache;
 }) ();
