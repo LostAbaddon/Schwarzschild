@@ -1,6 +1,6 @@
 # Schwarzschild
 
--	Version: 0.1.2
+-	Version: 0.2.0
 -	Author: [LostAbaddon](lostabaddon@gmail.com)
 
 静态网站构建器，可用于 GitHub Pages 等处。
@@ -9,7 +9,7 @@
 
 本网站会使用 Service Worker + CacheStorage 进行页面静态资源缓存。只有当页面中台（Service Worker）更新时才会更新页面静态资源。
 
-同时，本网站会使用 IndexDB 将请求来的数据做缓存，用来缓存文章列表和访问过的文章数据。
+同时，本网站会使用 IndexDB 将请求来的数据做缓存，用来缓存文章列表和访问过的文章数据，并用来作为本地文库，记录在线编辑的文章内容，并与服务器内容合并展示，即云-边架构（Cloud-Edge Architecture）。
 
 ## 依赖库
 

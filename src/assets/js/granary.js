@@ -36,11 +36,11 @@ if (useSharedWorker) {
 			console.log(workerName + ' start task-' + tid + ': set');
 			sendRequest({tid, action: 'set', dbName, store, key, value});
 		}),
-		all: (dbName, store) => new Promise(res => {
+		all: (dbName, store, key) => new Promise(res => {
 			var tid = generateID();
 			TaskPool.set(tid, res);
 			console.log(workerName + ' start task-' + tid + ': all');
-			sendRequest({tid, action: 'all', dbName, store});
+			sendRequest({tid, action: 'all', dbName, store, key});
 		}),
 		del: (dbName, store, key) => new Promise(res => {
 			var tid = generateID();
@@ -57,7 +57,7 @@ if (useSharedWorker) {
 	};
 }
 
-const Barn = {
+window.Barn = {
 	server: '',
 	API: '/api',
 	DataGranary: '/api/granary',
@@ -65,10 +65,18 @@ const Barn = {
 	async init () {
 		if (!useSharedWorker) {
 			await loadJS('./js/worker/dataCenter.js');
+			await DataCenter.init();
 		}
-		return;
 	},
 	quests: new Map(),
+	waitForRequest: (url) => new Promise(res => {
+		var list = Barn.quests.get(url);
+		if (!list) {
+			res(null);
+			return;
+		}
+		list.push(res);
+	}),
 	get (url, notStill=false, timestamp=0) {
 		return new Promise(async res => {
 			var cache = await DataCenter.get(Barn.dbName, 'data', url);
@@ -77,44 +85,42 @@ const Barn = {
 				if (!!notStill && timestamp <= cache.update) return;
 			}
 
-			var req = this.quests.get(url);
-			if (!!req) {
-				let data = await req();
+			if (!!Barn.quests.get(url)) {
+				let data = await Barn.waitForRequest(url);
 				if (!cache) res(data);
 			}
 			else {
-				new Promise(async r => {
-					this.quests.set(url, r);
-					var data;
-					try {
-						data = await axios.get(Barn.server + url);
-					}
-					catch (err) {
-						data = null;
-						console.error(err);
-					}
+				Barn.quests.set(url, []);
+				let data;
+				try {
+					data = await axios.get(Barn.server + url);
+				}
+				catch (err) {
+					data = null;
+					console.error(err);
+				}
 
-					if (!!data) data = data.data;
-					if (!!data) {
-						await DataCenter.set(Barn.dbName, 'data', url, {data, update: timestamp || Date.now()});
-						let oldTime = !!cache ? (cache.data.update || 0) : 0;
-						let newTime = data.update || 0;
-						if (newTime > oldTime) {
-							let msg = {
-								latest: newTime,
-								last: oldTime
-							};
-							let isSource = !!url.match(/(^sources|[\\\/]sources)\.json$/i);
-							if (isSource) msg.target = 'SOURCE';
-							else msg.target = url;
-							PageBroadcast.emit('source-updated', msg);
-						}
+				if (!!data) data = data.data;
+				if (!!data) {
+					await DataCenter.set(Barn.dbName, 'data', url, {data, update: timestamp || Date.now()});
+					let oldTime = !!cache ? (cache.data.update || 0) : 0;
+					let newTime = data.update || 0;
+					if (newTime > oldTime) {
+						let msg = {
+							latest: newTime,
+							last: oldTime
+						};
+						let isSource = !!url.match(/(^sources|[\\\/]sources)\.json$/i);
+						if (isSource) msg.target = 'SOURCE';
+						else msg.target = url;
+						PageBroadcast.emit('source-updated', msg);
 					}
+				}
 
-					this.quests.delete(url);
-					if (!cache) res(data);
-					r(data);
-				})
+				let reqs = Barn.quests.get(url);
+				Barn.quests.delete(url);
+				if (!cache) res(data);
+				reqs.forEach(req => req(data));
 			}
 		});
 	},
@@ -233,4 +239,48 @@ window.Granary = {
 	},
 };
 
-Barn.init();
+// 本地书架
+window.BookShelf = {
+	dbName: 'localBookShelf',
+	newLongID () {
+		var id = [];
+		for (let i = 0; i < 32; i ++) {
+			let j = Math.floor(Math.random() * 62);
+			if (j < 10) id.push(j + '');
+			else if (j < 36) id.push(String.fromCharCode(j + 87));
+			else id.push(String.fromCharCode(j + 29));
+		}
+		return id.join('');
+	},
+	async getAllArticles () {
+		return await DataCenter.all(BookShelf.dbName, 'list', 'publish');
+	},
+	async getArticle (id) {
+		return await DataCenter.get(BookShelf.dbName, 'article', id)
+	},
+	async saveArticle (doc) {
+		var info = {
+			id: doc.id,
+			title: doc.title,
+			category: doc.category,
+			author: doc.author,
+			description: doc.description,
+			publish: doc.publish
+		};
+		var data = {
+			id: doc.id,
+			title: doc.title,
+			content: doc.content
+		};
+		await Promise.all([
+			DataCenter.set(BookShelf.dbName, 'list', doc.id, info),
+			DataCenter.set(BookShelf.dbName, 'article', doc.id, data)
+		]);
+	},
+	async removeArticle (id) {
+		await Promise.all([
+			DataCenter.del(BookShelf.dbName, 'list', id),
+			DataCenter.del(BookShelf.dbName, 'article', id)
+		]);
+	},
+};

@@ -39,11 +39,17 @@
 		onUpdate (cb) {
 			this.cbUpdates.push(cb);
 		}
-		open (name, keyPath='id', cacheSize=100) {
+		open (name, keyPath='id', cacheSize=0, indexes) {
 			if (!this.db.objectStoreNames.contains(name)) {
 				let store = this.db.createObjectStore(name, { keyPath });
 				store.createIndex(keyPath, keyPath, { unique: true });
+				if (!!indexes && indexes.length > 0) {
+					indexes.forEach(idx => {
+						store.createIndex(idx, idx, { unique: false });
+					});
+				}
 			}
+			if (cacheSize > 0) this.cache(keyPath, cacheSize);
 		}
 		cache (name, size) {
 			if (!this.caches[name]) {
@@ -58,6 +64,9 @@
 				if (!store) rej(new Error('Open IndexedDB ObjectStore Failed: ' + store));
 
 				var item = {};
+				[...cache.indexNames].forEach(id => {
+					item[id] = value[id];
+				});
 				item[cache.keyPath] = key;
 				item.data = value;
 				var result = cache.put(item);
@@ -95,21 +104,30 @@
 				};
 			});
 		}
-		all (store) {
+		all (store, idx) {
 			return new Promise((res, rej) => {
 				var tx = this.db.transaction([store], "readonly");
 				if (!tx) rej(new Error('Open IndexedDB Transaction Failed: ' + store));
 				var cache = tx.objectStore(store);
 				if (!store) rej(new Error('Open IndexedDB ObjectStore Failed: ' + store));
-				var index = cache.index(cache.keyPath);
+				var index;
+				try {
+					index = cache.index(idx || cache.keyPath);
+				}
+				catch (err) {
+					rej(err);
+					return;
+				}
 
 				var result = index.getAll();
 				result.onsuccess = evt => {
 					var list = evt.target.result;
 					if (!list) return res(list);
-					var result = {};
+					var isPrime = !idx || (idx === cache.keyPath);
+					var result = isPrime ? {} : [];
 					list.forEach(item => {
-						result[item[cache.keyPath]] = item.data
+						if (isPrime) result[item[cache.keyPath]] = item.data;
+						else result.push(item.data);
 					});
 					res(result);
 				};

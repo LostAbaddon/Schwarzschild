@@ -6,7 +6,6 @@ import './assets/js/granary.js';
 import './assets/js/markup.js';
 import './assets/js/markup-footnote.js';
 import './assets/js/imageWall.js';
-import './assets/js/bookshelf.js';
 
 import { createApp, inject } from 'vue';
 import axios from 'axios';
@@ -47,8 +46,8 @@ else document.body.classList.add('notmobile');
 (async () => {
 	if (await LifeCycle.emit.loaded()) {
 		await Promise.all([
+			Barn.init(),
 			InitAsimov(),
-			BookShelf.init()
 		]);
 
 		const app = createApp(App);

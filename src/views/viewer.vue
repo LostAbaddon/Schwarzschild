@@ -66,13 +66,14 @@ export default {
 				action: 'show'
 			});
 
-			var article = this.$route.query.f, timestamp = (this.$route.query.t * 1) || 0;
-			if (!article) {
+			var article = this.$route.query.f, localFile = this.$route.query.l, timestamp = (this.$route.query.t * 1) || 0;
+			if (!article && !localFile) {
 				this.$router.push({path: '/'});
 				return;
 			}
-			var isMU = !!article.match(/\.e?mu$/i);
-			var isEncrypt = !!article.match(/\.em[ud]$/i);
+
+			var isMU = !!localFile || !!article.match(/\.e?mu$/i);
+			var isEncrypt = !localFile && !!article.match(/\.em[ud]$/i);
 			if (isEncrypt && (!window.crypto || !window.crypto.getRandomValues
 				|| !window.crypto.subtle || !window.crypto.subtle.encrypt || !window.crypto.subtle.decrypt)) {
 				this.showLikeCoin = false;
@@ -84,9 +85,12 @@ export default {
 				return;
 			}
 
-			var tasks = [Granary.getArticle(article, timestamp)];
+			var tasks = [];
+			if (!!localFile) tasks.push(BookShelf.getArticle(localFile));
+			else tasks.push(Granary.getArticle(article, timestamp));
 			if (isMU) tasks.push(Granary.getContent('/api/copyright.md'));
 			var [content, copyright] = await Promise.all(tasks);
+			if (!!localFile) content = content.content;
 
 			if (isEncrypt) {
 				content = await this.decrypt(content);

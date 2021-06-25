@@ -36,9 +36,25 @@ self.DataCenter = {
 		await db.connect();
 		DataCenter.resumeWaiters(dbName);
 	},
+	async _initBookShelf () {
+		var dbName = 'localBookShelf';
+		var db = new CachedDB(dbName, 1);
+		DataCenter.dbs.set(dbName, db);
+		db.onUpdate(() => {
+			db.open('article', 'id');
+			db.open('list', 'id', 0, ['publish']);
+			console.log('BookShelf::CacheStorage Updated');
+		});
+		db.onConnect(() => {
+			console.log('BookShelf::CacheStorage Connected');
+		});
+		await db.connect();
+		DataCenter.resumeWaiters(dbName);
+	},
 	async init () {
 		await Promise.all([
-			DataCenter._initAPIData()
+			DataCenter._initAPIData(),
+			DataCenter._initBookShelf()
 		]);
 	},
 	onConnect (db, callback) {
@@ -69,14 +85,14 @@ self.DataCenter = {
 		if (!db.available) return null;
 		return await db.set(store, key, value);
 	},
-	async all (dbName, store) {
+	async all (dbName, store, key) {
 		var db = DataCenter.dbs.get(dbName);
 		if (!db) return null;
 		if (!db.ready) {
 			await DataCenter.waitForReady(dbName);
 		}
 		if (!db.available) return null;
-		return await db.all(store);
+		return await db.all(store, key);
 	},
 	async del (dbName, store, key) {
 		var db = DataCenter.dbs.get(dbName);
@@ -132,6 +148,6 @@ if (!self.window) {
 		self.onmessage = handler(port, self);
 		console.log('Dedicated-Worker DataCenter is READY!');
 	}
-}
 
-DataCenter.init();
+	DataCenter.init();
+}
