@@ -1,5 +1,9 @@
 <template>
-	<section class="column-item" :filename="!!filename?categoryPath+'/'+filename:''" :timestamp="timestamp" :redirect="redirect">
+	<section class="column-item"
+		:filename="!!filename?categoryPath+'/'+filename:''"
+		:timestamp="timestamp"
+		:redirect="redirect"
+		:localID="type==='local'?filename:''">
 		<header>
 			<div class="title">{{title}}</div>
 			<div class="category" :path="categoryPath">{{categoryName}}</div>

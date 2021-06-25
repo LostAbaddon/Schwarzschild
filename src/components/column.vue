@@ -43,26 +43,6 @@ PageBroadcast.on('page-scroll', () => {
 	currColumn.onScroll();
 });
 
-const nameMap = new Map();
-const getName = path => {
-	var name = nameMap.get(path);
-	if (!!name) return name;
-	var m = SiteMap;
-	name = null;
-	path = path.split(/[\\\/]/).filter(p => p.length > 0);
-	path.some((p, i) => {
-		var entry = m[p];
-		if (!entry) return true;
-		m = entry.subs;
-		if (i === path.length - 1) name = entry.name;
-	});
-	if (!!name) {
-		nameMap.set(path, name);
-		return name;
-	}
-	return path.last;
-};
-
 export default {
 	name: "Column",
 	components: {ColumnItem},
@@ -101,7 +81,7 @@ export default {
 			this.list.splice(this.currentPage * this.countPerPage, this.list.length);
 			var articles = await Granary.getCategory(category, this.currentPage);
 			articles.forEach((art) => {
-				art.category = getName(art.sort);
+				art.category = CatePathMap[art.sort] || art.sort;
 				art.placehoding = false;
 				art.timestamp = (new Date(art.publish)).getTime();
 				art.timemark = getTimeString(new Date(art.publish), "YYMMDDhhmm");
@@ -200,8 +180,15 @@ export default {
 					type = 'redirect';
 				}
 				else {
-					filename = ele.getAttribute('filename');
-					type = "article";
+					let localID = ele.getAttribute('localID');
+					if (!!localID) {
+						type = 'local';
+						filename = localID;
+					}
+					else {
+						type = 'article';
+						filename = ele.getAttribute('filename');
+					}
 				}
 				category = ele.getAttribute('path');
 				timestamp = ele.getAttribute('timestamp') * 1;
@@ -215,7 +202,8 @@ export default {
 				}
 			}
 			else if (!!filename) {
-				this.$router.push({path: '/view', query: {f: filename}});
+				if (type === 'local') this.$router.push({path: '/view', query: {l: filename}});
+				else this.$router.push({path: '/view', query: {f: filename}});
 			}
 		},
 		onScroll (evt) {

@@ -151,11 +151,32 @@ window.Granary = {
 		var data = [];
 		if (!sources || !sources.sources) return data;
 		var timestamp = sources.update || 0;
-		await Promise.all(sources.sources.map(async source => {
+		var tasks = sources.sources.map(async source => {
 			var d = await Granary.getSource(source.owner, source.pages, timestamp);
 			d = d.articles.filter(art => art.sort.indexOf(category) === 0);
 			data.push(...d);
-		}));
+		});
+		tasks.push((async () => {
+			var mark = '/' + category;
+			var list = await BookShelf.getAllArticles();
+			list.reverse().forEach(art => {
+				art.category = art.category || [];
+				art.category.forEach(cate => {
+					if (cate.indexOf(mark) !== 0) return;
+					var doc = {
+						type: 'local',
+						title: art.title,
+						author: art.author,
+						description: art.description,
+						filename: art.id,
+						publish: art.publish,
+						sort: cate,
+					};
+					data.push(doc);
+				});
+			});
+		})());
+		await Promise.all(tasks);
 		var articleList = {};
 		data.forEach(art => {
 			var id = null;
@@ -164,6 +185,9 @@ window.Granary = {
 			}
 			else if (art.type === 'redirect') {
 				id = art.target;
+			}
+			else if (art.type === 'local') {
+				id = art.filename;
 			}
 			else return;
 			var old = articleList[id];

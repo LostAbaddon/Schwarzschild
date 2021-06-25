@@ -176,6 +176,9 @@ export default {
 		this.updateMemory();
 
 		global.SiteMap = generateSiteMap(this.menu);
+		global.CatePathMap = {};
+		global.CateNameMap = {};
+		this.generateSiteMap(CatePathMap, CateNameMap, SiteMap);
 	},
 	methods: {
 		toggleHint () {
@@ -285,7 +288,19 @@ export default {
 		},
 		disableFavoriteAction () {
 			this.aboutMenu[0].disabled = true;
-		}
+		},
+		generateSiteMap (mapP2N, mapN2P, siteMap, parent='') {
+			for (let path in siteMap) {
+				if (!path) continue;
+				if (['tools', 'entertain', 'library'].includes(path)) continue;
+				let info = siteMap[path];
+				let p = parent + '/' + path;
+				mapN2P[info.name] = p;
+				mapP2N[p] = info.name;
+				let subs = info.subs;
+				if (!!subs) this.generateSiteMap(mapP2N, mapN2P, subs, p);
+			}
+		},
 	}
 }
 </script>
