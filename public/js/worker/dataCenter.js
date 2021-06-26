@@ -145,7 +145,7 @@ if (!self.window) {
 		console.log('Shared-Worker DataCenter is READY!');
 	}
 	else {
-		self.onmessage = handler(port, self);
+		self.onmessage = handler(self, self);
 		console.log('Dedicated-Worker DataCenter is READY!');
 	}
 

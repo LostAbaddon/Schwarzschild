@@ -36,6 +36,6 @@ if (self.onconnect !== undefined) {
 	console.log('Shared-Worker Asimov is READY!');
 }
 else {
-	self.onmessage = handler(port, self);
+	self.onmessage = handler(self, self);
 	console.log('Dedicated-Worker Asimov is READY!');
 }
