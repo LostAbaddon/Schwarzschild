@@ -66,14 +66,21 @@ export default {
 				action: 'show'
 			});
 
-			var article = this.$route.query.f, localFile = this.$route.query.l, timestamp = (this.$route.query.t * 1) || 0;
-			if (!article && !localFile) {
+			var article = this.$route.query.f, isLocal = false, timestamp = (this.$route.query.t * 1) || 0;
+			if (!article) {
+				article = this.$route.query.l;
+				if (!!article) {
+					isLocal = true;
+					article = article.split('/').last;
+				}
+			}
+			if (!article) {
 				this.$router.push({path: '/'});
 				return;
 			}
 
-			var isMU = !!localFile || !!article.match(/\.e?mu$/i);
-			var isEncrypt = !localFile && !!article.match(/\.em[ud]$/i);
+			var isMU = isLocal || !!article.match(/\.e?mu$/i);
+			var isEncrypt = !isLocal && !!article.match(/\.em[ud]$/i);
 			if (isEncrypt && (!window.crypto || !window.crypto.getRandomValues
 				|| !window.crypto.subtle || !window.crypto.subtle.encrypt || !window.crypto.subtle.decrypt)) {
 				this.showLikeCoin = false;
@@ -86,11 +93,11 @@ export default {
 			}
 
 			var tasks = [];
-			if (!!localFile) tasks.push(BookShelf.getArticle(localFile));
+			if (isLocal) tasks.push(BookShelf.getArticle(article));
 			else tasks.push(Granary.getArticle(article, timestamp));
 			if (isMU) tasks.push(Granary.getContent('/api/copyright.md'));
 			var [content, copyright] = await Promise.all(tasks);
-			if (!!localFile) content = content.content;
+			if (isLocal) content = content.content;
 
 			if (isEncrypt) {
 				content = await this.decrypt(content);
@@ -148,6 +155,16 @@ export default {
 				this.refreshMenu();
 			}
 			document.title = title + ' (' + this.SiteName + ')';
+			if (isLocal) {
+				let header = this.$refs.article.children.item(0);
+				if (!!header) header = header.children.item(0);
+				if (!!header) header = header.nextSibling;
+				if (!!header) {
+					let info = newEle('section', 'localAlert');
+					info.innerHTML = '这是存储在浏览器本地的文件，其它设备与用户无法看到本页内容！';
+					header.parentElement.insertBefore(info, header);
+				}
+			}
 
 			window.PageInfo = window.PageInfo || {};
 			window.PageInfo.title = title;

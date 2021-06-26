@@ -33,7 +33,7 @@ export default {
 			if (path === this.$route.path) PageBroadcast.emit('page-changed', target);
 		},
 		update () {
-			var path = null, type = '';
+			var path = null, type = '', isLocal = !!this.$route.query.l;
 			if (this.$route.path === '/') {
 				path = null;
 			}
@@ -44,8 +44,9 @@ export default {
 				}
 			}
 			else if (this.$route.path === '/view') {
-				if (!!this.$route.query && !!this.$route.query.f) {
-					path = decodeURIComponent(this.$route.query.f).split('/');
+				let filename = this.$route.query.f || this.$route.query.l;
+				if (!!this.$route.query && !!filename) {
+					path = decodeURIComponent(filename).split('/');
 					path.pop();
 					path = path.filter(c => c.length > 0);
 					type = 'view';
@@ -65,6 +66,9 @@ export default {
 			this.path.splice(0, this.path.length);
 			if (type === 'viewer' || type === 'page') path.pop();
 
+			if (isLocal && path.length === 0) {
+				path.push('tools', 'localLibrary');
+			}
 			this.path.push(...(getPathNameList(path)));
 		}
 	},

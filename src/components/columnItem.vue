@@ -3,7 +3,7 @@
 		:filename="!!filename?categoryPath+'/'+filename:''"
 		:timestamp="timestamp"
 		:redirect="redirect"
-		:localID="type==='local'?filename:''">
+		:type="type">
 		<header>
 			<div class="title">{{title}}</div>
 			<div class="category" :path="categoryPath">{{categoryName}}</div>

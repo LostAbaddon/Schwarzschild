@@ -180,15 +180,8 @@ export default {
 					type = 'redirect';
 				}
 				else {
-					let localID = ele.getAttribute('localID');
-					if (!!localID) {
-						type = 'local';
-						filename = localID;
-					}
-					else {
-						type = 'article';
-						filename = ele.getAttribute('filename');
-					}
+					type = ele.getAttribute('type');
+					filename = ele.getAttribute('filename');
 				}
 				category = ele.getAttribute('path');
 				timestamp = ele.getAttribute('timestamp') * 1;

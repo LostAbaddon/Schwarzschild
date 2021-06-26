@@ -960,6 +960,19 @@ article.markup-content div.animate-chart div.animate-chart-replay:before {
 	font-size: 20px;
 }
 
+article.markup-content section.localAlert {
+	padding: 20px 20px;
+	border-left: none;
+	border-top: 5px solid rgb(200, 60, 35);
+	border-bottom: 5px solid rgb(200, 60, 35);
+	background-color: rgb(96, 40, 30);
+	font-family: 黑体,fantasy;
+	font-size: 1.5em;
+	color: rgb(205, 209, 211);
+	text-align: center;
+}
+
+
 #app #footnoteFrame {
 	position: fixed;
 	display: none;
