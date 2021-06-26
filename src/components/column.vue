@@ -81,7 +81,9 @@ export default {
 			this.list.splice(this.currentPage * this.countPerPage, this.list.length);
 			var articles = await Granary.getCategory(category, this.currentPage);
 			articles.forEach((art) => {
-				art.category = CatePathMap[art.sort] || art.sort;
+				var sort = art.sort;
+				if (sort[0] !== '/') sort = '/' + sort;
+				art.category = CatePathMap[sort] || sort;
 				art.placehoding = false;
 				art.timestamp = (new Date(art.publish)).getTime();
 				art.timemark = getTimeString(new Date(art.publish), "YYMMDDhhmm");
