@@ -154,21 +154,21 @@ export default {
 		current = this;
 
 		if (!!this.aboutMe) {
-			this.aboutMenu[2].subs[1] = {
+			this.aboutMenu[3].subs[1] = {
 				name: '关于',
 				type: 'page',
 				category: '',
-				subs: [this.aboutMenu[2].subs[1]]
+				subs: [this.aboutMenu[3].subs[1]]
 			};
-			this.aboutMenu[2].subs[1].subs.unshift({
+			this.aboutMenu[3].subs[1].subs.unshift({
 				name: '本站',
 				type: 'page',
 				category: this.aboutMe
 			});
-			this.aboutMenu[2].subs[1].subs[1].name = '系统';
+			this.aboutMenu[3].subs[1].subs[1].name = '系统';
 		}
 		else {
-			this.aboutMenu[2].subs[1].name = '关于';
+			this.aboutMenu[3].subs[1].name = '关于';
 		}
 		if (memoryMode === 1) {
 			this.memoryMenu.name = '浏览历史';
