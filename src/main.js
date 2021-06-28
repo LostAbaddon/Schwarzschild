@@ -36,6 +36,7 @@ require('./assets/css/column.css');
 require('./assets/css/keyManager.css');
 require('./assets/css/markup.css');
 require('./assets/css/article.css');
+require('./assets/css/search.css');
 
 global.axios = axios;
 global.memoryMode = "[:MemoryMode:]";

@@ -27,32 +27,38 @@ if (useSharedWorker) {
 		get: (dbName, store, key) => new Promise(res => {
 			var tid = generateID();
 			TaskPool.set(tid, res);
-			console.log(workerName + ' start task-' + tid + ': get');
+			console.log(workerName + ' start task-' + tid + ': get : ' + dbName + '/' + store + '/' + key);
 			sendRequest({tid, action: 'get', dbName, store, key});
 		}),
 		set: (dbName, store, key, value) => new Promise(res => {
 			var tid = generateID();
 			TaskPool.set(tid, res);
-			console.log(workerName + ' start task-' + tid + ': set');
+			console.log(workerName + ' start task-' + tid + ': set : ' + dbName + '/' + store + '/' + key);
 			sendRequest({tid, action: 'set', dbName, store, key, value});
 		}),
 		all: (dbName, store, key) => new Promise(res => {
 			var tid = generateID();
 			TaskPool.set(tid, res);
-			console.log(workerName + ' start task-' + tid + ': all');
+			console.log(workerName + ' start task-' + tid + ': all : ' + dbName + '/' + store + '/' + (key || 'default'));
 			sendRequest({tid, action: 'all', dbName, store, key});
 		}),
 		del: (dbName, store, key) => new Promise(res => {
 			var tid = generateID();
 			TaskPool.set(tid, res);
-			console.log(workerName + ' start task-' + tid + ': del');
+			console.log(workerName + ' start task-' + tid + ': del : ' + dbName + '/' + store + '/' + key);
 			sendRequest({tid, action: 'del', dbName, store, key});
 		}),
 		clear: (dbName, store) => new Promise(res => {
 			var tid = generateID();
 			TaskPool.set(tid, res);
-			console.log(workerName + ' start task-' + tid + ': clear');
+			console.log(workerName + ' start task-' + tid + ': clear : ' + dbName + '/' + store);
 			sendRequest({tid, action: 'clear', dbName, store});
+		}),
+		searchArticle: async (command) => new Promise(res => {
+			var tid = generateID();
+			TaskPool.set(tid, res);
+			console.log(workerName + ' start task-' + tid + ': search : ' + command);
+			sendRequest({tid, action: 'searchArticle', command, prefix: [Barn.API, Barn.DataGranary], map: CatePathMap});
 		}),
 	};
 }

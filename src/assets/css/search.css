@@ -1,0 +1,78 @@
+.searchPage {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+.searchPage.controller {
+	position: relative;
+	height: 30px;
+}
+.searchPage.controller .keywords {
+	position: absolute;
+	display: inline-block;
+	box-sizing: border-box;
+	top: 0px;
+	bottom: 0px;
+	left: 0px;
+	right: 100px;
+	padding: 5px 10px;
+	border-bottom: 1px solid rgb(225, 225, 236);
+	outline: none;
+	font-size: 16px;
+	line-height: 16px;
+	color:  rgb(225, 225, 225);
+}
+.searchPage.controller .keywords:empty:before {
+	content: '请输入搜索命令';
+	position: absolute;
+	display: inline-block;
+	top: 0px;
+	left: 10px;
+	color: rgb(225, 225, 236);
+	font-size: 16px;
+	line-height: 30px;
+	pointer-events: none;
+}
+.searchPage.controller .button {
+	position: absolute;
+	right: 10px;
+	width: 80px;
+	height: 30px;
+	line-height: 30px;
+	text-align: center;
+	cursor: pointer;
+}
+
+.searchPage.articleList {
+	min-height: 300px;
+}
+.searchPage.articleList .title {
+	margin-top: 15px;
+	margin-bottom: 5px;
+	font-size: 20px;
+	font-weight: bolder;
+	cursor: default;
+}
+.searchPage.articleList .hint {
+	font-style: italic;
+	cursor: default;
+}
+.searchPage.articleList .article {
+	padding:  5px;
+	cursor: pointer;
+}
+
+.searchPage.commandPad {
+	cursor: default;
+}
+.searchPage.commandPad .title {
+	font-size: 20px;
+	font-weight: bolder;
+}
+.searchPage.commandPad .command {
+	margin-top: 5px;
+	margin-bottom: 5px;
+	padding-left: 10px;
+	font-size: 14px;
+	font-style: italic;
+}

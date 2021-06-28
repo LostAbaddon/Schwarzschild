@@ -101,6 +101,11 @@ export default {
 					disabled: true
 				},
 				{
+					name: '搜索',
+					type: 'page',
+					category: 'search'
+				},
+				{
 					name: '配色',
 					type: 'action',
 					category: 'color',
