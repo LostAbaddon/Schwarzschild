@@ -5,8 +5,12 @@
 		<span class="button" @click="active"><i class="fa fas fa-search"></i>搜索</span>
 	</div>
 	<div class="searchPage articleList">
-		<div class="hint" v-if="match.length===0">无</div>
-		<div class="article" v-for="item in match" @click="openArticle(item)">{{item.title}} （匹配度：{{item.score}}）</div>
+		<div class="title">本地与云端</div>
+		<div class="hint" v-if="result.length===0">无</div>
+		<div class="article" v-for="item in result" @click="openArticle(item)">{{item.title}} （匹配度：{{item.score}}）</div>
+		<div class="title">边缘搜索（<span>{{edgeCount}}</span>）</div>
+		<div class="hint" v-if="remote.length===0">无</div>
+		<div class="article" v-for="item in result" @click="openArticle(item)">{{item.title}} （匹配度：{{item.score}}）</div>
 	</div>
 	<div class="searchPage commandPad">
 		<div class="title">搜索命令</div>
@@ -27,8 +31,9 @@ export default {
 	name: 'Search',
 	data () {
 		return {
-			match: [],
-			related: []
+			result: [],
+			remote: [],
+			edgeCount: 0
 		}
 	},
 	mounted () {
@@ -73,7 +78,7 @@ export default {
 				return;
 			}
 
-			this.match.splice(0, this.match.length, ...list.match);
+			this.result.splice(0, this.result.length, ...list.match);
 			notify({
 				title: '本次搜索用时: ' + list.timeused + 'ms',
 				duration: 2000,
