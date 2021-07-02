@@ -10,7 +10,7 @@
 		<div class="article" v-for="item in result" @click="openArticle(item)">{{item.title}} （匹配度：{{item.score}}）</div>
 		<div class="title">边缘搜索（<span>{{edgeCount}}</span>）</div>
 		<div class="hint" v-if="remote.length===0">无</div>
-		<div class="article" v-for="item in result" @click="openArticle(item)">{{item.title}} （匹配度：{{item.score}}）</div>
+		<div class="article" v-for="item in remote" @click="openArticle(item)">{{item.title}} （匹配度：{{item.score}}）</div>
 	</div>
 	<div class="searchPage commandPad">
 		<div class="title">搜索命令</div>

@@ -63,6 +63,7 @@
 }
 
 .searchPage.commandPad {
+	margin-top: 50px;
 	cursor: default;
 }
 .searchPage.commandPad .title {
