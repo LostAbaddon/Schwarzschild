@@ -46,6 +46,15 @@ PageBroadcast.on('page-changed', async () => {
 	if (!current) return;
 	current.update();
 });
+if (!!window.BroadcastChannel) {
+	let bcch = new BroadcastChannel('local-article-updated');
+	bcch.onmessage = (evt) => {
+		if (!current) return;
+		var data = evt.data;
+		if (!data) return;
+		current.updateLocalArticleSilencely(data);
+	};
+}
 
 export default {
 	name: 'Viewer',
@@ -168,11 +177,11 @@ export default {
 
 			window.PageInfo = window.PageInfo || {};
 			window.PageInfo.title = title;
-			window.PageInfo.url = this.$route.query.f;
+			window.PageInfo.url = this.$route.query.f || this.$route.query.l;
 			PageBroadcast.emit('memory-updated', {
 				type: 'history',
 				title,
-				url: this.$route.query.f
+				url: window.PageInfo.url
 			});
 
 			PageBroadcast.emit('change-loading-hint', {
@@ -424,7 +433,83 @@ export default {
 			localStorage.set('EncryptedContentKeys', keyMap);
 
 			return content;
-		}
+		},
+		async updateLocalArticleSilencely (aid) {
+			var id = this.$route.query.l.split('/').last;
+			console.log(id, aid);
+			if (id !== aid) return;
+			console.log(id);
+
+			PageBroadcast.emit('change-loading-hint', {
+				action: 'show', title: '更新中...'
+			});
+
+			var tasks = [];
+			var [content, copyright] = await Promise.all([
+				BookShelf.getArticle(id),
+				Granary.getContent('/api/copyright.md')
+			]);
+			content = content.content;
+			var container = document.querySelector('#app');
+			var position = !!container ? container.scrollTop : 0;
+
+			var html = '', title = '', hasContent = true;
+			if (!!copyright) {
+				if (!content.match(/(^ *#|\n *#)[ 　\t]*.+/)) {
+					content = "# 正文\n\n" + content;
+				}
+				content = content + '\n\n\n' + copyright;
+			}
+
+			var markup;
+			if (hasContent) {
+				markup = await MarkUp.fullParse(content, {
+					toc: true,
+					glossary: true,
+					resources: false,
+					showtitle: true,
+					showauthor: true,
+					date: Date.now(),
+					classname: 'markup-content',
+				});
+				markup.meta.others = markup.meta.others || {};
+				copyright = markup.meta.others.CopyRight;
+				title = '《' + markup.title + '》';
+				html = markup.content;
+			}
+			this.$refs.article.innerHTML = html;
+			await this.afterMarkUp();
+			this.addLikeCoin(markup.meta.others.LikeCoin);
+			this.refreshMenu(markup);
+			if (!!copyright) {
+				await wait();
+				this.adjustCopyRight(copyright);
+			}
+			document.title = title + ' (' + this.SiteName + ')';
+			let header = this.$refs.article.children.item(0);
+			if (!!header) header = header.children.item(0);
+			if (!!header) header = header.nextSibling;
+			if (!!header) {
+				let info = newEle('section', 'localAlert');
+				info.innerHTML = '这是存储在浏览器本地的文件，其它设备与用户无法看到本页内容！';
+				header.parentElement.insertBefore(info, header);
+			}
+
+			window.PageInfo = window.PageInfo || {};
+			window.PageInfo.title = title;
+			window.PageInfo.url = id;
+			PageBroadcast.emit('memory-updated', {
+				type: 'history',
+				title,
+				url: window.PageInfo.url
+			});
+
+			if (!!container) container.scrollTo(0, position);
+
+			PageBroadcast.emit('change-loading-hint', {
+				action: 'hide'
+			});
+		},
 	},
 	async mounted () {
 		current = this;
