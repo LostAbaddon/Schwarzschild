@@ -436,9 +436,7 @@ export default {
 		},
 		async updateLocalArticleSilencely (aid) {
 			var id = this.$route.query.l.split('/').last;
-			console.log(id, aid);
 			if (id !== aid) return;
-			console.log(id);
 
 			PageBroadcast.emit('change-loading-hint', {
 				action: 'show', title: '更新中...'
