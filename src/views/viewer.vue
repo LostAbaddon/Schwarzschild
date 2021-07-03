@@ -29,7 +29,7 @@ const LicensesContent = {
 	ND: "禁止演绎"
 };
 
-var current = null, timer, lastIVRequest;
+var current = null, timer, lastIVRequest, copyrightContent = null;
 PageBroadcast.on('page-scroll', (data) => {
 	if (!current) return;
 	if (!!timer) {
@@ -46,14 +46,28 @@ PageBroadcast.on('page-changed', async () => {
 	if (!current) return;
 	current.update();
 });
+const onSourceUpdated = msg => {
+	if (!current) return;
+	var cancel = current.updateCloudArticle(msg.target);
+	if (cancel) PageBroadcast.emit('source-updated-cancel-reload');
+};
 if (!!window.BroadcastChannel) {
 	let bcch = new BroadcastChannel('local-article-updated');
 	bcch.onmessage = (evt) => {
 		if (!current) return;
 		var data = evt.data;
 		if (!data) return;
-		current.updateLocalArticleSilencely(data);
+		current.updateEdgeArticle(data);
 	};
+	bcch = new BroadcastChannel('source-updated');
+	bcch.onmessage = (msg) => {
+		onSourceUpdated(msg.data);
+	};
+}
+else {
+	PageBroadcast.on('source-updated', msg => {
+		onSourceUpdated(msg);
+	});
 }
 
 export default {
@@ -75,11 +89,11 @@ export default {
 				action: 'show'
 			});
 
-			var article = this.$route.query.f, isLocal = false, timestamp = (this.$route.query.t * 1) || 0;
+			var article = this.$route.query.f, type = 0;
 			if (!article) {
 				article = this.$route.query.l;
 				if (!!article) {
-					isLocal = true;
+					type = 1;
 					article = article.split('/').last;
 				}
 			}
@@ -88,25 +102,86 @@ export default {
 				return;
 			}
 
-			var isMU = isLocal || !!article.match(/\.e?mu$/i);
-			var isEncrypt = !isLocal && !!article.match(/\.em[ud]$/i);
+			await this.loadArticle(article, type);
+
+			PageBroadcast.emit('change-loading-hint', {action: 'hide'});
+		},
+		async updateEdgeArticle (aid) {
+			var id = this.$route.query.l.split('/').last;
+			if (id !== aid) return;
+
+			PageBroadcast.emit('change-loading-hint', {
+				action: 'show', title: '更新中...'
+			});
+
+			await this.loadArticle(id, 1);
+
+			PageBroadcast.emit('change-loading-hint', {action: 'hide'});
+		},
+		updateCloudArticle (source) {
+			var shouldRefresh = (source === 'SOURCE') || (source === '/' + this.$route.query.f);
+			if (!shouldRefresh) {
+				return !!source.match(/\.e?m[du]$/i);
+			}
+
+			if (source !== 'SOURCE') {
+				notify({
+					title: "本页有更新",
+					duration: 1500,
+					type: "info"
+				});
+			}
+			else {
+				PageBroadcast.emit('change-loading-hint', {
+					name: '更新中……',
+					action: 'show'
+				});
+			}
+			this.loadArticle(this.$route.query.f, 0, true).then(() => {
+				if (source !== 'SOURCE') {
+					PageBroadcast.emit('change-loading-hint', {action: 'hide'});
+					notify({
+						title: "本页有更新",
+						message: "已自动更新内容",
+						duration: 3000,
+						type: "success"
+					});
+				}
+			});
+
+			return true;
+		},
+		async loadArticle (articleID, articleType=0, savePosition=false) {
+			var isCloud = articleType === 0;
+			var isEdge = articleType === 1;
+
+			var container = document.querySelector('#app');
+			var position = !!container ? container.scrollTop : 0;
+
+			var isMU = !isCloud || !!articleID.match(/\.e?mu$/i);
+			var isEncrypt = isCloud && !!articleID.match(/\.em[ud]$/i);
 			if (isEncrypt && (!window.crypto || !window.crypto.getRandomValues
 				|| !window.crypto.subtle || !window.crypto.subtle.encrypt || !window.crypto.subtle.decrypt)) {
 				this.showLikeCoin = false;
 				this.menuList.clear();
 				this.$refs.article.innerText = '<article class="markup-content"><section><p>您的浏览器不支持<span class="english">WebCrypto</span>模块功能，请换用现代浏览器！</p></section></article>';
-				PageBroadcast.emit('change-loading-hint', {
-					action: 'hide'
-				});
 				return;
 			}
 
+			var timestamp = (this.$route.query.t * 1) || 0;
 			var tasks = [];
-			if (isLocal) tasks.push(BookShelf.getArticle(article));
-			else tasks.push(Granary.getArticle(article, timestamp));
-			if (isMU) tasks.push(Granary.getContent('/api/copyright.md'));
+
+			if (isCloud) tasks.push(Granary.getArticle(articleID, timestamp));
+			else if (isEdge) tasks.push(BookShelf.getArticle(articleID));
+
+			if (isMU) {
+				if (!!copyrightContent) tasks.push(() => copyrightContent);
+				else tasks.push(Granary.getContent('/api/copyright.md'));
+			}
+
 			var [content, copyright] = await Promise.all(tasks);
-			if (isLocal) content = content.content;
+			if (!isCloud) content = content.content;
+			if (!copyrightContent && !!copyright) copyrightContent = copyright;
 
 			if (isEncrypt) {
 				content = await this.decrypt(content);
@@ -164,7 +239,7 @@ export default {
 				this.refreshMenu();
 			}
 			document.title = title + ' (' + this.SiteName + ')';
-			if (isLocal) {
+			if (isEdge) {
 				let header = this.$refs.article.children.item(0);
 				if (!!header) header = header.children.item(0);
 				if (!!header) header = header.nextSibling;
@@ -175,17 +250,16 @@ export default {
 				}
 			}
 
+			if (!!container && savePosition) container.scrollTo(0, position);
+
 			window.PageInfo = window.PageInfo || {};
 			window.PageInfo.title = title;
-			window.PageInfo.url = this.$route.query.f || this.$route.query.l;
+			if (isCloud) window.PageInfo.url = this.$route.query.f;
+			else if (isEdge) window.PageInfo.url = 'l=' + this.$route.query.l;
 			PageBroadcast.emit('memory-updated', {
 				type: 'history',
 				title,
 				url: window.PageInfo.url
-			});
-
-			PageBroadcast.emit('change-loading-hint', {
-				action: 'hide'
 			});
 		},
 		adjustCopyRight (copyright) {
@@ -433,80 +507,6 @@ export default {
 			localStorage.set('EncryptedContentKeys', keyMap);
 
 			return content;
-		},
-		async updateLocalArticleSilencely (aid) {
-			var id = this.$route.query.l.split('/').last;
-			if (id !== aid) return;
-
-			PageBroadcast.emit('change-loading-hint', {
-				action: 'show', title: '更新中...'
-			});
-
-			var tasks = [];
-			var [content, copyright] = await Promise.all([
-				BookShelf.getArticle(id),
-				Granary.getContent('/api/copyright.md')
-			]);
-			content = content.content;
-			var container = document.querySelector('#app');
-			var position = !!container ? container.scrollTop : 0;
-
-			var html = '', title = '', hasContent = true;
-			if (!!copyright) {
-				if (!content.match(/(^ *#|\n *#)[ 　\t]*.+/)) {
-					content = "# 正文\n\n" + content;
-				}
-				content = content + '\n\n\n' + copyright;
-			}
-
-			var markup;
-			if (hasContent) {
-				markup = await MarkUp.fullParse(content, {
-					toc: true,
-					glossary: true,
-					resources: false,
-					showtitle: true,
-					showauthor: true,
-					date: Date.now(),
-					classname: 'markup-content',
-				});
-				markup.meta.others = markup.meta.others || {};
-				copyright = markup.meta.others.CopyRight;
-				title = '《' + markup.title + '》';
-				html = markup.content;
-			}
-			this.$refs.article.innerHTML = html;
-			await this.afterMarkUp();
-			this.addLikeCoin(markup.meta.others.LikeCoin);
-			this.refreshMenu(markup);
-			if (!!copyright) {
-				await wait();
-				this.adjustCopyRight(copyright);
-			}
-			document.title = title + ' (' + this.SiteName + ')';
-			let header = this.$refs.article.children.item(0);
-			if (!!header) header = header.children.item(0);
-			if (!!header) header = header.nextSibling;
-			if (!!header) {
-				let info = newEle('section', 'localAlert');
-				info.innerHTML = '这是存储在浏览器本地的文件，其它设备与用户无法看到本页内容！';
-				header.parentElement.insertBefore(info, header);
-			}
-
-			window.PageInfo = window.PageInfo || {};
-			window.PageInfo.title = title;
-			window.PageInfo.url = id;
-			PageBroadcast.emit('memory-updated', {
-				type: 'history',
-				title,
-				url: window.PageInfo.url
-			});
-
-			if (!!container) container.scrollTo(0, position);
-
-			PageBroadcast.emit('change-loading-hint', {
-				action: 'hide'
-			});
 		},
 	},
 	async mounted () {

@@ -284,16 +284,34 @@ LifeCycle.on.initialized((app) => {
 });
 
 var tmrDataUpdated = null;
-const cbDataUpdated = data => {
-	sessionStorage.setItem('sourceUpdated', data.target);
-	location.reload();
-};
-PageBroadcast.on('source-updated', (data) => {
+const onDataUpdated = (msg) => {
+	var url = msg.target;
 	if (!!tmrDataUpdated) {
 		clearTimeout(tmrDataUpdated);
 	}
 	tmrDataUpdated = setTimeout(() => {
 		tmrDataUpdated = null;
-		cbDataUpdated(data);
-	}, 100);
+		cbDataUpdated(url);
+	}, 500);
+};
+const cbDataUpdated = (url) => {
+	sessionStorage.setItem('sourceUpdated', url);
+	location.reload();
+};
+if (!!window.BroadcastChannel) {
+	let bcch = new BroadcastChannel('source-updated');
+	bcch.onmessage = (msg) => {
+		onDataUpdated(msg.data);
+	};
+}
+else {
+	PageBroadcast.on('source-updated', msg => {
+		onDataUpdated(msg);
+	});
+}
+PageBroadcast.on('source-updated-cancel-reload', () => {
+	if (!!tmrDataUpdated) {
+		clearTimeout(tmrDataUpdated);
+		tmrDataUpdated = null;
+	}
 });

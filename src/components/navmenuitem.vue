@@ -31,7 +31,14 @@ export default {
 			}
 			else if (type === 'article') {
 				target.path = '/view';
-				target.query = {f: action.last};
+				let p = action.last;
+				let m = p.match(/^l=/);
+				if (!!m) {
+					target.query = {l: p.substring(2)};
+				}
+				else {
+					target.query = {f: p};
+				}
 			}
 			else if (type === 'url') {
 				location.href = location.origin + action.last;

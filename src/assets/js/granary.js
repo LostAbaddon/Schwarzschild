@@ -111,22 +111,32 @@ window.Barn = {
 					await DataCenter.set(Barn.dbName, 'data', url, {data, update: timestamp || Date.now()});
 					let oldTime = !!cache ? (cache.data.update || 0) : 0;
 					let newTime = data.update || 0;
-					if (newTime > oldTime) {
+					if (newTime > oldTime || (data.update === undefined)) {
 						let msg = {
 							latest: newTime,
 							last: oldTime
 						};
 						let isSource = !!url.match(/(^sources|[\\\/]sources)\.json$/i);
 						if (isSource) msg.target = 'SOURCE';
-						else msg.target = url;
-						PageBroadcast.emit('source-updated', msg);
+						else {
+							if (url.indexOf(Barn.DataGranary) === 0) url = url.replace(Barn.DataGranary, '');
+							msg.target = url;
+						}
+
+						if (!!window.BroadcastChannel) {
+							let bcch = new BroadcastChannel('source-updated');
+							bcch.postMessage(msg);
+						}
+						else {
+							PageBroadcast.emit('source-updated', msg);
+						}
 					}
 				}
 
 				let reqs = Barn.quests.get(url);
 				Barn.quests.delete(url);
 				if (!cache) res(data);
-				reqs.forEach(req => req(data));
+				if (!!reqs) reqs.forEach(req => req(data));
 			}
 		});
 	},
