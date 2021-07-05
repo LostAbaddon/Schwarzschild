@@ -107,7 +107,7 @@ export default {
 			PageBroadcast.emit('change-loading-hint', {action: 'hide'});
 		},
 		async updateEdgeArticle (aid) {
-			var id = this.$route.query.l.split('/').last;
+			var id = (this.$route.query.l || '').split('/').last;
 			if (id !== aid) return;
 
 			PageBroadcast.emit('change-loading-hint', {
@@ -130,8 +130,6 @@ export default {
 					duration: 1500,
 					type: "info"
 				});
-			}
-			else {
 				PageBroadcast.emit('change-loading-hint', {
 					name: '更新中……',
 					action: 'show'
@@ -154,9 +152,6 @@ export default {
 		async loadArticle (articleID, articleType=0, savePosition=false) {
 			var isCloud = articleType === 0;
 			var isEdge = articleType === 1;
-
-			var container = document.querySelector('#app');
-			var position = !!container ? container.scrollTop : 0;
 
 			var isMU = !isCloud || !!articleID.match(/\.e?mu$/i);
 			var isEncrypt = isCloud && !!articleID.match(/\.em[ud]$/i);
@@ -223,9 +218,11 @@ export default {
 					hasContent = false;
 				}
 			}
+			var container = document.querySelector('#app');
+			var position = !!container ? container.scrollTop : 0;
 			this.$refs.article.innerHTML = html;
 			if (hasContent) {
-				await this.afterMarkUp();
+				this.afterMarkUp();
 				this.addLikeCoin(markup.meta.others.LikeCoin);
 				this.refreshMenu(markup);
 				if (!!copyright && isMU) {
