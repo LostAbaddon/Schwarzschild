@@ -208,16 +208,18 @@ article.markup-content pre code {
 	word-wrap: normal;
 	background-color: transparent;
 	box-shadow: none;
-	list-style: decimal;
+	/*list-style: decimal;*/
+	counter-reset: list-number;
 }
 article.markup-content pre code p {
-	display: list-item;
+	/*display: list-item;*/
 	margin: 0px;
 	padding: 0px;
 	font-family: cursive;
 	font-size: 14px;
 	line-height: 18px;
 	color: rgb(226, 225, 228);
+	counter-increment: list-number;
 }
 article.markup-content pre[lang="plaintext"] code p {
 	font-family: fangsong;
@@ -226,6 +228,19 @@ article.markup-content pre[lang="plaintext"] code p {
 	color: rgb(250, 214, 137);
 }
 article.markup-content pre code p::marker {
+	content: counter(list-number);
+	font-size: 12px;
+	font-family: monospace;
+	unicode-bidi: isolate;
+	font-variant-numeric: tabular-nums;
+	color: rgb(102, 169, 201);
+}
+article.markup-content pre code p::before {
+	content: counter(list-number);
+	position: relative;
+	display: inline-block;
+	width: 0px;
+	left: -25px;
 	font-size: 12px;
 	font-family: monospace;
 	unicode-bidi: isolate;
