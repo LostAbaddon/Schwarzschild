@@ -170,7 +170,7 @@ export default {
 			else if (isEdge) tasks.push(BookShelf.getArticle(articleID));
 
 			if (isMU) {
-				if (!!copyrightContent) tasks.push(async () => copyrightContent);
+				if (!!copyrightContent) tasks.push((async () => copyrightContent)());
 				else tasks.push(Granary.getContent('/api/copyright.md'));
 			}
 
