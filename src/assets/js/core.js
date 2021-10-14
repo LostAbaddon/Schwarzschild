@@ -315,3 +315,23 @@ PageBroadcast.on('source-updated-cancel-reload', () => {
 		tmrDataUpdated = null;
 	}
 });
+
+// Window Resize
+
+(() => {
+	var lastW = window.innerWidth, lastH = window.innerHeight;
+	var timer = null;
+	const onResize = () => {
+		if (!!timer) clearTimeout(timer);
+		timer = null;
+		var w = window.innerWidth, h = window.innerHeight;
+		if (w === lastW && h === lastH) return;
+		lastW = w;
+		lastH = h;
+		PageBroadcast.emit('page-resize', w, h);
+	};
+	window.addEventListener('resize', () => {
+		if (!!timer) clearTimeout(timer);
+		timer = setTimeout(onResize, 100);
+	});
+}) ();
