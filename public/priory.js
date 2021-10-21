@@ -21,7 +21,7 @@ const prepare = async () => {
 		});
 	}
 };
-// prepare();
+if (!CacheAfterLoad) prepare();
 
 const cacheResource = async (req, res) => {
 	var cache = await caches.open(CacheName);
@@ -32,6 +32,7 @@ self.addEventListener('install', evt => {
 	console.log('[:>  SW Installed <:]');
 	evt.waitUntil(async () => {
 		await caches.delete(CacheName);
+		console.log('[:>  SW removed cache (' + CacheName + ') <:]');
 		var cache = await caches.open(CacheName);
 		await cache.addAll(CacheUrl);
 	});
