@@ -6,6 +6,7 @@ const CacheUrl = [
 	'/favicon.ico',
 	'/webapp.json',
 ];
+var CacheAfterLoad = true;
 
 const prepare = async () => {
 	var keys = await caches.keys();
@@ -45,14 +46,24 @@ self.addEventListener('fetch', evt => {
 	pathname.pop();
 	pathname = pathname.join('/');
 	if (filename === 'priory.js') return;
+	if (pathname.match(/\bapi\b/i) && filename.match(/\.(json|mu|md)/i)) return;
 	if (filename.match(/(mp3|mp4|wav|avi|rm|rmvb)$/i)) return;
 	if (filename.match(/hot-update\.json/i)) return;
 	if (!!pathname.match(/^[\/\\]*api[\/\\]/i) || !!pathname.match(/^[\/\\]*api$/i)) return;
 	// if (!fullpath.match(/^\/*#\/+|^\/*#$/)) caches.open(CacheName).then(cache => cache.add(fullpath)); // 将适合的请求都缓存起来
-	if (!CacheUrl.includes(fullpath)) caches.open(CacheName).then(cache => {
-		cache.add(fullpath);
-		CacheUrl.push(fullpath);
-	}); // 将适合的请求都缓存起来
+	if (CacheAfterLoad) {
+		// 获取后缓存
+		caches.open(CacheName).then(cache => {
+			cache.add(fullpath);
+		});
+	}
+	else {
+		// 直接读取缓存
+		if (!CacheUrl.includes(fullpath)) caches.open(CacheName).then(cache => {
+			cache.add(fullpath);
+			CacheUrl.push(fullpath);
+		});
+	}
 	evt.respondWith(caches.match(evt.request).then(cache => {
 		if (cache) {
 			return cache;
