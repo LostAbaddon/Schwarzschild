@@ -48,7 +48,7 @@ self.addEventListener('fetch', evt => {
 	if (filename === 'priory.js') return;
 	if (pathname.match(/\bapi\b/i) && filename.match(/\.(json|mu|md)/i)) return;
 	if (filename.match(/(mp3|mp4|wav|avi|rm|rmvb)$/i)) return;
-	if (filename.match(/hot-update\.json/i)) return;
+	if (filename.match(/hot-update\.js/i)) return;
 	if (!!pathname.match(/^[\/\\]*api[\/\\]/i) || !!pathname.match(/^[\/\\]*api$/i)) return;
 	// if (!fullpath.match(/^\/*#\/+|^\/*#$/)) caches.open(CacheName).then(cache => cache.add(fullpath)); // 将适合的请求都缓存起来
 	if (CacheAfterLoad) {
