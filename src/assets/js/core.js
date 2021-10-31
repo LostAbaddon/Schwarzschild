@@ -82,8 +82,8 @@ window.EventEmitter = class EventEmitter {
 }
 window.PageBroadcast = new EventEmitter();
 
-localStorage.__proto__.get = (key, def={}) => {
-	var item = localStorage.getItem(key);
+localStorage.__proto__.get = function (key, def={}) {
+	var item = this.getItem(key);
 	if (!item) return def;
 	try {
 		item = JSON.parse(item);
@@ -93,9 +93,36 @@ localStorage.__proto__.get = (key, def={}) => {
 	}
 	return item;
 };
-localStorage.__proto__.set = (key, value) => {
+localStorage.__proto__.set = function (key, value) {
 	value = JSON.stringify(value);
-	localStorage.setItem(key, value);
+	this.setItem(key, value);
+};
+localStorage.__proto__.getWithExpire = function (key, delay, def={}) {
+	if (typeof delay !== 'number') {
+		def = delay;
+		delay = Infinity;
+	}
+
+	var item = this.getItem(key);
+	if (!item) return def;
+	try {
+		item = JSON.parse(item);
+	}
+	catch (err) {
+		return def;
+	}
+
+	var duration = Date.now() - (item.stamp || 0);
+	if (duration > delay) {
+		this.removeItem(key);
+		return def;
+	}
+	return item.value;
+};
+localStorage.__proto__.setWithExpire = function (key, value) {
+	value = {value, stamp: Date.now()};
+	value = JSON.stringify(value);
+	this.setItem(key, value);
 };
 
 window.loadJS = (filepath) => new Promise(res => {
