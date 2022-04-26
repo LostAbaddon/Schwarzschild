@@ -1025,4 +1025,5 @@ article.markup-content section.localAlert {
 
 .MathJax > nobr > span.math > span:empty {
 	visibility: hidden !important;
+	border-left: none !important;
 }

@@ -297,7 +297,6 @@ export default {
 		generateSiteMap (mapP2N, mapN2P, siteMap, parent='') {
 			for (let path in siteMap) {
 				if (!path) continue;
-				if (['tools', 'entertain', 'library'].includes(path)) continue;
 				let info = siteMap[path];
 				let p = parent + '/' + path;
 				mapN2P[info.name] = p;
