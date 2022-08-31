@@ -172,6 +172,15 @@ window.getBrowserInfo = () => {
 		shellVs = testVs(/bidubrowser [\d.]+/ig);
 	}
 
+	var isStandAlone = false;
+	if (navigator.standalone !== undefined) {
+		isStandAlone = !!navigator.standalone;
+	}
+	else {
+		isStandAlone = window.matchMedia('(display-mode: standalone)').matches;
+	}
+
+
 	return Object.assign({
 		engine, // webkit gecko presto trident
 		engineVs,
@@ -179,7 +188,8 @@ window.getBrowserInfo = () => {
 		supporter, // chrome safari firefox opera iexplore edge
 		supporterVs,
 		system, // windows osx linux android ios
-		systemVs
+		systemVs,
+		isStandAlone
 	}, shell === "none" ? {} : {
 		shell, // wechat qq uc 2345 sougou liebao maxthon baidu
 		shellVs
