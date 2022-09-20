@@ -61,7 +61,7 @@ export default {
 		async getHeaderInfo (category) {
 			var info = await Granary.getColumnHeader(category);
 			var content = '';
-			if (!!info) {
+			if (!!info && info.ok !== false) {
 				content = await MarkUp.parse(info, {
 					toc: false,
 					glossary: false,
