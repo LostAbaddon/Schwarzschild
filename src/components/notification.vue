@@ -38,7 +38,7 @@ export default {
 	},
 	methods: {
 		async showMessage (msg) {
-			if (String.is(msg)) msg = {message: msg};
+			if (String.is(msg)) msg = {title: msg};
 			var duration = msg.duration || 3000;
 			var key = Math.floor(10000000000 * Math.random());
 			msg.key = key;
