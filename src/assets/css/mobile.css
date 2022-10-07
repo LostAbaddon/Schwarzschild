@@ -119,6 +119,7 @@
 	width: auto;
 	height: 50px;
 	background-color: transparent;
+	backdrop-filter: none;
 	box-shadow: none;
 }
 .mobile .nav-bar:hover {
