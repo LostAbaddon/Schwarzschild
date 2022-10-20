@@ -72,6 +72,14 @@ else document.body.classList.add('notmobile');
 			app.use(router).mount('#app');
 			router.app = app;
 
+			document.body.addEventListener('keydown', evt => {
+				if (evt.key === 's' && evt.ctrlKey) {
+					router.push({
+						path: '/search'
+					});
+					evt.preventDefault();
+				}
+			});
 			await LifeCycle.emit.initialized(app);
 
 			let updateTarget = sessionStorage.getItem('sourceUpdated');

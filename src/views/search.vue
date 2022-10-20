@@ -40,8 +40,7 @@ export default {
 		PageBroadcast.emit('change-loading-hint', {
 			action: 'hide'
 		});
-	},
-	unmounted () {
+		this.$refs.searchCommand.focus();
 	},
 	methods: {
 		active (evt) {
