@@ -19,7 +19,7 @@ const findWall = ele => {
 	var tag = parent.tagName;
 	if (!tag) return null;
 	tag = tag.toLowerCase();
-	if (tag === 'figuren') return findWall(parent);
+	if (tag === 'figure') return findWall(parent);
 	if (tag !== 'div') return null;
 	if (parent.classList.contains('image-wall')) return parent;
 	return findWall(parent);
@@ -97,13 +97,26 @@ export default {
 		document.body.addEventListener('keydown', evt => {
 			if (!this.show) return;
 			if (evt.keyCode === 37) {
-				if (this.index > 0) this.index --;
+				if (evt.ctrlKey) {
+					this.index = 0;
+				}
+				else if (this.index > 0) {
+					this.index --;
+				}
 			}
 			else if (evt.keyCode === 39) {
-				if (this.index < this.gallary.length - 1) this.index ++;
+				if (evt.ctrlKey) {
+					this.index = this.gallary.length - 1;
+				}
+				else if (this.index < this.gallary.length - 1) {
+					this.index ++;
+				}
 			}
 			else if (evt.keyCode === 27) {
 				this.show = false;
+			}
+			else {
+				return;
 			}
 			evt.preventDefault();
 		});
@@ -153,8 +166,7 @@ export default {
 		},
 		showGallary (index, gallary) {
 			this.index = index;
-			this.gallary.splice(0, this.gallary.length);
-			gallary.forEach(g => this.gallary.push(g));
+			this.gallary.splice(0, this.gallary.length, ...gallary);
 			this.show = true;
 		}
 	}

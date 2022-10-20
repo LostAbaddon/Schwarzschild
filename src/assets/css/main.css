@@ -216,6 +216,9 @@ a, a:hover, a:visited {
 	text-shadow: 1px 1px 3px rgba(85, 66, 54, 0.6);
 	text-align: center;
 }
+.imageShowcase .imageFrame .imagePage .imageLegend:empty {
+	display: none;
+}
 .imageShowcase .imageButton {
 	position: absolute;
 	top: 50%;

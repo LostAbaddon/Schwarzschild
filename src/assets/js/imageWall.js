@@ -126,16 +126,18 @@
 					var rateHeight = img.naturalHeight;
 					if (img.naturalHeight / img.naturalWidth > ImageWall.whRate) {
 						fig.classList.add('tall');
-						fig.style.width = (100 * img.naturalWidth / img.naturalHeight * ImageWall.whRate) + '%';
-						fig.style.paddingTop = (100 * ImageWall.whRate) + '%';
+						// fig.style.width = (100 * img.naturalWidth / img.naturalHeight * ImageWall.whRate) + '%';
+						// fig.style.paddingTop = (100 * ImageWall.whRate) + '%';
 						rateHeight = img.naturalWidth * ImageWall.whRate;
 						rateWidth = rateHeight * img.naturalWidth / img.naturalHeight;
 					}
 					else {
 						fig.classList.remove('tall');
-						fig.style.width = '100%';
-						fig.style.paddingTop = (100 * img.naturalHeight / img.naturalWidth) + '%';
+						// fig.style.width = '100%';
+						// fig.style.paddingTop = (100 * img.naturalHeight / img.naturalWidth) + '%';
 					}
+					fig.style.width = '100%';
+					fig.style.height = '100%';
 
 					if (!!div._wall) {
 						div._ready = true;
