@@ -127,6 +127,7 @@ article.markup-content p {
 	margin: 10px 0px;
 	padding-left: 20px;
 	line-height: 1.5;
+	text-align: justify;
 }
 article.markup-content p.indent.indent-1 {
 	text-indent: 1em;
@@ -449,6 +450,14 @@ article.markup-content div.resource.outside {
 	max-width: 100%;
 	margin-left: auto;
 	margin-right: auto;
+}
+article.markup-content div.resource.outside.float-left {
+	max-width: 40%;
+	margin-right: 10px;
+}
+article.markup-content div.resource.outside.float-right {
+	max-width: 40%;
+	margin-left: 10px;
 }
 article.markup-content div.resource figure.loaded {
 	height: 0px;
