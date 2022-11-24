@@ -82,6 +82,18 @@ router.afterEach((to, from) => {
 	range.setEnd(app, 0);
 	selection.removeAllRanges();
 	selection.addRange(range);
+
+	var queryPath = to.path;
+	if (to.name === 'Category') {
+		queryPath = queryPath + '/' + to.query.c.replace(/,/g, '/');
+	}
+	else if (to.name === 'Viewer') {
+		queryPath = queryPath + '/' + to.query.f;
+	}
+	if (!!window.ga) {
+		ga('set', 'page', queryPath);
+		ga('send', 'pageview');
+	}
 });
 
 export default router;
