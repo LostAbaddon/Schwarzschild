@@ -83,6 +83,7 @@ router.afterEach((to, from) => {
 	selection.removeAllRanges();
 	selection.addRange(range);
 
+	// GA CMS
 	var queryPath = to.path;
 	if (to.name === 'Category') {
 		queryPath = queryPath + '/' + to.query.c.replace(/,/g, '/');
@@ -90,9 +91,15 @@ router.afterEach((to, from) => {
 	else if (to.name === 'Viewer') {
 		queryPath = queryPath + '/' + to.query.f;
 	}
-	if (!!window.ga) {
-		ga('set', 'page', queryPath);
-		ga('send', 'pageview');
+	if (!!window.gtag) {
+		setTimeout(() => {
+			gtag('event', 'page_view', {
+				'send_to': gaid,
+				'page_location': location.origin,
+				'page_title': document.title,
+				'page_path': queryPath
+			});
+		}, 1000);
 	}
 });
 
