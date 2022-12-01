@@ -63,6 +63,7 @@ export default {
 				title: '搜索中……'
 			});
 
+			console.log('Search: ' + command);
 			var list = await DataCenter.searchArticle(command);
 			if (list instanceof Error) {
 				PageBroadcast.emit('change-loading-hint', {
@@ -75,6 +76,12 @@ export default {
 					type: "error"
 				});
 				return;
+			}
+			if (!!window.gtag) {
+				gtag('event', 'search', {
+					'send_to': gaid,
+					'search_term': command
+				});
 			}
 
 			this.result.splice(0, this.result.length, ...list.match);
