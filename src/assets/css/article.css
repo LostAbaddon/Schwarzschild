@@ -1,8 +1,11 @@
 div#container div.container article header p.author:before {
 	content: '作者：';
 }
-div#container div.container article header p.author.date:before {
+div#container div.container article header p.author.publish:before {
 	content: '发表于：';
+}
+div#container div.container article header p.author.update:before {
+	content: '更新于：';
 }
 
 div#container div.likeCoinArea {
