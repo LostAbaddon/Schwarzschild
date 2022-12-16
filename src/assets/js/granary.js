@@ -310,10 +310,8 @@ window.BookShelf = {
 			DataCenter.set(BookShelf.dbName, 'list', doc.id, info),
 			DataCenter.set(BookShelf.dbName, 'article', doc.id, data)
 		]);
-		if (!!window.BroadcastChannel) {
-			let bcch = new BroadcastChannel('local-article-updated');
-			bcch.postMessage(doc.id);
-		}
+
+		PageBroadcast.emit('source-updated', doc.id);
 	},
 	async removeArticle (id) {
 		await Promise.all([
