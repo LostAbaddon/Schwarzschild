@@ -51,24 +51,9 @@ const onSourceUpdated = msg => {
 	var cancel = current.updateCloudArticle(msg.target);
 	if (cancel) PageBroadcast.emit('source-updated-cancel-reload');
 };
-if (!!window.BroadcastChannel) {
-	let bcch = new BroadcastChannel('local-article-updated');
-	bcch.onmessage = (evt) => {
-		if (!current) return;
-		var data = evt.data;
-		if (!data) return;
-		current.updateEdgeArticle(data);
-	};
-	bcch = new BroadcastChannel('source-updated');
-	bcch.onmessage = (msg) => {
-		onSourceUpdated(msg.data);
-	};
-}
-else {
-	PageBroadcast.on('source-updated', msg => {
-		onSourceUpdated(msg);
-	});
-}
+PageBroadcast.on('source-updated', msg => {
+	onSourceUpdated(msg);
+});
 
 export default {
 	name: 'Viewer',

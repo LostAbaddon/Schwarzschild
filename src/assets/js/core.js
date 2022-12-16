@@ -325,17 +325,9 @@ const cbDataUpdated = (url) => {
 	sessionStorage.setItem('sourceUpdated', url);
 	location.reload();
 };
-if (!!window.BroadcastChannel) {
-	let bcch = new BroadcastChannel('source-updated');
-	bcch.onmessage = (msg) => {
-		onDataUpdated(msg.data);
-	};
-}
-else {
-	PageBroadcast.on('source-updated', msg => {
-		onDataUpdated(msg);
-	});
-}
+PageBroadcast.on('source-updated', msg => {
+	onDataUpdated(msg);
+});
 PageBroadcast.on('source-updated-cancel-reload', () => {
 	if (!!tmrDataUpdated) {
 		clearTimeout(tmrDataUpdated);

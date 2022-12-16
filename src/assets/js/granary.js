@@ -123,13 +123,7 @@ window.Barn = {
 							msg.target = url;
 						}
 
-						if (!!window.BroadcastChannel) {
-							let bcch = new BroadcastChannel('source-updated');
-							bcch.postMessage(msg);
-						}
-						else {
-							PageBroadcast.emit('source-updated', msg);
-						}
+						PageBroadcast.emit('source-updated', msg);
 					}
 				}
 
