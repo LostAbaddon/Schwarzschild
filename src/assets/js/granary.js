@@ -8,21 +8,28 @@ window.useSharedWorker = !!window.SharedWorker;
 // 只在有共享线程的情况下使用，否则切换到页面线程再切换回来还不如直接页面内调用数据库
 if (useSharedWorker) {
 	let TaskPool = new Map();
-	let generateID = () => Math.floor(Math.random() * 100000000);
 
-	let workerName = 'Shared-Worker DataCenter';
-	let dataWorker = new SharedWorker('/js/worker/dataCenter.js');
-	let workerPort = dataWorker.port;
-	workerPort.onmessage = ({data}) => {
-		console.log(workerName + ' finished task-' + data.tid);
-		var res = TaskPool.get(data.tid);
-		TaskPool.delete(data.tid);
-		if (!res) return;
-		res(data.result);
+	let workerPort, workerName = 'Shared-Worker DataCenter';
+	let prepareWorker = () => {
+		var dataWorker = new SharedWorker('/js/worker/dataCenter.js');
+		workerPort = dataWorker.port;
+		workerPort.onmessage = ({data}) => {
+			console.log(workerName + ' finished task-' + data.tid);
+			var res = TaskPool.get(data.tid);
+			TaskPool.delete(data.tid);
+			if (!res) return;
+			res(data.result);
+		};
+	};
+	let stopWorker = () => {
+		sendRequest('suicide');
+		workerPort.close();
 	};
 	let sendRequest = req => {
 		workerPort.postMessage(req);
 	};
+	prepareWorker();
+
 	window.DataCenter = {
 		get: (dbName, store, key) => new Promise(res => {
 			var tid = generateID();
@@ -61,6 +68,11 @@ if (useSharedWorker) {
 			sendRequest({tid, action: 'searchArticle', command, prefix: [Barn.API, Barn.DataGranary], map: CatePathMap});
 		}),
 	};
+
+	PageBroadcast.on('source-updated', () => {
+		stopWorker();
+		prepareWorker();
+	});
 }
 
 window.Barn = {

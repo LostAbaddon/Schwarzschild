@@ -143,6 +143,14 @@ window.loadCSS = (filepath) => new Promise(res => {
 	document.body.appendChild(css);
 });
 
+window.generateID = (len=8) => {
+	var id = [];
+	for (let i = 0; i < len; i ++) {
+		id.push(Math.floor(Math.random() * 36).toString(36));
+	}
+	return id.join('');
+};
+
 window.utf8tobase64 = str => window.btoa(window.unescape(window.encodeURIComponent(str)));
 window.base64toutf8 = str => window.decodeURIComponent(window.escape(window.atob(str)));
 window.base64tobuffer = str => {
