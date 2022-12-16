@@ -4,6 +4,9 @@ const Crypto = require('crypto').webcrypto.subtle;
 const VueService = require('@vue/cli-service');
 const ESBuild = require('esbuild');
 
+global.MarkUp = require('Asimov');
+require('Asimov/extensions.js');
+
 require("jLAss");
 loadjLAssModule('fs');
 loadjLAssModule('commandline');
@@ -709,7 +712,7 @@ Schwarzschild.appendFile = async (filename, category, title, author, timestamp, 
 	}
 
 	// 如果必须信息都外部输入
-	var content, description, text = [];
+	var content;
 	try {
 		content = await FS.readFile(filename);
 		content = content.toString();
@@ -723,63 +726,15 @@ Schwarzschild.appendFile = async (filename, category, title, author, timestamp, 
 		}
 		return;
 	}
-	content = content.split(/[\n\r]+/);
-	content.some(line => {
-		var m = line.match(/^(标题|title)[：:] *(.+)/i);
-		if (!!m) {
-			if (!hasTT) {
-				title = m[2];
-				hasTT = true;
-			}
-			return hasTT && hasAU && hasDT && !!description;
-		}
+	content = MarkUp.fullPlainify(content);
 
-		m = line.match(/^(作者|author)[：:] *(.+)/i);
-		if (!!m) {
-			if (!hasAU) {
-				author = m[2];
-				hasAU = true;
-			}
-			return hasTT && hasAU && hasDT && !!description;
-		}
-
-		m = line.match(/^(更新|date)[：:] *(.+)/i);
-		if (!!m) {
-			if (!hasDT) {
-				try {
-					let t = new Date(m[2]);
-					timestamp = t;
-					hasAU = true;
-				} catch {}
-			}
-			return hasTT && hasAU && hasDT && !!description;
-		}
-
-		m = line.match(/^(简介|description)[：:] *(.+)/i);
-		if (!!m) {
-			if (!description) {
-				description = m[2];
-			}
-			return hasTT && hasAU && hasDT && !!description;
-		}
-
-		m = line.match(/^(关键词|keyword)[：:] *(.+)/i);
-		if (!!m) {
-			return hasTT && hasAU && hasDT && !!description;
-		}
-
-		text.push(line);
-	});
 	// 自动生成摘要
-	if (!description) {
-		text = text.map(t => t.replace(/\(.*\)/g, '')).join('');
-		text = text.match(/([^\x00-\xff]|[a-zA-Z0-9]| )+/g);
-		text = text.join(' ');
-		text = text.replace(/ +/g, ' ');
-		if (text.length > 150) text = text.substring(0, 148) + "……";
-		description = text;
+	var description = content.content;
+	if (description > 150) description = description.substring(0, 148) + "……";
+	author = author || content.meta.author || Schwarzschild.config.owner;
+	if (!timestamp && (content.meta.update || content.meta.publish)) {
+		timestamp = new Date(content.meta.update || content.meta.publish);
 	}
-	author = author || Schwarzschild.config.owner;
 	timestamp = timestamp || new Date();
 
 	// 加密文件
