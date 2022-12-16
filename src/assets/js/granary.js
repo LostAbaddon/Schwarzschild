@@ -311,7 +311,7 @@ window.BookShelf = {
 			DataCenter.set(BookShelf.dbName, 'article', doc.id, data)
 		]);
 
-		PageBroadcast.emit('source-updated', doc.id);
+		PageBroadcast.emit('local-article-updated', doc.id);
 	},
 	async removeArticle (id) {
 		await Promise.all([
