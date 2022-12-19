@@ -39,19 +39,32 @@ self.addEventListener('install', evt => {
 });
 self.addEventListener('fetch', evt => {
 	if (evt.request.method !== 'GET') return;
-	if (!evt.request.url.match(/^https?:\/\//i)) return;
-	if (evt.request.url.indexOf(self.location.origin) < 0) return;
+
+	// 只缓存本站资源
+	// if (!evt.request.url.match(/^https?:\/\//i)) return;
+	// if (evt.request.url.indexOf(self.location.origin) < 0) return;
+
 	var fullpath = evt.request.url.replace(self.location.origin, '');
 	var pathname = fullpath.split('/');
 	var filename = pathname[pathname.length - 1];
 	pathname.pop();
 	pathname = pathname.join('/');
-	if (filename === 'priory.js') return;
-	if (pathname.match(/\bapi\b/i) && filename.match(/\.(json|mu|md)/i)) return;
-	if (filename.match(/(mp3|mp4|wav|avi|rm|rmvb)$/i)) return;
+	filetype = filename.match(/\.([^\\\/\?]+)(\?[^\\\/]+)?$/);
+	if (!!filetype) filetype = filetype[1].toLowerCase();
+
+	if (!pathname.match(/^(\/|\\|https?|ftps?)/i)) return;
 	if (filename.match(/hot-update\.js/i)) return;
-	if (!!pathname.match(/^[\/\\]*api[\/\\]/i) || !!pathname.match(/^[\/\\]*api$/i)) return;
-	// if (!fullpath.match(/^\/*#\/+|^\/*#$/)) caches.open(CacheName).then(cache => cache.add(fullpath)); // 将适合的请求都缓存起来
+	if (filename.match(/priory\.js/i)) return;
+	if (['mp3', 'mp4', 'wav', 'avi', 'rm', 'rmvb', 'ogg'].includes(filetype)) return; // 大型媒体资源不缓存
+	if (pathname.match(/^(ht|f)tps?/i)) { // 站外资源
+		if (!filetype) return; // RESTful请求
+		if (!['md', 'mu', 'txt', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'ps', 'jpg', 'jpeg', 'gif', 'png', 'webp', 'ico'].includes(filetype)) return; // 只缓存特定类型的资源
+	}
+	else { // 本站资源
+		if (['json', 'mu', 'md'].includes(filetype)) return; // MD、MU、JSON文档由indexedDB缓存
+	}
+	if (!fullpath.match(/^\/*#\/+|^\/*#$/)) caches.open(CacheName).then(cache => cache.add(fullpath)); // 将适合的请求都缓存起来
+
 	if (CacheAfterLoad) {
 		// 获取后缓存
 		caches.open(CacheName).then(cache => {
