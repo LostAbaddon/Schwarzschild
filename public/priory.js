@@ -55,7 +55,7 @@ self.addEventListener('fetch', evt => {
 	if (!pathname.match(/^(\/|\\|https?|ftps?)/i)) return;
 	if (filename.match(/hot-update\.js/i)) return;
 	if (filename.match(/priory\.js/i)) return;
-	if (['mp3', 'mp4', 'wav', 'avi', 'rm', 'rmvb', 'ogg'].includes(filetype)) return; // 大型媒体资源不缓存
+	if (['mp3', 'mp4', 'wav', 'avi', 'rm', 'rmvb', 'ogg', 'map'].includes(filetype)) return; // 大型媒体资源不缓存
 	if (pathname.match(/^(ht|f)tps?/i)) { // 站外资源
 		if (!filetype) return; // RESTful请求
 		if (!['md', 'mu', 'txt', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'ps', 'jpg', 'jpeg', 'gif', 'png', 'webp', 'ico'].includes(filetype)) return; // 只缓存特定类型的资源
@@ -63,7 +63,7 @@ self.addEventListener('fetch', evt => {
 	else { // 本站资源
 		if (['json', 'mu', 'md'].includes(filetype)) return; // MD、MU、JSON文档由indexedDB缓存
 	}
-	if (!fullpath.match(/^\/*#\/+|^\/*#$/)) caches.open(CacheName).then(cache => cache.add(fullpath)); // 将适合的请求都缓存起来
+	// if (!fullpath.match(/^\/*#\/+|^\/*#$/)) caches.open(CacheName).then(cache => cache.add(fullpath)); // 将适合的请求都缓存起来
 
 	if (CacheAfterLoad) {
 		// 获取后缓存
