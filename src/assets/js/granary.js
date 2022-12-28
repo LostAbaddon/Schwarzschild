@@ -245,6 +245,9 @@ window.Granary = {
 		// 建立前端文章索引
 		Barn.updateIndex(source, lastUpdate, result.articles);
 
+		// 更新Session记录
+		sessionStorage.set('source_checked', true);
+
 		return result;
 	},
 	async getCategory (category, page=0, count=10) {
@@ -320,7 +323,22 @@ window.Granary = {
 		}
 		return data;
 	},
+	async updateList () {
+		var sources = await Barn.get(Barn.API + '/sources.json', false);
+		if (!sources || !sources.sources) return data;
+		var timestamp = sources.update || 0;
+		var tasks = sources.sources.map(async source => {
+			await Granary.getSource(source.owner, source.pages, timestamp);
+		});
+		await Promise.all(tasks);
+		console.log('Force Update Source List Done.');
+	},
 	async getArticle (filepath, timestamp=0) {
+		var checked = sessionStorage.get('source_checked', false);
+		if (!checked) {
+			await Granary.updateList();
+		}
+
 		filepath = totalDecodeURI(filepath);
 		var info = await Barn.getUpdateInfo(filepath);
 		var noPrefetch = false;
