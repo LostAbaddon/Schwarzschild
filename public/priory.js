@@ -30,12 +30,28 @@ const cacheResource = async (req, res) => {
 
 self.addEventListener('install', evt => {
 	console.log('[:>  SW Installed <:]');
+	self.skipWaiting();
+
 	evt.waitUntil(async () => {
 		await caches.delete(CacheName);
 		console.log('[:>  SW removed cache (' + CacheName + ') <:]');
 		var cache = await caches.open(CacheName);
 		await cache.addAll(CacheUrl);
 	});
+});
+self.addEventListener('activate', async evt => {
+	console.log('[:>  SW Activated <:]');
+
+	await caches.delete(CacheName);
+	console.log('[:>  SW removed cache (' + CacheName + ') <:]');
+	var cache = await caches.open(CacheName);
+	await cache.addAll(CacheUrl);
+
+	// 通知线程管理者更新线程
+	if (!!globalThis.BroadcastChannel) {
+		let updater = new BroadcastChannel("updater");
+		updater.postMessage(true);
+	}
 });
 self.addEventListener('fetch', evt => {
 	if (evt.request.method !== 'GET') return;
@@ -63,7 +79,6 @@ self.addEventListener('fetch', evt => {
 	else { // 本站资源
 		if (['json', 'mu', 'md'].includes(filetype)) return; // MD、MU、JSON文档由indexedDB缓存
 	}
-	// if (!fullpath.match(/^\/*#\/+|^\/*#$/)) caches.open(CacheName).then(cache => cache.add(fullpath)); // 将适合的请求都缓存起来
 
 	if (CacheAfterLoad) {
 		// 获取后缓存
@@ -72,6 +87,7 @@ self.addEventListener('fetch', evt => {
 		});
 	}
 	else {
+		if (!fullpath.match(/^\/*#\/+|^\/*#$/)) caches.open(CacheName).then(cache => cache.add(fullpath)); // 将适合的请求都缓存起来
 		// 直接读取缓存
 		if (!CacheUrl.includes(fullpath)) caches.open(CacheName).then(cache => {
 			cache.add(fullpath);

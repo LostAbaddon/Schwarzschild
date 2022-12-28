@@ -58,6 +58,14 @@ window.InitAsimov = async () => {
 			window.onbeforeunload();
 			prepareWorker();
 		});
+		if (!!globalThis.BroadcastChannel) {
+			let updater = new BroadcastChannel("updater");
+			updater.onmessage = ({needUpdate}) => {
+				if (!needUpdate) return;
+				window.onbeforeunload();
+				prepareWorker();
+			};
+		}
 	}
 	// 如果不支持线程，则在浏览器主线程解析MarkUp
 	else {

@@ -313,10 +313,11 @@ self.DataCenter = {
 	},
 	async _initAPIData () {
 		var dbName = 'APIData';
-		var db = new CachedDB(dbName, 1);
+		var db = new CachedDB(dbName, 2);
 		DataCenter.dbs.set(dbName, db);
 		db.onUpdate(() => {
 			db.open('data', 'url', 10);
+			db.open('index', 'url', 10);
 			console.log('DataCenter::APIData Updated');
 		});
 		db.onConnect(() => {

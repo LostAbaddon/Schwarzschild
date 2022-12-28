@@ -69,10 +69,20 @@ if (useSharedWorker) {
 		}),
 	};
 
-	PageBroadcast.on('source-updated', () => {
-		stopWorker();
-		prepareWorker();
-	});
+	if (!!globalThis.BroadcastChannel) {
+		let updater = new BroadcastChannel("updater");
+		updater.onmessage = ({needUpdate}) => {
+			if (!needUpdate) return;
+			stopWorker();
+			prepareWorker();
+		};
+	}
+	else {
+		PageBroadcast.on('source-updated', () => {
+			stopWorker();
+			prepareWorker();
+		});
+	}
 }
 
 window.Barn = {
@@ -95,12 +105,12 @@ window.Barn = {
 		}
 		list.push(res);
 	}),
-	get (url, notStill=false, timestamp=0) {
+	get (url, noPrefetch=false, timestamp=0) {
 		return new Promise(async res => {
 			var cache = await DataCenter.get(Barn.dbName, 'data', url);
 			if (!!cache) {
 				res(cache.data);
-				if (!!notStill && timestamp <= cache.update) return;
+				if (!!noPrefetch && timestamp <= cache.update) return;
 			}
 
 			if (!!Barn.quests.get(url)) {
@@ -120,10 +130,24 @@ window.Barn = {
 
 				if (!!data) data = data.data;
 				if (!!data) {
-					await DataCenter.set(Barn.dbName, 'data', url, {data, update: timestamp || Date.now()});
+					let updated = await Promise.all([
+						Barn.markAsUpdated(url.replace(Barn.DataGranary + '/', '')),
+						DataCenter.set(Barn.dbName, 'data', url, {data, update: timestamp || Date.now()})
+					]);
+					updated = updated[0];
+
 					let oldTime = !!cache ? (cache.data.update || 0) : 0;
 					let newTime = data.update || 0;
-					if (newTime > oldTime || (data.update === undefined)) {
+					if (updated === null) {
+						if (newTime > oldTime || (data.update === undefined)) {
+							updated = true;
+						}
+						else {
+							updated = false;
+						}
+					}
+
+					if (updated) {
 						let msg = {
 							latest: newTime,
 							last: oldTime
@@ -149,6 +173,56 @@ window.Barn = {
 	async clearAllCache () {
 		await DataCenter.clear(Barn.dbName, 'data');
 	},
+	async updateIndex (source, lastUpdate, list) {
+		var rootName = '@' + source;
+		var taskPool = [];
+
+		var rootRecord = await DataCenter.get(Barn.dbName, 'index', rootName);
+		if (!rootRecord) {
+			let task = async (key, update) => {
+				await DataCenter.set(Barn.dbName, 'index', key, {
+					update: update,
+					needUpdate: false,
+				})
+			};
+
+			taskPool.push(DataCenter.set(Barn.dbName, 'index', rootName, { update: lastUpdate }));
+			list.forEach(art => {
+				if (art.type !== 'article') return;
+				taskPool.push(task(art.sort + '/' + art.filename, art.publish));
+			});
+		}
+		else if (rootRecord.update < lastUpdate) {
+			let func = async (key, update) => {
+				var data = await DataCenter.get(Barn.dbName, 'index', key);
+				if (update <= data.update) return;
+				data.needUpdate = true;
+				data.update = update;
+				await DataCenter.set(Barn.dbName, 'index', key, data);
+			};
+
+			list.forEach(art => {
+				if (art.type !== 'article') return;
+				taskPool.push(func(art.sort + '/' + art.filename, art.publish));
+			});
+			taskPool.push(DataCenter.set(Barn.dbName, 'index', rootName, { update: lastUpdate }));
+		}
+
+		await Promise.all(taskPool);
+		console.log(`Indexes Updated [${taskPool.length}]`);
+	},
+	async getUpdateInfo (url) {
+		var data = await DataCenter.get(Barn.dbName, 'index', url);
+		return data;
+	},
+	async markAsUpdated (url) {
+		var data = await DataCenter.get(Barn.dbName, 'index', url);
+		if (!data) return null;
+		var needUpdate = data.needUpdate;
+		data.needUpdate = false;
+		await DataCenter.set(Barn.dbName, 'index', url, data);
+		return needUpdate;
+	},
 };
 
 // 资源管理
@@ -156,15 +230,21 @@ window.Granary = {
 	async getSource (source, limit, timestamp) {
 		source = totalDecodeURI(source);
 		var result = { articles: [], comments: [] };
+		var lastUpdate = 0;
 		await Promise.all(Array.generate(limit + 1).map(async index => {
 			var url = Barn.API + '/' + source + '-' + index + '.json';
 			var d = await Barn.get(url, true, timestamp);
 			if (String.is(d)) return;
-			result.articles.push(...d.articles);
-			result.comments.push(...d.comments);
+			if (!!d.articles) result.articles.push(...d.articles);
+			if (!!d.comments) result.comments.push(...d.comments);
+			if (d.update > lastUpdate) lastUpdate = d.update;
 		}));
 		result.articles.sort((a, b) => b.publish - a.publish);
 		result.comments.sort((a, b) => b.publish - a.publish);
+
+		// 建立前端文章索引
+		Barn.updateIndex(source, lastUpdate, result.articles);
+
 		return result;
 	},
 	async getCategory (category, page=0, count=10) {
@@ -242,8 +322,15 @@ window.Granary = {
 	},
 	async getArticle (filepath, timestamp=0) {
 		filepath = totalDecodeURI(filepath);
-		if (timestamp <= 0) {
-			var sources = await Barn.get(Barn.API + '/sources.json', false);
+		var info = await Barn.getUpdateInfo(filepath);
+		var noPrefetch = false;
+
+		if (!!info) {
+			timestamp = info.update;
+			noPrefetch = !info.needUpdate;
+		}
+		else if (timestamp <= 0) {
+			let sources = await Barn.get(Barn.API + '/sources.json', false);
 			sources = sources || {};
 			timestamp = sources.update || 0;
 		}
@@ -251,25 +338,25 @@ window.Granary = {
 		filepath = Barn.DataGranary + '/' + filepath;
 		var content;
 		try {
-			content = await Barn.get(filepath, true, timestamp);
-			content = !!content ? content : '';
+			content = await Barn.get(filepath, noPrefetch, timestamp);
+			content = content || '';
 		}
 		catch (err) {
 			content = '你所寻找的文件不存在！';
 		}
 		return content;
 	},
-	async getContent (filepath, notStill=true) {
+	async getContent (filepath, noPrefetch=true) {
 		filepath = totalDecodeURI(filepath);
-		if (notStill) {
-			var sources = await Barn.get(Barn.API + '/sources.json', false);
+		if (noPrefetch) {
+			let sources = await Barn.get(Barn.API + '/sources.json', false);
 			sources = sources || {};
 			timestamp = sources.update || 0;
 		}
 
 		var content;
 		try {
-			content = await Barn.get(filepath, notStill, timestamp);
+			content = await Barn.get(filepath, noPrefetch, timestamp);
 			content = !!content ? content : '';
 		}
 		catch (err) {
