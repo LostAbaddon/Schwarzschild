@@ -61,12 +61,15 @@ self.addEventListener('fetch', evt => {
 	// if (evt.request.url.indexOf(self.location.origin) < 0) return;
 
 	var fullpath = evt.request.url.replace(self.location.origin, '');
+	fullpath = fullpath.split(/[\?\#]/)[0];
 	var pathname = fullpath.split('/');
 	var filename = pathname[pathname.length - 1];
 	pathname.pop();
 	pathname = pathname.join('/');
+	pathname = pathname || '/';
 	filetype = filename.match(/\.([^\\\/\?]+)(\?[^\\\/]+)?$/);
 	if (!!filetype) filetype = filetype[1].toLowerCase();
+	else filetype = '';
 
 	if (!pathname.match(/^(\/|\\|https?|ftps?)/i)) return;
 	if (filename.match(/hot-update\.js/i)) return;
