@@ -492,6 +492,7 @@ Schwarzschild.launch = config => {
 	.addOption('--category -c <category> >> 目标文章目录')
 
 	.add('update >> 更新记录时间')
+	.setParam('[path] >> 指定文件路径')
 
 	.add('generateKey >> 生成 AES-256-GCM Key文件')
 	.setParam('<keyFile> >> Key文件保存路径')
@@ -529,7 +530,7 @@ Schwarzschild.launch = config => {
 			cmd.value.overwrite, cmd.value.rename, cmd.value.keep,
 			cmd.value.encrypt, cmd.value.password);
 		else if (cmd.name === 'addred') Schwarzschild.appendRedirect(cmd.value.origin, cmd.value.category);
-		else if (cmd.name === 'update') Schwarzschild.updateLogTime();
+		else if (cmd.name === 'update') Schwarzschild.updateLogTime(cmd.value.path);
 		else if (cmd.name === 'compress') Schwarzschild.compress();
 		else if (cmd.name === 'generateKey') Schwarzschild.generateKeyFile(cmd.value.keyFile);
 	})
@@ -1002,7 +1003,63 @@ Schwarzschild.appendRedirect = async (origin, category) => {
 	]);
 	console.log('记录已更新！');
 };
-Schwarzschild.updateLogTime = async () => {
+Schwarzschild.updateLogTime = async (filename) => {
+	var tasks = [];
+	var deepUpdate = !!filename;
+	var timestamp = Date.now();
+
+	var mainLogFilePath = Path.join(APIPath, 'sources.json');
+	var mainLogFile;
+	try {
+		mainLogFile = await FS.readFile(mainLogFilePath);
+		mainLogFile = JSON.parse(mainLogFile);
+	}
+	catch {
+		mainLogFile = {
+			update: 0,
+			sources: []
+		};
+	}
+	mainLogFile.update = timestamp;
+
+	mainLogFile.sources.forEach(sourceInfo => {
+		sourceInfo.update = timestamp;
+		Array.generate(sourceInfo.pages + 1).forEach(async page => {
+			var recordFilePath = Path.join(APIPath, sourceInfo.owner + '-' + page + '.json');
+			var recordFile;
+			try {
+				recordFile = await FS.readFile(recordFilePath);
+				recordFile = JSON.parse(recordFile);
+			}
+			catch {
+				return;
+			}
+
+			recordFile.update = timestamp;
+
+			if (deepUpdate) {
+				recordFile.articles.some(item => {
+					if (item.type !== 'article') return;
+					if ([item.sort, item.filename].join('/') !== filename) return;
+					item.publish ++;
+					return true;
+				});
+			}
+
+			tasks.push(FS.writeFile(recordFilePath, JSON.stringify(recordFile)));
+		});
+	});
+	tasks.push(FS.writeFile(mainLogFilePath, JSON.stringify(mainLogFile)));
+
+	await Promise.all(tasks);
+	console.log('数据日志记录更新成功');
+
+	return;
+
+
+
+
+
 	var logFile = Path.join(APIPath, 'sources.json');
 	var logRecord;
 	try {
@@ -1017,7 +1074,7 @@ Schwarzschild.updateLogTime = async () => {
 	}
 	logRecord.update = Date.now();
 	try {
-		FS.writeFile(logFile, JSON.stringify(logRecord));
+		await FS.writeFile(logFile, JSON.stringify(logRecord));
 		console.log('数据日志记录更新成功');
 	}
 	catch (err) {
