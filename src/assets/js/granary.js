@@ -227,8 +227,36 @@ window.Barn = {
 
 // 资源管理
 window.Granary = {
+	async getAllSources () {
+		var [sources, record] = await Promise.all([
+			Barn.get(Barn.API + '/sources.json', false),
+			DataCenter.get(Barn.dbName, 'index', "@root")
+		]);
+
+		var result = { articles: [], comments: [] };
+		if (!sources || !sources.sources) return result;
+		var timestamp = sources.update || Date.now();
+		if (!!record && timestamp <= record.update) return record.list;
+
+		var tasks = sources.sources.map(async source => {
+			var list = await Granary.getSource(source.owner, source.pages, source.update || timestamp);
+			result.articles.push(...list.articles);
+			result.comments.push(...list.comments);
+		});
+		await Promise.all(tasks);
+
+		// 更新缓存记录
+		DataCenter.set(Barn.dbName, 'index', "@root", {
+			update: timestamp,
+			list: result
+		});
+
+		// 更新Session记录
+		sessionStorage.set('source_checked', true);
+
+		return result;
+	},
 	async getSource (source, limit, timestamp) {
-		source = totalDecodeURI(source);
 		var result = { articles: [], comments: [] };
 		var lastUpdate = 0;
 		await Promise.all(Array.generate(limit + 1).map(async index => {
@@ -245,22 +273,21 @@ window.Granary = {
 		// 建立前端文章索引
 		Barn.updateIndex(source, lastUpdate, result.articles);
 
-		// 更新Session记录
-		sessionStorage.set('source_checked', true);
-
 		return result;
 	},
 	async getCategory (category, page=0, count=10) {
 		category = totalDecodeURI(category);
-		var sources = await Barn.get(Barn.API + '/sources.json', false);
-		var data = [];
-		if (!sources || !sources.sources) return data;
-		var timestamp = sources.update || 0;
-		var tasks = sources.sources.map(async source => {
-			var d = await Granary.getSource(source.owner, source.pages, timestamp);
-			d = d.articles.filter(art => art.sort.indexOf(category) === 0);
-			data.push(...d);
-		});
+
+		var data = [], tasks = [];
+
+		// 获取文章列表
+		tasks.push((async () => {
+			var list = await Granary.getAllSources();
+			list = list.articles.filter(art => art.sort.indexOf(category) === 0);
+			data.push(...list);
+		})());
+
+		// 获取书架中的内容
 		tasks.push((async () => {
 			var mark = '/' + category;
 			var list = await BookShelf.getAllArticles();
@@ -323,20 +350,10 @@ window.Granary = {
 		}
 		return data;
 	},
-	async updateList () {
-		var sources = await Barn.get(Barn.API + '/sources.json', false);
-		if (!sources || !sources.sources) return data;
-		var timestamp = sources.update || 0;
-		var tasks = sources.sources.map(async source => {
-			await Granary.getSource(source.owner, source.pages, timestamp);
-		});
-		await Promise.all(tasks);
-		console.log('Force Update Source List Done.');
-	},
 	async getArticle (filepath, timestamp=0) {
 		var checked = sessionStorage.get('source_checked', false);
 		if (!checked) {
-			await Granary.updateList();
+			await Granary.getAllSources();
 		}
 
 		filepath = totalDecodeURI(filepath);
