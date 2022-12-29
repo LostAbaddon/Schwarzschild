@@ -87,8 +87,8 @@ if (useSharedWorker) {
 
 window.Barn = {
 	server: '',
-	API: '/api',
-	DataGranary: '/api/granary',
+	API: '/data',
+	DataGranary: '/data/granary',
 	dbName: 'APIData',
 	async init () {
 		if (!useSharedWorker) {

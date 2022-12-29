@@ -1,6 +1,6 @@
 # Schwarzschild
 
--	Version: 0.2.4
+-	Version: 0.3.0
 -	Author: [LostAbaddon](lostabaddon@gmail.com)
 
 静态网站构建器，可用于 GitHub Pages 等处。
@@ -79,7 +79,7 @@ Schwarzschild 会自动将页面中带有 markup 类名的容器中的内容解�
 
 -	config.json:					项目配置文件
 -	site:							替换 Schwarzschild 的文件，数据文件也可以放在里面
--	api:							网站数据文件夹，其中包括文章列表、文章等所有动态数据
+-	data:							网站数据文件夹，其中包括文章列表、文章等所有动态数据
 	+	source.json:				订阅源目录（append 命令自动生成）
 	+	<username>-<index>.json:	订阅源文章列表，index为分页序数（append 命令自动生成）
 	+	granary:					分类信息与分类文章目录，可在config中配置

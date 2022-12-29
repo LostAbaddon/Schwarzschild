@@ -156,7 +156,7 @@ export default {
 
 			if (isMU) {
 				if (!!copyrightContent) tasks.push((async () => copyrightContent)());
-				else tasks.push(Granary.getContent('/api/copyright.md'));
+				else tasks.push(Granary.getContent('/data/copyright.md'));
 			}
 
 			var [content, copyright] = await Promise.all(tasks);

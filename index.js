@@ -22,7 +22,7 @@ const FolderForbiddens = ['node_modules', 'dist', 'server', '.git', '.gitignore'
 const SitePath = Path.join(process.cwd(), 'site');
 const OutPutPath = Path.join(process.cwd(), 'output');
 const BuildPath = Path.join(OutPutPath, 'dist');
-const APIPath = Path.join(process.cwd(), 'api');
+const DataPath = Path.join(process.cwd(), 'data');
 const getTimeString = _('Utils').getTimeString;
 const getRandomValues = require('crypto').webcrypto.getRandomValues;
 
@@ -250,7 +250,7 @@ const realizeGranaryConfig = async (isDemo) => {
 	try {
 		cfg = await FS.readFile(Path.join(__dirname, "/src/assets/js/granary.js"));
 		cfg = cfg.toString();
-		cfg = cfg.replace("DataGranary: '/api/granary'", "DataGranary: '/api/" + Schwarzschild.config.database + "'");
+		cfg = cfg.replace("DataGranary: '/data/granary'", "DataGranary: '/data/" + Schwarzschild.config.database + "'");
 		await FS.writeFile(Path.join(OutPutPath, "/src/assets/js/granary.js"), cfg, 'utf-8');
 		console.log('granary.js文件配置成功');
 	} catch (err) {
@@ -363,10 +363,10 @@ const assemblejLAss = async (isDemo) => {
 	]);
 };
 const assembleAPI = async (isDemo, publishPath) => {
-	var source = Path.join(process.cwd(), 'api');
+	var source = Path.join(process.cwd(), 'data');
 	var target;
-	if (!!publishPath) target = Path.join(publishPath, 'api');
-	else target = Path.join(OutPutPath, 'public/api');
+	if (!!publishPath) target = Path.join(publishPath, 'data');
+	else target = Path.join(OutPutPath, 'public/data');
 	await FS.copyFolder(source, target);
 	console.log('数据文件复制完毕');
 };
@@ -652,7 +652,7 @@ Schwarzschild.appendFile = async (filename, category, title, author, timestamp, 
 
 	// 准备目标路径
 	var useEncrypt = !!encrypt;
-	var categoryPath = Path.join(APIPath, Schwarzschild.config.database);
+	var categoryPath = Path.join(DataPath, Schwarzschild.config.database);
 	category = category.split(/[\\\/]+/).filter(c => c.length > 0);
 	var target = Path.basename(filename);
 	if (useEncrypt) {
@@ -813,7 +813,7 @@ Schwarzschild.appendFile = async (filename, category, title, author, timestamp, 
 
 	// 更新总记录
 	var now = Date.now();
-	var granaryFile = Path.join(APIPath, 'sources.json');
+	var granaryFile = Path.join(DataPath, 'sources.json');
 	var granaryRecord;
 	try {
 		granaryRecord = await FS.readFile(granaryFile);
@@ -846,7 +846,7 @@ Schwarzschild.appendFile = async (filename, category, title, author, timestamp, 
 	// 更新分记录
 	var recordFile, records;
 	while (true) {
-		recordFile = Path.join(APIPath, Schwarzschild.config.owner + '-' + myRecord.pages + '.json');
+		recordFile = Path.join(DataPath, Schwarzschild.config.owner + '-' + myRecord.pages + '.json');
 		try {
 			records = await FS.readFile(recordFile);
 			records = JSON.parse(records);
@@ -902,7 +902,7 @@ Schwarzschild.appendRedirect = async (origin, category) => {
 	category = category.split(/[\\\/]+/).filter(c => c.length > 0).join('/');
 
 	// 读取原始记录
-	var granaryFile = Path.join(APIPath, 'sources.json'), granaryRecord;
+	var granaryFile = Path.join(DataPath, 'sources.json'), granaryRecord;
 	try {
 		granaryRecord = await FS.readFile(granaryFile);
 		granaryRecord = JSON.parse(granaryRecord);
@@ -929,7 +929,7 @@ Schwarzschild.appendRedirect = async (origin, category) => {
 
 	var recordFile, records, originInfo = null;
 	for (let i = 0; i <= myRecord.pages; i ++) {
-		recordFile = Path.join(APIPath, Schwarzschild.config.owner + '-' + myRecord.pages + '.json');
+		recordFile = Path.join(DataPath, Schwarzschild.config.owner + '-' + myRecord.pages + '.json');
 		try {
 			records = await FS.readFile(recordFile);
 			records = JSON.parse(records);
@@ -953,7 +953,7 @@ Schwarzschild.appendRedirect = async (origin, category) => {
 
 	// 更新分记录
 	while (true) {
-		recordFile = Path.join(APIPath, Schwarzschild.config.owner + '-' + myRecord.pages + '.json');
+		recordFile = Path.join(DataPath, Schwarzschild.config.owner + '-' + myRecord.pages + '.json');
 		try {
 			records = await FS.readFile(recordFile);
 			records = JSON.parse(records);
@@ -1008,7 +1008,7 @@ Schwarzschild.updateLogTime = async (filename) => {
 	var deepUpdate = !!filename;
 	var timestamp = Date.now();
 
-	var mainLogFilePath = Path.join(APIPath, 'sources.json');
+	var mainLogFilePath = Path.join(DataPath, 'sources.json');
 	var mainLogFile;
 	try {
 		mainLogFile = await FS.readFile(mainLogFilePath);
@@ -1025,7 +1025,7 @@ Schwarzschild.updateLogTime = async (filename) => {
 	mainLogFile.sources.forEach(sourceInfo => {
 		sourceInfo.update = timestamp;
 		Array.generate(sourceInfo.pages + 1).forEach(async page => {
-			var recordFilePath = Path.join(APIPath, sourceInfo.owner + '-' + page + '.json');
+			var recordFilePath = Path.join(DataPath, sourceInfo.owner + '-' + page + '.json');
 			var recordFile;
 			try {
 				recordFile = await FS.readFile(recordFilePath);
@@ -1053,33 +1053,6 @@ Schwarzschild.updateLogTime = async (filename) => {
 
 	await Promise.all(tasks);
 	console.log('数据日志记录更新成功');
-
-	return;
-
-
-
-
-
-	var logFile = Path.join(APIPath, 'sources.json');
-	var logRecord;
-	try {
-		logRecord = await FS.readFile(logFile);
-		logRecord = JSON.parse(logRecord);
-	}
-	catch {
-		logRecord = {
-			update: 0,
-			sources: []
-		};
-	}
-	logRecord.update = Date.now();
-	try {
-		await FS.writeFile(logFile, JSON.stringify(logRecord));
-		console.log('数据日志记录更新成功');
-	}
-	catch (err) {
-		console.log('数据日志记录更新失败：' + err.message);
-	}
 };
 Schwarzschild.compress = async () => {
 	var publicFolder = Path.join(OutPutPath, 'public/');
