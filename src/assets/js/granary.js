@@ -171,7 +171,10 @@ window.Barn = {
 		});
 	},
 	async clearAllCache () {
-		await DataCenter.clear(Barn.dbName, 'data');
+		await Promise.all([
+			DataCenter.clear(Barn.dbName, 'data'),
+			DataCenter.clear(Barn.dbName, 'index')
+		]);
 	},
 	async updateIndex (source, lastUpdate, list) {
 		var rootName = '@' + source;
