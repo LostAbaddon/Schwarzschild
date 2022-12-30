@@ -87,6 +87,9 @@
 	left: 200px;
 	right: 35px;
 }
+.mobile .column caption.full:after {
+	right: 5px;
+}
 .mobile .column[columnstyle="bars"] .column-item header .category {
 	display: none !important;
 }

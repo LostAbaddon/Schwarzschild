@@ -43,6 +43,9 @@
 	left: 240px;
 	right: 35px;
 }
+.column caption.full:after {
+	right: 5px;
+}
 .column caption .controller {
 	display: block;
 	box-sizing: border-box;
@@ -132,6 +135,19 @@
 .column header article section h5,
 .column header article section h6 {
 	margin-top: 5px;
+}
+.column aside {
+	width: 100%;
+	padding-top: 20px;
+	padding-left: 25px;
+	padding-right: 25px;
+}
+.column[columnstyle="bars"] aside {
+	padding-top: 0px;
+}
+.column aside li {
+	margin-top: 5px;
+	cursor: pointer;
 }
 .column .column-item {
 	box-sizing: border-box;

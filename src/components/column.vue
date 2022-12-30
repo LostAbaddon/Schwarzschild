@@ -1,6 +1,12 @@
 <template>
 	<section ref="main" class="column container" @click="onClick" @mousewheel="onScroll">
 		<header ref="header"></header>
+		<caption v-if="subFolders.length>0" class="full">
+			<span>子目录</span>
+		</caption>
+		<aside v-if="subFolders.length>0" class="sublist">
+			<li v-for="item in subFolders" @click="gotoSub(item.path)">{{item.name}}</li>
+		</aside>
 		<caption v-if="showList">
 			<span>文章列表</span>
 			<div class="controller">
@@ -55,10 +61,13 @@ export default {
 			currentPage: 0,
 			countPerPage: 10,
 			noMoreItem: false,
+			subFolders: [],
 		}
 	},
 	methods: {
 		async getHeaderInfo (category) {
+			this.getSubFolders(category);
+
 			var info = await Granary.getColumnHeader(category);
 			var content = '';
 			if (!!info && info.ok !== false) {
@@ -92,6 +101,38 @@ export default {
 			});
 			this.noMoreItem = articles.length < this.countPerPage;
 			this.$refs.loadingHint.classList.add('hidden');
+		},
+		getSubFolders (category) {
+			this.subFolders.splice(0, this.subFolders.length);
+			if (!category) return;
+			category = category.split('/');
+			var info = SiteMap;
+			category.some(path => {
+				var target = info[path];
+				if (!target || target.type !== 'viewer') {
+					info = null;
+					return true;
+				}
+				info = target.subs;
+			});
+			if (!info) return;
+
+			category = category.join(',')
+			info = Object.keys(info).map(key => {
+				return {
+					path: category + ',' + key,
+					name: info[key].name
+				}
+			});
+			this.subFolders.push(...info);
+		},
+		gotoSub (target) {
+			target = {
+				path: '/category',
+				query: { c: target }
+			};
+			this.$router.push(target);
+			PageBroadcast.emit('page-changed', target);
 		},
 		async update () {
 			PageBroadcast.emit('change-loading-hint', {

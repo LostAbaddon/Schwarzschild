@@ -10,8 +10,10 @@
 <script>
 var currCrumb = null;
 PageBroadcast.on('page-changed', () => {
-	if (!currCrumb) return;
-	currCrumb.update();
+	setTimeout(() => {
+		if (!currCrumb) return;
+		currCrumb.update();
+	}, 100);
 });
 
 export default {
