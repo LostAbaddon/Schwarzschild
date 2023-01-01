@@ -1183,6 +1183,9 @@ Schwarzschild.updateLogTime = async (filename) => {
 	var tasks = [];
 	var deepUpdate = !!filename;
 	var timestamp = Date.now();
+	if (deepUpdate) {
+		filename = filename.replace(/\//g, '\\');
+	}
 
 	var mainLogFilePath = Path.join(DataPath, 'sources.json');
 	var mainLogFile;
@@ -1224,7 +1227,7 @@ Schwarzschild.updateLogTime = async (filename) => {
 					updateTask = [filepath, item];
 					return true;
 				});
-				await calculateLikehoodForArticle(...updateTask);
+				if (!!updateTask) await calculateLikehoodForArticle(...updateTask);
 			}
 
 			await FS.writeFile(recordFilePath, JSON.stringify(recordFile));

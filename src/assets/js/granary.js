@@ -182,31 +182,33 @@ window.Barn = {
 
 		var rootRecord = await DataCenter.get(Barn.dbName, 'index', rootName);
 		if (!rootRecord) {
-			let task = async (key, update) => {
+			let task = async (key, update, likehood) => {
 				await DataCenter.set(Barn.dbName, 'index', key, {
-					update: update,
+					update,
 					needUpdate: false,
+					likehood,
 				})
 			};
 
 			taskPool.push(DataCenter.set(Barn.dbName, 'index', rootName, { update: lastUpdate }));
 			list.forEach(art => {
 				if (art.type !== 'article') return;
-				taskPool.push(task(art.sort + '/' + art.filename, art.publish));
+				taskPool.push(task(art.sort + '/' + art.filename, art.publish, art.likehood));
 			});
 		}
 		else if (rootRecord.update < lastUpdate) {
-			let func = async (key, update) => {
+			let func = async (key, update, likehood) => {
 				var data = await DataCenter.get(Barn.dbName, 'index', key);
-				if (update <= data.update) return;
+				if (update <= data.update && !!data.likehood) return;
 				data.needUpdate = true;
 				data.update = update;
+				data.likehood = likehood;
 				await DataCenter.set(Barn.dbName, 'index', key, data);
 			};
 
 			list.forEach(art => {
 				if (art.type !== 'article') return;
-				taskPool.push(func(art.sort + '/' + art.filename, art.publish));
+				taskPool.push(func(art.sort + '/' + art.filename, art.publish, art.likehood));
 			});
 			taskPool.push(DataCenter.set(Barn.dbName, 'index', rootName, { update: lastUpdate }));
 		}
