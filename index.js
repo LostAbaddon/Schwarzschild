@@ -430,6 +430,179 @@ const compressFile = async (filepath) => {
 	await FS.deleteFiles([filename]);
 	console.log('Update Compress over Origin success: ' + filepath);
 };
+const calculateLikehoodForArticle = async (filepath, record) => {
+	var file;
+	try {
+		file = await FS.readFile(filepath);
+		file = file.toString();
+	}
+	catch (err) {
+		console.error(err);
+		return;
+	}
+
+	file = MarkUp.fullPlainify(file);
+	var desc = file.content;
+	if (desc.length > 150) desc = desc.substr(0, 148) + '……';
+	file = file.content.split(/[\n\,\.\?\!\(\)\[\]\{\}\\\/\<\>\-\+=_:'"，。？！（）【】、·—…：‘’“”《》]/);
+	file = file.filter(line => {
+		var match = line.match(/([\u4e00-\u9fa5]|[A-Za-z]{2,})+/);
+		return !!match;
+	});
+	file = file.map(line => line.trim());
+
+	var wordSpace = {};
+	file.forEach(line => {
+		var words = [];
+		line.replace(/([\u4e00-\u9fa5]|[A-Za-z0-9]+)/gi, match => {
+			// if (match.match(/^\d+$/)) return;
+			if (!match.match(/[\u4e00-\u9fa5]/)) return;
+			words.push(match);
+		});
+		var len = words.length;
+		for (let l = 1; l <= len; l ++) {
+			let r = len - l;
+			for (let i = 0; i <= r; i ++) {
+				let w = '';
+				for (let j = i; j < i + l; j ++) {
+					let char = words[j];
+					if (char.match(/[A-Za-z0-9]+/)) char = ' ' + char + ' ';
+					w = w + char;
+				}
+				w = w.replace(/ +/g, ' ').trim();
+				wordSpace[w] = (wordSpace[w] || 0) + 1;
+			}
+		}
+	});
+
+	var max = 0, min = Infinity;
+	for (let key in wordSpace) {
+		let count = wordSpace[key];
+		if (count > max) max = count;
+		if (count < min) min = count;
+	}
+	max -= min;
+	for (let key in wordSpace) {
+		let count = wordSpace[key];
+		let e = (count - min) / max;
+		if (e <= 0 || e >= 1) {
+			delete wordSpace[key];
+		}
+		else {
+			wordSpace[key] = [0 - Math.log(e) * e, count];
+		}
+	}
+
+	var list = Object.keys(wordSpace);
+	list = list.map(w => [w, w.length]);
+	list.sort((a, b) => b[1] - a[1]);
+	list.forEach(item => {
+		var [key, len] = item;
+		var value = wordSpace[key];
+		if (!value) return;
+		value = value[1];
+		if (value <= 0) return;
+		for (let l = 1; l < len; l ++) {
+			let r = len - l;
+			for (let i = 0; i <= r; i ++) {
+				let k = key.substr(i, l);
+				let v = wordSpace[k];
+				if (!v) continue;
+				v[1] -= value;
+				if (v[1] <= 0) delete wordSpace[k];
+			}
+		}
+	});
+
+	max = 0;
+	min = Infinity;
+	for (let key in wordSpace) {
+		let count = wordSpace[key][1];
+		if (count > max) max = count;
+		if (count < min) min = count;
+	}
+	max -= min;
+	var entropy = 0;
+	for (let key in wordSpace) {
+		let count = wordSpace[key][1];
+		let e = (count - min) / max;
+		if (e <= 0 || e >= 1) {
+			delete wordSpace[key];
+		}
+		else {
+			e = 0 - Math.log(e) * e;
+			wordSpace[key] = [e * Math.log(key.length + 1), e, count];
+			if (e > entropy) entropy = e;
+		}
+	}
+
+	list = Object.keys(wordSpace);
+	list = list.map(w => [w, ...wordSpace[w]]);
+	list.sort((a, b) => b[1] - a[1]);
+	list.splice(10);
+
+	var total = 0;
+	list.forEach(item => total += item[1]);
+	list.forEach(item => item[1] /= total);
+
+	const crypto = require('crypto').createHash;
+	var likehood = Array.generate(256).map(i => [0, 0]);
+	list.forEach(item => {
+		const hash = crypto('sha256');
+		hash.update(item[0]);
+		var h = hash.digest('hex');
+		h = h.split('');
+		h = h.map(i => {
+			i = parseInt(i, 16).toString(2).split('').map(i => i * 1);
+			for (let j = i.length; j < 4; j ++) {
+				i.unshift(0);
+			}
+			return i;
+		});
+		h = h.flat();
+		h.forEach((d, i) => {
+			likehood[i][d] += item[1];
+		});
+	});
+	likehood = likehood.map(a => a[0] > a[1] ? 0 : 1);
+	var vector = '';
+	for (let i = 0; i < 64; i ++) {
+		let j = likehood.splice(0, 4);
+		j = parseInt(j.join(''), 2).toString(16);
+		vector += j;
+	}
+
+	record.description = desc;
+	record.likehood = vector;
+
+	console.log('相似空间矢量计算完毕: ' + filepath);
+	console.log('相似关键词:   ' + list.map(i => i[0]).join('\n              '));
+	console.log('相似矢量哈希: ' + vector);
+	console.log('------------------------------------------------------------------------------');
+};
+const calculateLikehood = async (filepath) => {
+	var data;
+	try {
+		data = await FS.readFile(filepath);
+		data = data.toString();
+		data = JSON.parse(data);
+	}
+	catch (err) {
+		console.error(err);
+		return;
+	}
+
+	var list = data.articles;
+	var tasks = [];
+	list.forEach(item => {
+		if (item.type !== 'article') return;
+		var path = Path.join(DataPath, Schwarzschild.config.database, item.sort, item.filename);
+		tasks.push(calculateLikehoodForArticle(path, item));
+	});
+	await Promise.all(tasks);
+
+	await FS.writeFile(filepath, JSON.stringify(data));
+};
 
 global.Schwarzschild = {};
 Schwarzschild.config = {};
@@ -497,6 +670,8 @@ Schwarzschild.launch = config => {
 	.add('generateKey >> 生成 AES-256-GCM Key文件')
 	.setParam('<keyFile> >> Key文件保存路径')
 
+	.add('reheat >> 重新生成文章相关度矢量')
+
 	.on('command', (param, command) => {
 		var cfg = param.config;
 		if (!!cfg) {
@@ -533,6 +708,7 @@ Schwarzschild.launch = config => {
 		else if (cmd.name === 'update') Schwarzschild.updateLogTime(cmd.value.path);
 		else if (cmd.name === 'compress') Schwarzschild.compress();
 		else if (cmd.name === 'generateKey') Schwarzschild.generateKeyFile(cmd.value.keyFile);
+		else if (cmd.name === 'reheat') Schwarzschild.reheat();
 	})
 	.launch();
 };
@@ -1024,7 +1200,7 @@ Schwarzschild.updateLogTime = async (filename) => {
 
 	mainLogFile.sources.forEach(sourceInfo => {
 		sourceInfo.update = timestamp;
-		Array.generate(sourceInfo.pages + 1).forEach(async page => {
+		let list = Array.generate(sourceInfo.pages + 1).map(async page => {
 			var recordFilePath = Path.join(DataPath, sourceInfo.owner + '-' + page + '.json');
 			var recordFile;
 			try {
@@ -1038,16 +1214,22 @@ Schwarzschild.updateLogTime = async (filename) => {
 			recordFile.update = timestamp;
 
 			if (deepUpdate) {
+				let updateTask;
 				recordFile.articles.some(item => {
 					if (item.type !== 'article') return;
-					if ([item.sort, item.filename].join('/') !== filename) return;
+					var filepath = Path.join(item.sort, item.filename);
+					if (filepath !== filename) return;
 					item.publish ++;
+					filepath = Path.join(DataPath, Schwarzschild.config.database, filepath);
+					updateTask = [filepath, item];
 					return true;
 				});
+				await calculateLikehoodForArticle(...updateTask);
 			}
 
-			tasks.push(FS.writeFile(recordFilePath, JSON.stringify(recordFile)));
+			await FS.writeFile(recordFilePath, JSON.stringify(recordFile));
 		});
+		tasks.push(...list);
 	});
 	tasks.push(FS.writeFile(mainLogFilePath, JSON.stringify(mainLogFile)));
 
@@ -1060,6 +1242,21 @@ Schwarzschild.compress = async () => {
 	map = FS.convertFileMap(map).files.filter(url => !url.match(/(mathjax|\.min\.)/i) && url.match(/\.(js)$/i));
 	map = map.map(filepath => compressFile(filepath));
 	await Promise.all(map);
+};
+Schwarzschild.reheat = async () => {
+	var file = Path.join(DataPath, 'sources.json');
+	var data = await FS.readFile(file);
+	data = data.toString();
+	data = JSON.parse(data);
+	var tasks = [];
+	data.sources.forEach(item => {
+		Array.generate(item.pages + 1).forEach(i => {
+			var path = Path.join(DataPath, item.owner + '-' + i + '.json');
+			tasks.push(calculateLikehood(path));
+		});
+	});
+	await Promise.all(tasks);
+	console.log('所有文件的偏好矢量已计算完毕');
 };
 
 module.exports = Schwarzschild;
