@@ -67,6 +67,12 @@ if (useSharedWorker) {
 			console.log(workerName + ' start task-' + tid + ': search : ' + command);
 			sendRequest({tid, action: 'searchArticle', command, prefix: [Barn.API, Barn.DataGranary], map: CatePathMap});
 		}),
+		findLikelyArticle: async (articleId) => new Promise(res => {
+			var tid = generateID();
+			TaskPool.set(tid, res);
+			console.log(workerName + ' start task-' + tid + ': likelihood : ' + articleId);
+			sendRequest({tid, action: 'findLikelyArticle', articleId});
+		}),
 	};
 
 	if (!!globalThis.BroadcastChannel) {
@@ -182,10 +188,11 @@ window.Barn = {
 
 		var rootRecord = await DataCenter.get(Barn.dbName, 'index', rootName);
 		if (!rootRecord) {
-			let task = async (key, update, likehood) => {
+			let task = async (key, update, likehood, title) => {
 				await DataCenter.set(Barn.dbName, 'index', key, {
 					update,
 					needUpdate: false,
+					title,
 					likehood,
 				})
 			};
@@ -193,22 +200,23 @@ window.Barn = {
 			taskPool.push(DataCenter.set(Barn.dbName, 'index', rootName, { update: lastUpdate }));
 			list.forEach(art => {
 				if (art.type !== 'article') return;
-				taskPool.push(task(art.sort + '/' + art.filename, art.publish, art.likehood));
+				taskPool.push(task(art.sort + '/' + art.filename, art.publish, art.likehood, art.title));
 			});
 		}
 		else if (rootRecord.update < lastUpdate) {
-			let func = async (key, update, likehood) => {
+			let func = async (key, update, likehood, title) => {
 				var data = await DataCenter.get(Barn.dbName, 'index', key);
-				if (update <= data.update && !!data.likehood) return;
+				if (update <= data.update && !!data.likehood && !!data.title) return;
 				data.needUpdate = true;
 				data.update = update;
+				data.title = title;
 				data.likehood = likehood;
 				await DataCenter.set(Barn.dbName, 'index', key, data);
 			};
 
 			list.forEach(art => {
 				if (art.type !== 'article') return;
-				taskPool.push(func(art.sort + '/' + art.filename, art.publish, art.likehood));
+				taskPool.push(func(art.sort + '/' + art.filename, art.publish, art.likehood, art.title));
 			});
 			taskPool.push(DataCenter.set(Barn.dbName, 'index', rootName, { update: lastUpdate }));
 		}

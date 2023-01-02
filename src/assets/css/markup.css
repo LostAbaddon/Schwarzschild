@@ -828,6 +828,9 @@ article.markup-content > section.endnote-chapter > ul > li {
 	font-size: 14px;
 	line-height: 18px;
 }
+div.likehoods > article.markup-content > section.endnote-chapter > ul > li > p {
+	cursor: pointer;
+}
 article.markup-content > section > p.endnote-content {
 	padding-left: 55px;
 	text-indent: -55px;

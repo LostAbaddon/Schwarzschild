@@ -461,6 +461,36 @@ self.DataCenter = {
 		return {match: result, timeused: start};
 		// return {match: result, related, timeused: start};
 	},
+	hex2array (list) {
+		list = list.split('').map(c => {
+			c = parseInt(c, 16).toString(2).split('').map(i => i * 1);
+			for (let i = c.length; i < 4; i ++) c.unshift(0);
+			return c;
+		});
+		list = list.flat();
+		return list;
+	},
+	async findLikelyArticle (id) {
+		var info = await DataCenter.get('APIData', 'index', id);
+		if (!info || !info.likehood) return null;
+		var likehood = DataCenter.hex2array(info.likehood);
+
+		var list = await DataCenter.all('APIData', 'index');
+		list = Object.keys(list).map(name => [name, list[name]]);
+		list = list.filter(item => !!item[1].likehood && item[0] !== id);
+		var result = [];
+		list.forEach(item => {
+			var list = DataCenter.hex2array(item[1].likehood);
+			var similarity = 0;
+			list.forEach((d, i) => {
+				if (d === likehood[i]) similarity ++;
+			});
+			result.push([item[0], item[1].title, similarity]);
+		});
+		result.sort((a, b) => b[2] - a[2]);
+		result.splice(10);
+		return result;
+	},
 };
 
 // 如果在线程中
@@ -480,8 +510,11 @@ if (!self.window) {
 		if (data.action === "searchArticle") {
 			result = await DataCenter.searchArticle(data.command, ...data.prefix, data.map);
 		}
+		else if (data.action === "findLikelyArticle") {
+			result = await DataCenter.findLikelyArticle(data.articleId);
+		}
 		else if (!!act) {
-			result = await DataCenter[data.action](data.dbName, data.store, data.key, data.value);
+			result = await act(data.dbName, data.store, data.key, data.value);
 		}
 
 		sender.postMessage({tid: data.tid, result});

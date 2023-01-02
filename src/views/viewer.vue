@@ -10,6 +10,17 @@
 		</div>
 	</div>
 	<div ref="article" class="container" @click="onClick"></div>
+	<div class="container likehoods" v-if="likehoods.length>0">
+		<article class="markup-content">
+			<hr class="endnote-line">
+			<section class="endnote-chapter">
+				<h1 class="endnote-title">随机推荐</h1>
+				<ul>
+					<li v-for="item in likehoods" @click="gotoArticle(item[0])"><p class="endnote-content">{{item[1]}}</p></li>
+				</ul>
+			</section>
+		</article>
+	</div>
 	<div class="likeCoinArea" v-if="showLikeCoin">
 		<iframe v-if="!!likecoin" :src="likecoin"></iframe>
 	</div>
@@ -64,7 +75,8 @@ export default {
 			menuList: [],
 			chapList: [],
 			chapMap: {},
-			showPassword: false
+			showPassword: false,
+			likehoods: [],
 		}
 	},
 	methods: {
@@ -137,6 +149,11 @@ export default {
 		async loadArticle (articleID, articleType=0, savePosition=false) {
 			var isCloud = articleType === 0;
 			var isEdge = articleType === 1;
+
+			this.likehoods.splice(0);
+			if (isCloud) {
+				this.getLikely(articleID);
+			}
 
 			var isMU = !isCloud || !!articleID.match(/\.e?mu$/i);
 			var isEncrypt = isCloud && !!articleID.match(/\.em[ud]$/i);
@@ -243,6 +260,10 @@ export default {
 				title,
 				url: window.PageInfo.url
 			});
+		},
+		async getLikely (articleID) {
+			var list = await DataCenter.findLikelyArticle(articleID);
+			this.likehoods.push(...list.map(item => [item[0], item[1]]));
 		},
 		adjustCopyRight (copyright) {
 			if (!copyright) return html;
@@ -373,6 +394,14 @@ export default {
 			var top = chap.getBoundingClientRect().top - (Devices.isMobile ? 5 : 30);
 			app.scrollBy({top, behavior: 'smooth'});
 			this.$refs.article.focus();
+		},
+		gotoArticle (article) {
+			var target = {
+				path: '/view',
+				query: { f: article }
+			};
+			this.$router.push(target);
+			PageBroadcast.emit('page-changed', target);
 		},
 		requestIVWord () {
 			return new Promise(res => {
