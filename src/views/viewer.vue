@@ -24,6 +24,9 @@
 	<div class="likeCoinArea" v-if="showLikeCoin">
 		<iframe v-if="!!likecoin" :src="likecoin"></iframe>
 	</div>
+	<div class="shareArea" v-if="showSharing">
+		<span @click="shareMe">分享本页</span>
+	</div>
 	<div class="passwordInputter" :show="showPassword">
 		<div class="title">请输入 IV 码：</div>
 		<input ref="ivinputter" @keydown="onEnter">
@@ -77,6 +80,9 @@ export default {
 			chapMap: {},
 			showPassword: false,
 			likehoods: [],
+			showSharing: !!navigator.share,
+			articleID: '',
+			articleTitle: '',
 		}
 	},
 	methods: {
@@ -149,6 +155,7 @@ export default {
 		async loadArticle (articleID, articleType=0, savePosition=false) {
 			var isCloud = articleType === 0;
 			var isEdge = articleType === 1;
+			this.articleID = articleID;
 
 			this.likehoods.splice(0);
 			if (isCloud) {
@@ -214,6 +221,7 @@ export default {
 				markup.meta.others = markup.meta.others || {};
 				copyright = markup.meta.others.CopyRight;
 				title = '《' + markup.title + '》';
+				this.articleTitle = markup.title;
 				html = markup.content;
 				if (!html) {
 					html = '<div class="page_not_found"><div class="frame"></div><div class="title">MarkUp 内容解析失败，请联系作者。</div></div>';
@@ -518,6 +526,41 @@ export default {
 			localStorage.set('EncryptedContentKeys', keyMap);
 
 			return content;
+		},
+		async shareMe () {
+			var share = {
+				title: this.articleTitle,
+				text: '',
+				url: location.origin + location.pathname + '#/view?f=' + this.articleID,
+			};
+			var nodes = this.$refs.article.querySelectorAll('article > section');
+			nodes = [].map.call(nodes, n => n);
+			nodes = nodes.filter(n => !n.querySelector('h1[name="ContentTable"]') && !n.classList.contains('endnote-chapter'));
+			nodes = nodes.map(n => {
+				var ns = [].map.call(n.childNodes, n => n);
+				ns = ns.filter(n => !n.tagName.match(/h(\d|r)/i));
+				return ns;
+			});
+			nodes = nodes.flat().map(n => n.innerText).join('\n');
+			nodes = nodes.replace(/[\n\t\r　 ]+/g, ' ');
+			if (nodes.length > 150) nodes = nodes.substr(148) + '……';
+			share.text = nodes;
+			try {
+				share = await navigator.share(share);
+				notify({
+					title: "分享成功",
+					duration: 1500,
+					type: "success"
+				});
+			}
+			catch (err) {
+				console.error(err);
+				notify({
+					title: "分享失败",
+					duration: 2500,
+					type: "error"
+				});
+			}
 		},
 	},
 	async mounted () {

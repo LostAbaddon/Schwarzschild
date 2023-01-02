@@ -21,6 +21,20 @@ div#container div.likeCoinArea iframe {
 	outline: none;
 }
 
+div#container div.shareArea {
+	margin-top: 50px;
+	padding-top: 30px;
+	border-top: 1px solid rgb(75, 75, 75);
+	text-align: center;
+}
+div#container div.shareArea span {
+	padding: 10px 20px;
+	background-color: transparent;
+	border: 1px solid rgb(75, 75, 75);
+	border-radius: 5px;
+	cursor: pointer;
+}
+
 div#container div.floatMenu {
 	box-sizing: border-box;
 	position: absolute;
