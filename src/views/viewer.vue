@@ -158,9 +158,6 @@ export default {
 			this.articleID = articleID;
 
 			this.likehoods.splice(0);
-			if (isCloud) {
-				this.getLikely(articleID);
-			}
 
 			var isMU = !isCloud || !!articleID.match(/\.e?mu$/i);
 			var isEncrypt = isCloud && !!articleID.match(/\.em[ud]$/i);
@@ -255,6 +252,9 @@ export default {
 					info.innerHTML = '这是存储在浏览器本地的文件，其它设备与用户无法看到本页内容！';
 					header.parentElement.insertBefore(info, header);
 				}
+			}
+			if (isCloud) {
+				this.getLikely(articleID);
 			}
 
 			if (!!container && savePosition) container.scrollTo(0, position);
@@ -543,7 +543,7 @@ export default {
 			});
 			nodes = nodes.flat().map(n => n.innerText).join('\n');
 			nodes = nodes.replace(/[\n\t\r　 ]+/g, ' ');
-			if (nodes.length > 150) nodes = nodes.substr(148) + '……';
+			if (nodes.length > 150) nodes = nodes.substr(0, 148) + '……';
 			share.text = nodes;
 			try {
 				share = await navigator.share(share);

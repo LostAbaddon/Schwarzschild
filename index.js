@@ -1049,13 +1049,15 @@ Schwarzschild.appendFile = async (filename, category, title, author, timestamp, 
 		var old = articlesList[path];
 		if (!old || item.publish > old.publish) articlesList[path] = item;
 	});
-	articlesList[category.join('/') + '/' + target] = {
+	var item = {
 		"type": "article",
 		"sort": category.join('/'),
 		title, author, description,
 		"publish": timestamp.getTime(),
 		"filename": target
 	};
+	await calculateLikehoodForArticle(fullFilePath, item);
+	articlesList[category.join('/') + '/' + target] = item;
 	records.articles = Object.values(articlesList);
 	records.articles.sort((itemA, itemB) => itemB.publish - itemA.publish);
 
