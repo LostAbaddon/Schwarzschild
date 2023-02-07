@@ -71,12 +71,16 @@ else document.body.classList.add('notmobile');
 		if (await LifeCycle.emit.ready(app)) {
 			app.use(router).mount('#app');
 			router.app = app;
+			app.router = router;
 
 			document.body.addEventListener('keydown', evt => {
 				if (evt.key === 's' && evt.ctrlKey) {
-					router.push({
-						path: '/search'
-					});
+					let current = router.currentRoute.value.name;
+					if (!['markupEditor'].includes(current)) {
+						router.push({
+							path: '/search'
+						});
+					}
 					evt.preventDefault();
 				}
 			});

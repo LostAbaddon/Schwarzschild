@@ -236,6 +236,60 @@ window.Barn = {
 		await DataCenter.set(Barn.dbName, 'index', url, data);
 		return needUpdate;
 	},
+	async getList (path) {
+		var [list, local] = await Promise.all([
+			DataCenter.get(Barn.dbName, 'index', '@root'),
+			BookShelf.getAllArticles()
+		]);
+		if (!!list) {
+			list = list.list;
+			if (!!list) {
+				list = list.articles || [];
+			}
+		}
+
+		path = path.replace(/(^\/|\/$)/g, '');
+		var folders = [], files = [], counts = {};
+		list.forEach(item => {
+			if (item.type !== 'article') return;
+			if (item.sort === path) {
+				item.isLocal = false;
+				files.push(item);
+			}
+			else if (item.sort.indexOf(path) === 0) {
+				let sub = item.sort.replace(path, '');
+				sub = sub.split('/').filter(p => !!p);
+				var isSub = sub.length === 1;
+				sub = sub[0];
+				counts[sub] = (counts[sub] || 0) + 1;
+				if (!!sub && !folders.includes(sub)) {
+					folders.push(sub);
+				}
+			}
+		});
+		folders = folders.map(sub => [sub, counts[sub]]);
+		path = '/' + path
+		local.forEach(item => {
+			for (let key of item.category) {
+				if (key === path) {
+					files.push({
+						isLocal: true,
+						filename: item.id,
+						title: item.title,
+						author: item.author,
+						publish: item.publish,
+					});
+					break;
+				}
+			}
+		});
+		files.sort((a, b) => b.publish - a.publish);
+		return {folders, files};
+	},
+	async hasCache (path) {
+		var cache = await DataCenter.get(Barn.dbName, 'data', path);
+		return !!cache;
+	},
 };
 
 // 资源管理

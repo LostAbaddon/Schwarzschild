@@ -61,12 +61,14 @@
 	};
 
 	// UI 辅助工具
-	root.newEle = (tag, classList) => {
+	root.newEle = (tag, ...classList) => {
 		var div = document.createElement(tag || 'div');
-		if (!!classList) {
-			if (!(classList instanceof Array)) classList = classList.split(' ');
-			classList.forEach(c => div.classList.add(c));
-		}
+		classList = classList.flat(Infinity);
+		classList = classList.filter(i => !!i);
+		classList = classList.map(i => i.split(/[ 　\t]+/));
+		classList = classList.flat(Infinity);
+		classList = classList.filter(i => !!i);
+		classList.forEach(c => div.classList.add(c));
 		return div;
 	};
 }) (window, window.navigator.userAgent, window.navigator);
