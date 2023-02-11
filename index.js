@@ -906,6 +906,7 @@ Schwarzschild.appendFile = async (filename, category, title, author, timestamp, 
 	content = MarkUp.fullPlainify(content);
 
 	// 自动生成摘要
+	title = title || content.title;
 	var description = content.content;
 	if (description > 150) description = description.substring(0, 148) + "……";
 	author = author || content.meta.author || Schwarzschild.config.owner;
