@@ -111,12 +111,18 @@ window.Barn = {
 		}
 		list.push(res);
 	}),
-	get (url, noPrefetch=false, timestamp=0) {
+	get (url, noPrefetch=false, timestamp=0, forceUpdate=false) {
 		return new Promise(async res => {
 			var cache = await DataCenter.get(Barn.dbName, 'data', url);
-			if (!!cache) {
-				res(cache.data);
-				if (!!noPrefetch && timestamp <= cache.update) return;
+			var lastUpdat = !!cache ? (cache.data.update || 0) : 0;
+			if (!forceUpdate) {
+				if (!!cache) {
+					res(cache.data);
+					if (!!noPrefetch && timestamp <= cache.update) return;
+				}
+			}
+			else {
+				cache = null;
 			}
 
 			if (!!Barn.quests.get(url)) {
@@ -142,10 +148,9 @@ window.Barn = {
 					]);
 					updated = updated[0];
 
-					let oldTime = !!cache ? (cache.data.update || 0) : 0;
 					let newTime = data.update || 0;
 					if (updated === null) {
-						if (newTime > oldTime || (data.update === undefined)) {
+						if (newTime > lastUpdat || (data.update === undefined)) {
 							updated = true;
 						}
 						else {
@@ -153,10 +158,10 @@ window.Barn = {
 						}
 					}
 
-					if (updated) {
+					if (updated && !forceUpdate) {
 						let msg = {
 							latest: newTime,
-							last: oldTime
+							last: lastUpdat
 						};
 						let isSource = !!url.match(/(^sources|[\\\/]sources)\.json$/i);
 						if (isSource) msg.target = 'SOURCE';
@@ -205,7 +210,14 @@ window.Barn = {
 		}
 		else if (rootRecord.update < lastUpdate) {
 			let func = async (key, update, likehood, title) => {
-				var data = await DataCenter.get(Barn.dbName, 'index', key);
+				var data;
+				try {
+					data = await DataCenter.get(Barn.dbName, 'index', key);
+				}
+				catch (err) {
+					console.error(err);
+					data = {};
+				}
 				if (update <= data.update && !!data.likehood && !!data.title) return;
 				data.needUpdate = true;
 				data.update = update;
@@ -328,7 +340,7 @@ window.Granary = {
 		var lastUpdate = 0;
 		await Promise.all(Array.generate(limit + 1).map(async index => {
 			var url = Barn.API + '/' + source + '-' + index + '.json';
-			var d = await Barn.get(url, true, timestamp);
+			var d = await Barn.get(url, true, timestamp, true);
 			if (String.is(d)) return;
 			if (!!d.articles) result.articles.push(...d.articles);
 			if (!!d.comments) result.comments.push(...d.comments);

@@ -125,6 +125,34 @@ localStorage.__proto__.setWithExpire = function (key, value) {
 	this.setItem(key, value);
 };
 
+window.addLog = (...msg) => {
+	const tag = '__LogHistory__';
+	const logList = sessionStorage.get(tag, []);
+	logList.push([Date.now(), msg]);
+	logList.sort((a, b) => a[0] - b[0]);
+	sessionStorage.set(tag, logList);
+};
+window.showLog = () => {
+	const tag = '__LogHistory__';
+	const logList = sessionStorage.get(tag, []);
+	console.log('[:> Logs | ' + logList.length + ' <:]');
+	logList.forEach(([time, logs]) => {
+		var stamp = new Date(time);
+		var month = ((stamp.getMonth() + 1) + '').padStart(2, '0');
+		var day = (stamp.getDate() + '').padStart(2, '0');
+		var hour = (stamp.getHours() + '').padStart(2, '0');
+		var minute = (stamp.getMinutes() + '').padStart(2, '0');
+		var seconds = (stamp.getSeconds() + '').padStart(2, '0');
+		var milliseconds = (stamp.getMilliseconds() + '').padStart(3, '0');
+		stamp = month + '/' + day + ' ' + hour + ':' + minute + ':' + seconds + '.' + milliseconds;
+		console.log(stamp, ...logs);
+	});
+};
+window.clearLog = () => {
+	const tag = '__LogHistory__';
+	sessionStorage.removeItem(tag);
+};
+
 window.loadJS = (filepath) => new Promise(res => {
 	var js = document.createElement('script');
 	js.type = 'text/javascript';
