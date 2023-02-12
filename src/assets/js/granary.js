@@ -115,6 +115,7 @@ window.Barn = {
 		return new Promise(async res => {
 			var cache = await DataCenter.get(Barn.dbName, 'data', url);
 			var lastUpdat = !!cache ? (cache.data.update || 0) : 0;
+			var back;
 			if (!forceUpdate) {
 				if (!!cache) {
 					res(cache.data);
@@ -122,6 +123,7 @@ window.Barn = {
 				}
 			}
 			else {
+				back = cache;
 				cache = null;
 			}
 
@@ -172,6 +174,9 @@ window.Barn = {
 
 						PageBroadcast.emit('source-updated', msg);
 					}
+				}
+				else if (forceUpdate) {
+					data = back;
 				}
 
 				let reqs = Barn.quests.get(url);
