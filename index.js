@@ -829,7 +829,7 @@ Schwarzschild.appendFile = async (filename, category, title, author, timestamp, 
 	// 准备目标路径
 	var useEncrypt = !!encrypt;
 	var categoryPath = Path.join(DataPath, Schwarzschild.config.database);
-	category = category.split(/[\\\/]+/).filter(c => c.length > 0);
+	category = category.split(/[\\\/,;\.]+/).filter(c => c.length > 0);
 	var target = Path.basename(filename);
 	if (useEncrypt) {
 		if (target.match(/\.md$/i)) {
